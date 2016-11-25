@@ -1,0 +1,11 @@
+# This .info.yml files provides the basic information about our module to Drupal
+# More: https://www.drupal.org/node/2000204
+name: 'Islandora Image Media'
+description: "Image Media for NonRdfResources"
+type: module
+package: islandora
+core: 8.x
+dependencies:
+  - media_entity
+  - image
+version: '8.x-1.x-dev'
