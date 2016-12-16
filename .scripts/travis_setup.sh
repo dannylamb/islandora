@@ -2,26 +2,15 @@
 mysql -u root -e 'create database drupal;'
 mysql -u root -e "GRANT ALL PRIVILEGES ON drupal.* To 'drupal'@'localhost' IDENTIFIED BY 'drupal';"
 
-# Java (Oracle)
-#sudo apt-get install -y software-properties-common
-#sudo apt-get install -y python-software-properties
-#sudo add-apt-repository -y ppa:webupd8team/java
-#sudo apt-get update
-#echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-#echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
-#sudo apt-get install -y oracle-java8-installer
-#sudo update-java-alternatives -s java-8-oracle
-#sudo apt-get install -y oracle-java8-set-default
-#export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-
-# phpcpd
-#sudo apt-get install -y phpcpd
-
 cd $HOME
 pear channel-discover pear.drush.org
 pear upgrade --force Console_GetoptPlus
 pear upgrade --force pear
 pear channel-discover pear.drush.org
+
+# ActiveMQ
+apt-get install activemq
+service activemq start
 
 # Drush
 cd /tmp
