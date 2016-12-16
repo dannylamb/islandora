@@ -19,12 +19,12 @@ addons:
   apt:
     packages:
     - activemq
-    - php-stomp 
 
 before_install:
   - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
 
 install:
+  - php -r "echo stomp_version() . PHP_EOL;"
   - $TRAVIS_BUILD_DIR/.scripts/travis_setup.sh
   - composer install
   - php vendor/bin/phpcs --config-set installed_paths vendor/drupal/coder/coder_sniffer
