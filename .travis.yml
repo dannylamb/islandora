@@ -25,6 +25,7 @@ before_install:
 
 install:
   - printf "no" | pecl install stomp 
+  - php -r "echo stomp_version() . PHP_EOL;"
   - $TRAVIS_BUILD_DIR/.scripts/travis_setup.sh
   - composer install
   - php vendor/bin/phpcs --config-set installed_paths vendor/drupal/coder/coder_sniffer
