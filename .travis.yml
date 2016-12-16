@@ -19,6 +19,7 @@ addons:
   apt:
     packages:
     - activemq
+    - php-stomp 
 
 before_install:
   - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
