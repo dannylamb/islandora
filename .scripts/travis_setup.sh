@@ -9,8 +9,8 @@ pear upgrade --force pear
 pear channel-discover pear.drush.org
 
 # ActiveMQ
-apt-get install activemq
-activemq & 
+apt-get -y install activemq
+service activemq start
 ps ax | grep activemq
 
 # Drush
