@@ -8,10 +8,6 @@ pear upgrade --force Console_GetoptPlus
 pear upgrade --force pear
 pear channel-discover pear.drush.org
 
-# ActiveMQ
-service activemq start
-ps ax | grep activemq
-
 # Drush
 cd /tmp
 php -r "readfile('https://s3.amazonaws.com/files.drush.org/drush.phar');" > drush
