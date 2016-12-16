@@ -10,7 +10,8 @@ pear channel-discover pear.drush.org
 
 # ActiveMQ
 apt-get install activemq
-service activemq start
+activemq & 
+ps ax | grep activemq
 
 # Drush
 cd /tmp
