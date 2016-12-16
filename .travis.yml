@@ -22,8 +22,6 @@ addons:
 
 before_install:
   - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
-  - service activemq start
-  - service activemq status
 
 install:
   - $TRAVIS_BUILD_DIR/.scripts/travis_setup.sh
