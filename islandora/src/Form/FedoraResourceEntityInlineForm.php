@@ -246,6 +246,7 @@ class FedoraResourceEntityInlineForm extends EntityInlineForm implements InlineF
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state of the parent form.
    */
+  // @codingStandardsIgnoreLine
   public static function submitCleanFormState(&$entity_form, FormStateInterface $form_state) {
     $info = \Drupal::entityTypeManager()->getDefinition($entity_form['#entity_type']);
     if (!$info->get('field_ui_base_route')) {
