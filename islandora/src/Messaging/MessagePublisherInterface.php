@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\islandora\Messaging;
+namespace Drupal\islandora\MessagePublisher;
 
 /**
  * Interface for interacting with messaging queues.
  */
-interface MessagingServiceInterface {
+interface MessagePublisherInterface {
 
   /**
    * Publish a message to a queue/topic.
@@ -16,9 +16,6 @@ interface MessagingServiceInterface {
    *   The message to publish.
    * @param array $headers
    *   Associative array of message headers. 
-   *
-   * @return bool
-   *   TRUE if successful.
    *
    * @throws \RuntimeException
    */

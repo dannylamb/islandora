@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\islandora\Messaging;
+namespace Drupal\islandora\MessagePublisher;
 
 use Drupal\Component\Uuid\UuidInterface;
 
 /**
- * STOMP implementation of MessagingServiceInterface. 
+ * STOMP implementation of MessagingPublisherInterface. 
  */
-class StompService implements MessagingServiceInterface {
+class MessagePublisher implements MessagePublisherInterface {
 
   /**
    * Url used to connect to the message broker.
@@ -21,19 +21,19 @@ class StompService implements MessagingServiceInterface {
    *
    * @var \Drupal\Component\Uuid\UuidInterface
    */
-  protected $uuidService;
+  protected $uuidGenerator;
 
   /**
-   * Constructs a new StompService.
+   * Constructs a new MessagePublisher.
    *
    * @param string $broker_url
    *   Url used to connect to message broker.
-   * @param \Drupal\Component\Uuid\UuidInterface $uuid_service
+   * @param \Drupal\Component\Uuid\UuidInterface $uuid_generator
    *   Service to generate UUID's for receipt headers.
    */
-  public __construct($broker_url, UuidInterface $uuid_service) {
+  public __construct($broker_url, UuidInterface $uuid_generator) {
     $this->brokerUrl = $broker_url;
-    $this->uuidService = $uuid_service;
+    $this->uuidGenerator = $uuid_generator;
   }
 
   /**
@@ -42,7 +42,7 @@ class StompService implements MessagingServiceInterface {
   public function publish($destination, $message, $headers = []) {
     try {
       // Obtain the connection to the broker.
-      $stomp = new Stomp($this->brokerUrl);
+      $stomp = new \Stomp($this->brokerUrl);
     }
     catch(StompException $e) {
       throw new \RuntimeException(
@@ -57,7 +57,7 @@ class StompService implements MessagingServiceInterface {
     // the message or timeout occurs.  Otherwise, the returned bool would
     // always be TRUE.
     if (!isset($headers['receipt'])) {
-      $headers['receipt'] = $this->uuidService->generate();
+      $headers['receipt'] = $this->uuidGenerator->generate();
     }
 
     $result = $stomp->send($destination, $message, $headers);
@@ -65,7 +65,12 @@ class StompService implements MessagingServiceInterface {
     // Close the connection to the broker.
     unset($stomp);
 
-    return $result;
+    if (!$result) {
+      throw new \RuntimeException(
+        "Failure publishing message to $destination",
+        500
+      );
+    }
   }
 
 }

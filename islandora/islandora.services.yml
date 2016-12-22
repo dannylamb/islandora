@@ -8,3 +8,7 @@ services:
     arguments: ['@entity.manager']
   islandora.eventgenerator:
     class: Drupal\islandora\EventGenerator\EventGenerator
+  islandora.messagepublisher:
+    class: Drupal\islandora\MessagePublisher\MessagePublisher
+    factory: Drupal\islandora\MessagePublisher\MessagePublisherFactory:create
+    arguments: ['@config.factory', '@uuid']
