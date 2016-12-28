@@ -19,7 +19,7 @@ abstract class EventGeneratorActionBase extends RulesActionBase implements Conta
   protected $eventGenerator;
 
   /**
-   * Constructs a MessageBroadcaster action.
+   * Constructs a EventGeneratorActionBase.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
