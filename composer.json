@@ -8,7 +8,9 @@
     "irc": "irc://irc.freenode.net/islandora"
   },
   "require": {
-    "stomp-php/stomp-php": "4.*"
+    "drupal/inline_entity_form": "^1.0@beta",
+    "drupal/rules": "^3.0@alpha",
+    "drupal/search_api": "^1.0@beta"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
