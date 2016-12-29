@@ -7,10 +7,21 @@
     "issues": "https://github.com/islandora-claw/CLAW/issues",
     "irc": "irc://irc.freenode.net/islandora"
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/dannylamb/claw-jsonld"
+    }
+  ],
   "require": {
     "drupal/inline_entity_form": "^1.0@beta",
     "drupal/rules": "^3.0@alpha",
-    "drupal/search_api": "^1.0@beta"
+    "drupal/search_api": "^1.0@beta",
+    "drupal/claw-jsonld": "dev-composer"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
