@@ -1,9 +1,0 @@
-langcode: en
-status: true
-dependencies:
-  enforced:
-    module:
-      - islandora_collection
-id: collection
-label: Collection
-description: 'Islandora Collection'
