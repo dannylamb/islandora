@@ -2,6 +2,7 @@
   "name": "islandora/islandora",
   "description": "Core Islandora module.",
   "type": "drupal-module",
+  "keywords": ["Drupal", "Islandora"],
   "homepage": "https://github.com/islandora-claw/islandora",
   "support": {
     "issues": "https://github.com/islandora-claw/CLAW/issues",
