@@ -29,7 +29,7 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'typed_data',
     'rules',
     'jsonld',
-    'islandora'
+    'islandora',
   ];
 
   /**
@@ -46,4 +46,3 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
   }
 
 }
-

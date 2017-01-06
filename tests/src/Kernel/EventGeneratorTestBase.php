@@ -3,7 +3,6 @@
 namespace Drupal\Tests\islandora\Kernel;
 
 use Drupal\islandora\Entity\FedoraResource;
-use Drupal\islandora\EventGenerator\EventGenerator;
 use Drupal\simpletest\UserCreationTrait;
 
 /**
@@ -45,7 +44,7 @@ abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
       "name" => "Test Fixture",
       "langcode" => "und",
       "status" => 1,
-    ]); 
+    ]);
     $this->entity->save();
   }
 

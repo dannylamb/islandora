@@ -2,10 +2,6 @@
 
 namespace Drupal\Tests\islandora\Kernel;
 
-use Drupal\islandora\Entity\FedoraResource;
-use Drupal\islandora\EventGenerator\EventGenerator;
-use Drupal\simpletest\UserCreationTrait;
-
 /**
  * Base class for testing EventGenerator functionality.
  */
@@ -31,7 +27,7 @@ abstract class EventGeneratorActionTestBase extends EventGeneratorTestBase {
   public function setUp() {
     parent::setUp();
 
-    // Get the action manager
+    // Get the action manager.
     $this->actionManager = $this->container->get('plugin.manager.rules_action');
   }
 

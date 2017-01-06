@@ -33,7 +33,7 @@ install:
 script:
   - $ISLANDORA_DIR/.scripts/line_endings.sh .
   - cd $HOME/drupal/modules/islandora
-  - php vendor/bin/phpcs --standard=Drupal **/*.module **/*.php --ignore=tests,vendor . 
+  - php vendor/bin/phpcs --standard=Drupal --extensions=module/php,php/php src tests
   - php vendor/bin/phpcpd --names *.module,*.inc,*.test,*.php --exclude=vendor .
   - cd $HOME/drupal; php core/scripts/run-tests.sh --php `which php` islandora
 

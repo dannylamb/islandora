@@ -3,7 +3,6 @@
 namespace Drupal\Tests\islandora\Kernel;
 
 use Drupal\islandora\Entity\FedoraResource;
-use Drupal\simpletest\UserCreationTrait;
 
 /**
  * Tests the basic behavior of a vector clock.
@@ -33,7 +32,7 @@ class VectorClockTest extends IslandoraKernelTestBase {
       "name" => "Test Fixture",
       "langcode" => "und",
       "status" => 1,
-    ]); 
+    ]);
     $this->entity->save();
 
   }
@@ -46,7 +45,7 @@ class VectorClockTest extends IslandoraKernelTestBase {
   public function testVectorClock() {
     // Check the vclock is set to 0 when a new entity is created.
     $this->assertTrue($this->entity->getVclock() == 0, "Vector clock must be initialized to zero.");
-    
+
     // Edit the entity.
     $this->entity->setName("Edited Test Fixture")->save();
 
