@@ -1,5 +1,5 @@
 {
-  "name": "drupal/islandora",
+  "name": "islandora/islandora",
   "description": "Core Islandora module.",
   "type": "drupal-module",
   "homepage": "https://github.com/islandora-claw/islandora",
@@ -14,14 +14,14 @@
     },
     {
       "type": "vcs",
-      "url": "https://github.com/dannylamb/claw-jsonld"
+      "url": "https://github.com/DiegoPino/claw-jsonld"
     }
   ],
   "require": {
     "drupal/inline_entity_form": "^1.0@beta",
     "drupal/rules": "^3.0@alpha",
     "drupal/search_api": "^1.0@beta",
-    "drupal/claw-jsonld": "dev-composer"
+    "drupal/claw-jsonld": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
