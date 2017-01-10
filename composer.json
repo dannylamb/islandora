@@ -1,6 +1,6 @@
 {
   "name": "islandora/islandora",
-  "description": "Core Islandora module.",
+  "description": "Core Islandora module",
   "type": "drupal-module",
   "keywords": ["Drupal", "Islandora"],
   "homepage": "https://github.com/islandora-claw/islandora",
@@ -15,7 +15,7 @@
     },
     {
       "type": "vcs",
-      "url": "https://github.com/DiegoPino/claw-jsonld"
+      "url": "https://github.com/Islandora-CLAW/claw-jsonld"
     }
   ],
   "require": {
