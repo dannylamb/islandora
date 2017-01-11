@@ -2,7 +2,6 @@
   "name": "islandora/islandora",
   "description": "Core Islandora module",
   "type": "drupal-module",
-  "minimum-stability": "dev",
   "keywords": ["Drupal", "Islandora"],
   "license": "GPL-2.0+",
   "homepage": "https://github.com/islandora-claw/islandora",
