@@ -5,6 +5,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "keywords": ["Drupal", "Islandora"],
+  "license": "GPL-2.0+",
   "homepage": "https://github.com/islandora-claw/islandora",
   "support": {
     "issues": "https://github.com/islandora-claw/CLAW/issues",
@@ -32,7 +33,6 @@
     "drupal/coder": "*",
     "sebastian/phpcpd": "*"
   },
-  "license": "GPL-2.0+",
   "authors": [
     {
       "name": "Islandora Foundation",
