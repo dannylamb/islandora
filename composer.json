@@ -20,7 +20,7 @@
     }
   ],
   "require": {
-    "drupal/inline_entity_form": "^1.0@beta",
+    "drupal/inline_entity_form": "1.x-dev",
     "drupal/rules": "^3.0@alpha",
     "drupal/search_api": "^1.0@beta",
     "drupal/claw-jsonld": "dev-master"
