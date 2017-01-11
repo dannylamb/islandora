@@ -2,6 +2,8 @@
   "name": "islandora/islandora",
   "description": "Core Islandora module",
   "type": "drupal-module",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "keywords": ["Drupal", "Islandora"],
   "homepage": "https://github.com/islandora-claw/islandora",
   "support": {
@@ -19,9 +21,9 @@
     }
   ],
   "require": {
-    "drupal/inline_entity_form": "@dev",
-    "drupal/rules": "@dev",
-    "drupal/search_api": "@dev",
+    "drupal/inline_entity_form": "^1.0@beta",
+    "drupal/rules": "^3.0@alpha",
+    "drupal/search_api": "^1.0@beta",
     "drupal/claw-jsonld": "dev-master"
   },
   "require-dev": {
