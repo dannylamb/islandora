@@ -8,6 +8,8 @@ dependencies:
   enforced:
     module:
       - islandora
+_core:
+  default_config_hash: 79mBUbR_0wDo3oT4vWjuFgGPic_hghVkQ0yiYMuxLns
 id: broadcast_delete_event
 label: 'Broadcast Delete Event'
 events:
@@ -40,17 +42,16 @@ expression:
         action_id: islandora_delete_event_generator
       -
         id: rules_action
-        uuid: bacf7f09-1d54-46f2-a4b9-e345992a604d
+        uuid: 53942d65-7567-4b6b-9b43-4d67079651f6
         context_values:
-          type: info
-          repeat: false
+          recipients:
+            - "activemq:queue:islandora-indexing-fcrepo\r"
+            - 'activemq:queue:islandora-indexing-triplestore'
         context_mapping:
           message: event_message
         context_processors:
-          type:
-            rules_tokens: {  }
-          repeat:
+          recipients:
             rules_tokens: {  }
         provides_mapping: {  }
-        action_id: rules_system_message
+        action_id: islandora_broadcast
 

@@ -8,6 +8,8 @@ dependencies:
   enforced:
     module:
       - islandora
+_core:
+  default_config_hash: XX87LaQzcIVbzZTzUR4HBgeZKCzKOMJzVCTJYgmg47k
 id: broadcast_update_event
 label: 'Broadcast Update Event'
 events:
@@ -40,17 +42,16 @@ expression:
         action_id: islandora_update_event_generator
       -
         id: rules_action
-        uuid: f77c64ef-c737-4143-89b4-e1b6599232b5
+        uuid: 40aa4a03-ad36-45bf-9584-ede3b9b3e5c9
         context_values:
-          type: info
-          repeat: false
+          recipients:
+            - "activemq:queue:islandora-indexing-fcrepo\r"
+            - 'activemq:queue:islandora-indexing-triplestore'
         context_mapping:
           message: event_message
         context_processors:
-          type:
-            rules_tokens: {  }
-          repeat:
+          recipients:
             rules_tokens: {  }
         provides_mapping: {  }
-        action_id: rules_system_message
+        action_id: islandora_broadcast
 
