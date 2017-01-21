@@ -13,7 +13,7 @@ use Stomp\StatefulStomp;
 class StompFactory {
 
   /**
-   * Factory function
+   * Factory function.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   Config.
@@ -21,7 +21,7 @@ class StompFactory {
    * @return \Stomp\StatefulStomp
    *   Stomp client.
    */
-  static function create(ConfigFactoryInterface $config) {
+  static public function create(ConfigFactoryInterface $config) {
     // Get broker url from config.
     $settings = $config->get(IslandoraSettingsForm::CONFIG_NAME);
     $brokerUrl = $settings->get(IslandoraSettingsForm::BROKER_URL);

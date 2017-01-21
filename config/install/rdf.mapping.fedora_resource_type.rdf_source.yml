@@ -1,11 +1,15 @@
+uuid: 77e9e71f-f67f-438f-80eb-bb5fa931a5ec
 langcode: en
 status: true
 dependencies:
+  enforced:
+    module:
+      - islandora
   config:
     - islandora.fedora_resource_type.rdf_source
-  module:
-    - islandora
-id: fedora_resource_type.rdf_source
+_core:
+  default_config_hash: SXB_6Qvx5WtM-zrkkgEOjok1YGMeyjn9Zsa7ymV2MbM
+id: fedora_resource.rdf_source
 targetEntityType: fedora_resource
 bundle: rdf_source
 types:
@@ -45,3 +49,4 @@ fieldMappings:
     properties:
       - 'ldp:contains'
     mapping_type: rel
+

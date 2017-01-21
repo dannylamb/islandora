@@ -10,9 +10,7 @@ use Drupal\simpletest\UserCreationTrait;
  */
 abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
 
-  use UserCreationTrait {
-    createUser as drupalCreateUser;
-  }
+  use UserCreationTrait;
 
   /**
    * User entity.
@@ -35,12 +33,12 @@ abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
     parent::setUp();
 
     // Create a test user.
-    $this->user = $this->drupalCreateUser();
+    $this->user = $this->createUser(['add fedora resource entities']);
 
     // Create a test entity.
     $this->entity = FedoraResource::create([
       "type" => "rdf_source",
-      "uid" => 1,
+      "uid" => $this->user->get('uid'),
       "name" => "Test Fixture",
       "langcode" => "und",
       "status" => 1,

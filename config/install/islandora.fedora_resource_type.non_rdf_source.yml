@@ -1,3 +1,11 @@
+uuid: 68d5a1cb-e493-4e9d-adad-21229a41ac68
 langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - islandora
+_core:
+  default_config_hash: KgkkNCMXV1urHhxyo7wuwYPWaEAnyLAXvwrRnZWDmtw
 id: non_rdf_source
 label: 'Non RDF Source'

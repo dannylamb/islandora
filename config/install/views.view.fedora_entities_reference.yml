@@ -1,9 +1,15 @@
+uuid: ec053572-be63-4209-a49a-16c09c9a3e73
 langcode: en
 status: true
 dependencies:
   module:
     - islandora
     - user
+  enforced:
+    module:
+      - islandora
+_core:
+  default_config_hash: UU-ZHb4xUJIu4JMAIGXvy0c93Y_xq4CPibq1qrgp098
 id: fedora_entities_reference
 label: 'Fedora Entities Reference'
 module: views
@@ -161,3 +167,4 @@ display:
         - 'languages:language_interface'
         - user.permissions
       tags: {  }
+

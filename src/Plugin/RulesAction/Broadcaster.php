@@ -2,7 +2,6 @@
 
 namespace Drupal\islandora\Plugin\RulesAction;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\islandora\Form\IslandoraSettingsForm;
 use Drupal\rules\Core\RulesActionBase;
@@ -80,7 +79,7 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
       $plugin_id,
       $plugin_definition,
       $broadcastQueue,
-      $container->get('islandora.stomp') 
+      $container->get('islandora.stomp')
     );
   }
 
@@ -88,7 +87,7 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
    * Sends a message to a broadcaster to get distributed.
    *
    * @param string $message
-   *   Message body to send
+   *   Message body to send.
    * @param array $recipients
    *   List of queues/topics to broadcast message to.
    */
@@ -99,7 +98,7 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
 
     // Transform message from string into a proper message object.
     $message = new Message($message, ['IslandoraBroadcastRecipients' => $recipients]);
- 
+
     // Send the message.
     try {
       $this->stomp->begin();
@@ -109,13 +108,13 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
     catch (StompException $e) {
       // Log it.
       \Drupal::logger('islandora')->error(
-        '@msg',
+        'Error publishing message: @msg',
         ['@msg' => $e->getMessage()]
       );
 
       // Notify user.
       drupal_set_message(
-        t('@msg',
+        t('Error publishing message: @msg',
           ['@msg' => $e->getMessage()]
         ),
         'error'

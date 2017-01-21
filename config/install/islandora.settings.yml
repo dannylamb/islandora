@@ -1,5 +1,6 @@
-broker_url: 'http://localhost:61613'
-broadcast_queue: 'islandora-connector-broadcast'
-triplestore_index_queue: '/islandora/triplestore/index'
+broker_url: 'tcp://localhost:61613'
 fedora_rest_endpoint: 'http://localhost:8080/fcrepo/rest'
-fedora_indexing_queue: 'islandora/indexing/fedora'
+_core:
+  default_config_hash: nDZDR2rrpXXQ-D_7BYrdDFAXYOsB5hgH6vCAMV5I3w8
+broadcast_queue: islandora-connector-broadcast
+

@@ -4,6 +4,9 @@ namespace Drupal\islandora\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Stomp\Client;
+use Stomp\Exception\StompException;
+use Stomp\StatefulStomp;
 
 /**
  * Config form for Islandora settings.
@@ -57,6 +60,35 @@ class IslandoraSettingsForm extends ConfigFormBase {
     );
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    // Validate broker url by actually connecting with a stomp client.
+    $brokerUrl = $form_state->getValue(self::BROKER_URL);
+
+    // Attempt to subscribe to a dummy queue.
+    try {
+      $stomp = new StatefulStomp(
+        new Client(
+          $brokerUrl
+        )
+      );
+      $stomp->subscribe('dummy-queue-for-validation');
+      $stomp->unsubscribe();
+    }
+    // Invalidate the form if there's an issue.
+    catch (StompException $e) {
+      $form_state->setErrorByName(
+        self::BROKER_URL,
+        $this->t(
+          'Cannot connect to message broker at @broker_url',
+          ['@broker_url' => $brokerUrl]
+        )
+      );
+    }
   }
 
   /**

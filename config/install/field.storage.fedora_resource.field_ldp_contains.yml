@@ -1,8 +1,12 @@
+uuid: d40c0b76-1a6d-4dd2-8f0b-2945e30d2832
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
+  enforced:
+    module:
+      - islandora
+_core:
+  default_config_hash: jkwDP8hekY3eWzIrEN4yinGftfXZlArUaz7PsiU6BcM
 id: fedora_resource.field_ldp_contains
 field_name: field_ldp_contains
 entity_type: fedora_resource

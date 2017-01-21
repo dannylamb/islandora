@@ -1,3 +1,11 @@
+uuid: af1cb3d8-2c1f-4ca1-a1c2-b1173704807f
 langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - islandora
+_core:
+  default_config_hash: 61Pa7qgwWd8HBTCgoxF3RxTsvCBcmHNhfg5k8FPqEpQ
 id: rdf_source
 label: 'RDF Source'

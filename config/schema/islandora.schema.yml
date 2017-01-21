@@ -1,0 +1,14 @@
+islandora.settings:
+  type: config_object
+  label: 'Islandora Core Settings'
+  mapping:
+    broker_url:
+      type: string 
+      label: 'Url to connect to message broker'
+    fedora_rest_endpoint:
+      type: string 
+      label: 'Url to Fedora instance'
+    broadcast_queue:
+      type: string 
+      label: 'Queue that handles distributing messages amongst multiple recipients'
+
