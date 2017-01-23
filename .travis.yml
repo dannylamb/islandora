@@ -15,27 +15,21 @@ branches:
   only:
     - /^8.x/
 
-addons:
-  apt:
-    packages:
-    - activemq
-
 before_install:
   - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
 
 install:
-  - printf "no" | pecl install stomp 
   - $TRAVIS_BUILD_DIR/.scripts/travis_setup.sh
   - composer install
   - php vendor/bin/phpcs --config-set installed_paths vendor/drupal/coder/coder_sniffer
-
+  - cd $HOME/drupal; composer require stomp-php/stomp-php:4.*
 
 script:
   - $ISLANDORA_DIR/.scripts/line_endings.sh .
   - cd $HOME/drupal/modules/islandora
   - php vendor/bin/phpcs --standard=Drupal --extensions=module/php,php/php src tests
   - php vendor/bin/phpcpd --names *.module,*.inc,*.test,*.php --exclude=vendor .
-  - cd $HOME/drupal; php core/scripts/run-tests.sh --php `which php` islandora
+  - cd $HOME/drupal; php core/scripts/run-tests.sh --verbose --php `which php` islandora
 
 notifications:
   irc:

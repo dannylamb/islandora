@@ -67,11 +67,12 @@ class BroadcasterTest extends IslandoraKernelTestBase {
     // Grab a legit stomp client, using values from config.
     $this->installConfig('islandora');
     $stomp = $this->container->get('islandora.stomp');
-    $action = $this->createBroadcaster($stomp);
 
-    // Execute the action.
+    // Create and execute the action.
+    $action = $this->createBroadcaster($stomp);
     $action->execute();
 
+    // Verify the message actually got sent.
     try {
       $stomp->subscribe($this->testQueue);
       $msg = $stomp->read();

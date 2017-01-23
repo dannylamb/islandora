@@ -65,11 +65,16 @@ drush en -y jsonld
 
 drush en -y islandora
 
-drush -y dl bootstrap
-drush -y en bootstrap
-drush -y config-set system.theme default bootstrap
-
 drush cr
+
+# ACTIVEMQ
+cd $HOME 
+wget "http://archive.apache.org/dist/activemq/5.14.3/apache-activemq-5.14.3-bin.tar.gz"
+tar -xzf apache-activemq-5.14.3-bin.tar.gz
+sudo sed -i 's|ACTIVEMQ_USER="activemq"|ACTIVEMQ_USER="travis"|' /etc/default/activemq
+apache-activemq-5.14.3/bin/activemq start
+
 # The shebang in this file is a bogeyman that is haunting the web test cases.
 rm /home/travis/.phpenv/rbenv.d/exec/hhvm-switcher.bash
+
 sleep 20
