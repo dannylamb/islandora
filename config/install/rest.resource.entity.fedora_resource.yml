@@ -1,0 +1,26 @@
+uuid: f29f59d6-ed21-46cf-84e2-42141255b0de
+langcode: en
+status: true
+dependencies:
+  module:
+    - basic_auth
+    - islandora
+    - jsonld
+    - serialization
+    - user
+  enforced:
+    module:
+      - islandora
+id: entity.fedora_resource
+plugin_id: 'entity:fedora_resource'
+granularity: method
+configuration:
+  GET:
+    supported_formats:
+      - jsonld
+      - json
+      - xml
+    supported_auth:
+      - basic_auth
+      - cookie
+
