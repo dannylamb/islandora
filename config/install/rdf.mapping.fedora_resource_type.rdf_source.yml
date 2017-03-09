@@ -34,9 +34,6 @@ fieldMappings:
   rdf_type:
     properties:
       - 'rdf:type'
-  vclock:
-    properties:
-      - 'islandora:vclock'
   user_id:
     properties:
       - 'schema:author'
