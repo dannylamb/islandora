@@ -40,24 +40,24 @@ class IslandoraSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config(self::CONFIG_NAME);
 
-    $form[self::BROKER_URL] = array(
+    $form[self::BROKER_URL] = [
       '#type' => 'textfield',
       '#title' => $this->t('Broker URL'),
       '#default_value' => $config->get(self::BROKER_URL),
-    );
+    ];
 
-    $form[self::BROADCAST_QUEUE] = array(
+    $form[self::BROADCAST_QUEUE] = [
       '#type' => 'textfield',
       '#title' => $this->t('Broadcast Queue'),
       '#default_value' => $config->get(self::BROADCAST_QUEUE),
-    );
+    ];
 
-    $form[self::FEDORA_REST_ENDPOINT] = array(
+    $form[self::FEDORA_REST_ENDPOINT] = [
       '#type' => 'textfield',
       '#title' => $this->t('Fedora REST Endpoint'),
       '#description' => $this->t('The URL for your Fedora instance.'),
       '#default_value' => $config->get(self::FEDORA_REST_ENDPOINT),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

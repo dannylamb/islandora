@@ -52,20 +52,20 @@ function template_preprocess_fedora_resource(array &$variables) {
  * @see block_content_add_page()
  */
 function template_preprocess_fedora_resource_content_add_list(array &$variables) {
-  $variables['types'] = array();
+  $variables['types'] = [];
   $query = \Drupal::request()->query->all();
   foreach ($variables['content'] as $type) {
-    $variables['types'][$type->id()] = array(
-      'link' => Link::fromTextAndUrl($type->label(), new Url('entity.fedora_resource.add_form', array(
+    $variables['types'][$type->id()] = [
+      'link' => Link::fromTextAndUrl($type->label(), new Url('entity.fedora_resource.add_form', [
         'fedora_resource_type' => $type->id(),
-      ), array('query' => $query))),
-      'description' => array(
+      ], ['query' => $query])),
+      'description' => [
         '#markup' => $type->label(),
-      ),
+      ],
       'title' => $type->label(),
-      'localized_options' => array(
+      'localized_options' => [
         'query' => $query,
-      ),
-    );
+      ],
+    ];
   }
 }

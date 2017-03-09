@@ -98,4 +98,5 @@ class VersionCounterTest extends IslandoraKernelTestBase {
       "Version counter db record must be deleted on entity delete."
     );
   }
+
 }

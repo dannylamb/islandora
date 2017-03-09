@@ -73,14 +73,14 @@ class FedoraResourceAddController extends ControllerBase {
       return $this->addForm($type, $request);
     }
     if (count($types) === 0) {
-      return array(
+      return [
         '#markup' => $this->t('You have not created any %bundle types yet. @link to add a new type.', [
           '%bundle' => 'Fedora resource',
           '@link' => $this->l($this->t('Go to the type creation page'), Url::fromRoute('entity.fedora_resource_type.add_form')),
         ]),
-      );
+      ];
     }
-    return array('#theme' => 'fedora_resource_content_add_list', '#content' => $types);
+    return ['#theme' => 'fedora_resource_content_add_list', '#content' => $types];
   }
 
   /**
@@ -95,9 +95,9 @@ class FedoraResourceAddController extends ControllerBase {
    *   A form array as expected by drupal_render().
    */
   public function addForm(EntityInterface $fedora_resource_type, Request $request) {
-    $entity = $this->storage->create(array(
+    $entity = $this->storage->create([
       'type' => $fedora_resource_type->id(),
-    ));
+    ]);
     return $this->entityFormBuilder()->getForm($entity);
   }
 
@@ -112,7 +112,7 @@ class FedoraResourceAddController extends ControllerBase {
    */
   public function getAddFormTitle(EntityInterface $fedora_resource_type) {
     return t('Create of bundle @label',
-    array('@label' => $fedora_resource_type->label())
+    ['@label' => $fedora_resource_type->label()]
     );
   }
 

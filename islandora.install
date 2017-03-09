@@ -5,6 +5,9 @@
  * Install/update hook implementations.
  */
 
+/**
+ * Implements hook_schema().
+ */
 function islandora_schema() {
   $schema = [];
   $schema['islandora_version_count'] = [

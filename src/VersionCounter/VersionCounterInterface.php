@@ -2,55 +2,58 @@
 
 namespace Drupal\islandora\VersionCounter;
 
+/**
+ * Service for tracking the number of times an entity has been updated.
+ */
 interface VersionCounterInterface {
 
   /**
    * Creates a version count record in the db for an entity.
    *
-   * @param $uuid
+   * @param string $uuid
    *   Entity UUID.
    *
    * @throws Drupal\Core\Database\IntegrityConstraintViolationException
    *
-   * @return integer
+   * @return int
    *   The id of the newly created db record.
    */
-  function create($uuid);
+  public function create($uuid);
 
   /**
    * Returns the version count for an entity.
    *
-   * @param $uuid
+   * @param string $uuid
    *   Entity UUID.
    *
-   * @return integer
+   * @return int
    *   The version count of the entity. Returns -1 if there is no record for the
    *   uuid in the database.
    */
-  function get($uuid);
+  public function get($uuid);
 
   /**
    * Increments a version count for an entity.
    *
-   * @param $uuid
+   * @param string $uuid
    *   Entity UUID.
    *
-   * @return integer
+   * @return int
    *   Returns 1 on success.  Returns 0 if no record exists for the uuid in the
    *   database.
    */
-  function increment($uuid);
+  public function increment($uuid);
 
   /**
    * Deletes a version count record in the db for an entity.
    *
-   * @param $uuid
+   * @param string $uuid
    *   Entity UUID.
    *
-   * @return integer
+   * @return int
    *   Returns 1 on success.  Returns 0 if no record exists for the uuid in the
    *   database.
    */
-  function delete($uuid);
+  public function delete($uuid);
 
 }

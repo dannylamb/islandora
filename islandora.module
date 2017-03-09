@@ -14,6 +14,7 @@
  * @author Diego Pino Navarro <dpino@metro.org> https://github.com/diegopino
  */
 
+use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
@@ -55,7 +56,7 @@ function islandora_theme() {
  * Implements hook_theme_suggestions_HOOK().
  */
 function islandora_theme_suggestions_fedora_resource(array $variables) {
-  $suggestions = array();
+  $suggestions = [];
   $entity = $variables['elements']['#fedora_resource'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
@@ -72,7 +73,7 @@ function islandora_theme_suggestions_fedora_resource(array $variables) {
  */
 function islandora_rdf_namespaces() {
   // Yes, it's amazing, rdf is not registered by default!
-  return array(
+  return [
     'ldp'  => 'http://www.w3.org/ns/ldp#',
     'dc11' => 'http://purl.org/dc/elements/1.1/',
     'nfo' => 'http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/v1.1/',
@@ -83,7 +84,7 @@ function islandora_rdf_namespaces() {
     'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
     'islandora' => 'http://islandora.ca/CLAW/',
     'pcdm' => 'http://pcdm.org/models#',
-  );
+  ];
 }
 
 /**
@@ -95,9 +96,9 @@ function islandora_fedora_resource_insert(EntityInterface $entity) {
   try {
     $versionCounter->create($entity->uuid());
   }
-  catch (\Drupal\Core\Database\IntegrityConstraintViolationException $e) {
+  catch (IntegrityConstraintViolationException $e) {
     \Drupal::logger('islandora')->error(
-      'Attempted to create duplicate entry for @uuid in version counter ' +
+      'Attempted to create duplicate entry for @uuid in version counter ' .
       'table. This should never happen.',
       ['@uuid' => $entity->uuid()]
     );

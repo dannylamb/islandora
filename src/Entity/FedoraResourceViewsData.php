@@ -16,11 +16,11 @@ class FedoraResourceViewsData extends EntityViewsData implements EntityViewsData
   public function getViewsData() {
     $data = parent::getViewsData();
 
-    $data['fedora_resource']['table']['base'] = array(
+    $data['fedora_resource']['table']['base'] = [
       'field' => 'id',
       'title' => $this->t('Fedora resource'),
       'help' => $this->t('The Fedora resource ID.'),
-    );
+    ];
 
     $data['fedora_resource_field_data']['table']['wizard_id'] = 'fedora_resource';
     $data['fedora_resource_field_revision']['table']['wizard_id'] = 'fedora_resource_revision';

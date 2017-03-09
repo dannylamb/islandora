@@ -141,11 +141,11 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
    *
    * @var array
    */
-  protected $advanced = array(
-    'name' => array(
+  protected $advanced = [
+    'name' => [
       'column' => 'c.name',
-    ),
-  );
+    ],
+  ];
 
   /**
    * A constant for setting and checking the query string.
@@ -246,7 +246,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
       }
     }
 
-    return array();
+    return [];
   }
 
   /**
@@ -265,7 +265,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
 
     // Build matching conditions.
     $query = $this->database
-      ->select('search_index', 'i', array('target' => 'replica'))
+      ->select('search_index', 'i', ['target' => 'replica'])
       ->extend('Drupal\search\SearchQuery')
       ->extend('Drupal\Core\Database\Query\PagerSelectExtender');
 
@@ -294,7 +294,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     $parameters = $this->getParameters();
     if (!empty($parameters['f']) && is_array($parameters['f'])) {
       // @todo This loop should probably be moved to a helper function.
-      $filters = array();
+      $filters = [];
       // Match any query value that is an expected option and a value
       // separated by ':' like 'first_name:Jane'.
       $pattern = '/^(' . implode('|', array_keys($this->advanced)) . '):([^ ]*)/i';
@@ -330,7 +330,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     $find = $query
       // Add the language code of the indexed item to the result of the query,
       // since the entity will be rendered using the respective language.
-      ->fields('i', array('langcode'))
+      ->fields('i', ['langcode'])
       // And since SearchQuery makes these into GROUP BY queries, if we add
       // a field, for PostgreSQL we also need to make it an aggregate or a
       // GROUP BY. In this case, we want GROUP BY.
@@ -342,7 +342,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     $status = $query->getStatus();
 
     if ($status & SearchQuery::EXPRESSIONS_IGNORED) {
-      drupal_set_message($this->t('Your search used too many AND/OR expressions. Only the first @count terms were included in this search.', array('@count' => $this->searchSettings->get('and_or_limit'))), 'warning');
+      drupal_set_message($this->t('Your search used too many AND/OR expressions. Only the first @count terms were included in this search.', ['@count' => $this->searchSettings->get('and_or_limit')]), 'warning');
     }
 
     if ($status & SearchQuery::LOWER_CASE_OR) {
@@ -366,7 +366,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
    *   Array of search result item render arrays (empty array if no results).
    */
   protected function prepareResults(StatementInterface $found) {
-    $results = array();
+    $results = [];
 
     // 'fedora_resource' comes from the entity type id declared
     // in the annotation for \Drupal\islandora\Entity\FedoraResource.
@@ -395,13 +395,13 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
 
       $language = $this->languageManager->getLanguage($item->langcode);
 
-      $result = array(
+      $result = [
         'link' => $entity->url(
             'canonical',
-            array(
+            [
               'absolute' => TRUE,
               'language' => $language,
-            )
+            ]
         ),
         'type' => 'Fedora Resource',
         'title' => $entity->label(),
@@ -410,7 +410,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
         'score' => $item->calculated_score,
         'snippet' => search_excerpt($keys, $rendered, $item->langcode),
         'langcode' => $entity->language()->getId(),
-      );
+      ];
 
       $this->addCacheableDependency($entity);
 
@@ -473,7 +473,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
           if (isset($values['join']) && !isset($tables[$values['join']['alias']])) {
             $query->addJoin($values['join']['type'], $values['join']['table'], $values['join']['alias'], $values['join']['on']);
           }
-          $arguments = isset($values['arguments']) ? $values['arguments'] : array();
+          $arguments = isset($values['arguments']) ? $values['arguments'] : [];
           $query->addScore($values['score'], $arguments, $entity_rank);
         }
       }
@@ -488,7 +488,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     // index per cron run.
     $limit = (int) $this->searchSettings->get('index.cron_limit');
 
-    $result = $this->database->queryRange("SELECT c.id, MAX(sd.reindex) FROM {fedora_resource} c LEFT JOIN {search_dataset} sd ON sd.sid = c.id AND sd.type = :type WHERE sd.sid IS NULL OR sd.reindex <> 0 GROUP BY c.id ORDER BY MAX(sd.reindex) is null DESC, MAX(sd.reindex) ASC, c.id ASC", 0, $limit, array(':type' => $this->getPluginId()), array('target' => 'replica'));
+    $result = $this->database->queryRange("SELECT c.id, MAX(sd.reindex) FROM {fedora_resource} c LEFT JOIN {search_dataset} sd ON sd.sid = c.id AND sd.type = :type WHERE sd.sid IS NULL OR sd.reindex <> 0 GROUP BY c.id ORDER BY MAX(sd.reindex) is null DESC, MAX(sd.reindex) ASC, c.id ASC", 0, $limit, [':type' => $this->getPluginId()], ['target' => 'replica']);
 
     $rids = $result->fetchCol();
     if (!$rids) {
@@ -569,9 +569,9 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
   public function indexStatus() {
 
     $total = $this->database->query('SELECT COUNT(*) FROM {fedora_resource}')->fetchField();
-    $remaining = $this->database->query("SELECT COUNT(DISTINCT c.id) FROM {contact} c LEFT JOIN {search_dataset} sd ON sd.sid = c.id AND sd.type = :type WHERE sd.sid IS NULL OR sd.reindex <> 0", array(':type' => $this->getPluginId()))->fetchField();
+    $remaining = $this->database->query("SELECT COUNT(DISTINCT c.id) FROM {contact} c LEFT JOIN {search_dataset} sd ON sd.sid = c.id AND sd.type = :type WHERE sd.sid IS NULL OR sd.reindex <> 0", [':type' => $this->getPluginId()])->fetchField();
 
-    return array('remaining' => $remaining, 'total' => $total);
+    return ['remaining' => $remaining, 'total' => $total];
   }
 
   /**
@@ -582,77 +582,77 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     $keys = $this->getKeywords();
     $used_advanced = !empty($parameters[self::ADVANCED_FORM]);
     if ($used_advanced) {
-      $f = isset($parameters['f']) ? (array) $parameters['f'] : array();
+      $f = isset($parameters['f']) ? (array) $parameters['f'] : [];
       $defaults = $this->parseAdvancedDefaults($f, $keys);
     }
     else {
-      $defaults = array('keys' => $keys);
+      $defaults = ['keys' => $keys];
     }
 
     $form['basic']['keys']['#default_value'] = $defaults['keys'];
 
     // Add advanced search keyword-related boxes.
-    $form['advanced'] = array(
+    $form['advanced'] = [
       '#type' => 'details',
       '#title' => t('Advanced search'),
-      '#attributes' => array('class' => array('search-advanced')),
+      '#attributes' => ['class' => ['search-advanced']],
       '#access' => $this->account && $this->account->hasPermission('use advanced search'),
       '#open' => $used_advanced,
-    );
-    $form['advanced']['keywords-fieldset'] = array(
+    ];
+    $form['advanced']['keywords-fieldset'] = [
       '#type' => 'fieldset',
       '#title' => t('Keywords'),
-    );
+    ];
 
-    $form['advanced']['keywords-fieldset']['keywords']['or'] = array(
+    $form['advanced']['keywords-fieldset']['keywords']['or'] = [
       '#type' => 'textfield',
       '#title' => t('Containing any of the words'),
       '#size' => 30,
       '#maxlength' => 255,
       '#default_value' => isset($defaults['or']) ? $defaults['or'] : '',
-    );
+    ];
 
-    $form['advanced']['keywords-fieldset']['keywords']['phrase'] = array(
+    $form['advanced']['keywords-fieldset']['keywords']['phrase'] = [
       '#type' => 'textfield',
       '#title' => t('Containing the phrase'),
       '#size' => 30,
       '#maxlength' => 255,
       '#default_value' => isset($defaults['phrase']) ? $defaults['phrase'] : '',
-    );
+    ];
 
-    $form['advanced']['keywords-fieldset']['keywords']['negative'] = array(
+    $form['advanced']['keywords-fieldset']['keywords']['negative'] = [
       '#type' => 'textfield',
       '#title' => t('Containing none of the words'),
       '#size' => 30,
       '#maxlength' => 255,
       '#default_value' => isset($defaults['negative']) ? $defaults['negative'] : '',
-    );
+    ];
 
-    $form['advanced']['misc-fieldset'] = array(
+    $form['advanced']['misc-fieldset'] = [
       '#type' => 'fieldset',
-    );
+    ];
 
     // \Drupal\search\SearchQuery requires that there be valid keywords
     // submitted in the standard fields.
-    $form['advanced']['misc-fieldset']['note'] = array(
+    $form['advanced']['misc-fieldset']['note'] = [
       '#markup' => t('You must still enter keyword(s) above when using these fields.'),
       '#weight' => -10,
-    );
+    ];
 
-    $form['advanced']['misc-fieldset']['name'] = array(
+    $form['advanced']['misc-fieldset']['name'] = [
       '#type' => 'textfield',
       '#title' => t('Name'),
-      '#description' => t('Search %field field for exact matches.', array('%field' => 'Name')),
-      '#default_value' => isset($defaults['name']) ? $defaults['name'] : array(),
-    );
+      '#description' => t('Search %field field for exact matches.', ['%field' => 'Name']),
+      '#default_value' => isset($defaults['name']) ? $defaults['name'] : [],
+    ];
 
-    $form['advanced']['submit'] = array(
+    $form['advanced']['submit'] = [
       '#type' => 'submit',
       '#value' => t('Advanced search'),
       '#prefix' => '',
       '#suffix' => '',
       '#weight' => 100,
-    );
+    ];
   }
 
   /**
@@ -665,7 +665,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     $advanced = FALSE;
 
     // Collect extra filters.
-    $filters = array();
+    $filters = [];
 
     // Advanced form, custom_content_entity_example_contact fields.
     if ($form_state->hasValue('name') && !empty(($value = trim($form_state->getValue('name'))))) {
@@ -695,7 +695,7 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
     // Put the keywords and advanced parameters into GET parameters. Make sure
     // to put keywords into the query even if it is empty, because the page
     // controller uses that to decide it's time to check for search results.
-    $query = array('keys' => $keys);
+    $query = ['keys' => $keys];
     if ($filters) {
       $query['f'] = $filters;
     }
@@ -722,20 +722,20 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
    *   a modified 'keys' element for the bare search keywords.
    */
   protected function parseAdvancedDefaults(array $f, $keys) {
-    $defaults = array();
+    $defaults = [];
 
     // Split out the advanced search parameters.
     foreach ($f as $advanced) {
       list($key, $value) = explode(':', $advanced, 2);
       if (!isset($defaults[$key])) {
-        $defaults[$key] = array();
+        $defaults[$key] = [];
       }
       $defaults[$key][] = $value;
     }
 
     // Split out the negative, phrase, and OR parts of keywords.
     // For phrases, the form only supports one phrase.
-    $matches = array();
+    $matches = [];
     $keys = ' ' . $keys . ' ';
     if (preg_match('/ "([^"]+)" /', $keys, $matches)) {
       $keys = str_replace($matches[0], ' ', $keys);
@@ -778,9 +778,9 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    $configuration = array(
-      'rankings' => array(),
-    );
+    $configuration = [
+      'rankings' => [],
+    ];
     return $configuration;
   }
 
@@ -789,34 +789,34 @@ class FedoraResourceSearch extends ConfigurableSearchPluginBase implements Acces
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     // Output form for defining rank factor weights.
-    $form['content_ranking'] = array(
+    $form['content_ranking'] = [
       '#type' => 'details',
       '#title' => t('Content ranking'),
       '#open' => TRUE,
-    );
-    $form['content_ranking']['info'] = array(
+    ];
+    $form['content_ranking']['info'] = [
       '#markup' => '' . $this->t('Influence is a numeric multiplier used in ordering search results. A higher number means the corresponding factor has more influence on search results; zero means the factor is ignored. Changing these numbers does not require the search index to be rebuilt. Changes take effect immediately.') . '',
-    );
+    ];
     // Prepare table.
     $header = [$this->t('Factor'), $this->t('Influence')];
-    $form['content_ranking']['rankings'] = array(
+    $form['content_ranking']['rankings'] = [
       '#type' => 'table',
       '#header' => $header,
-    );
+    ];
 
     // Note: reversed to reflect that higher number = higher ranking.
     $range = range(0, 10);
     $options = array_combine($range, $range);
     foreach ($this->getRankings() as $var => $values) {
-      $form['content_ranking']['rankings'][$var]['name'] = array(
+      $form['content_ranking']['rankings'][$var]['name'] = [
         '#markup' => $values['title'],
-      );
-      $form['content_ranking']['rankings'][$var]['value'] = array(
+      ];
+      $form['content_ranking']['rankings'][$var]['value'] = [
         '#type' => 'select',
         '#options' => $options,
         '#attributes' => ['aria-label' => $this->t("Influence of '@title'", ['@title' => $values['title']])],
         '#default_value' => isset($this->configuration['rankings'][$var]) ? $this->configuration['rankings'][$var] : 0,
-      );
+      ];
     }
     return $form;
   }

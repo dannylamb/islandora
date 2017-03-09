@@ -4,16 +4,25 @@ namespace Drupal\islandora\VersionCounter;
 
 use Drupal\Core\Database\Connection;
 
+/**
+ * Default VersionCounterInterface implemenation.
+ *
+ * Uses the drupal database.
+ */
 class VersionCounter implements VersionCounterInterface {
 
   /**
+   * Database connection.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
    * VersionCounter constructor.
+   *
    * @param \Drupal\Core\Database\Connection $database
+   *   Database connection.
    */
   public function __construct(Connection $database) {
     $this->database = $database;
@@ -65,4 +74,5 @@ class VersionCounter implements VersionCounterInterface {
       ->condition('uuid', $uuid)
       ->execute();
   }
+
 }

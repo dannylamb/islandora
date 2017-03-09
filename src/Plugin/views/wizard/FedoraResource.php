@@ -35,9 +35,9 @@ class FedoraResource extends WizardPluginBase {
    */
   public function getAvailableSorts() {
     // You can't execute functions in properties, so override the method.
-    return array(
+    return [
       'fedora_resource_field_data-name:ASC' => $this->t('Name'),
-    );
+    ];
   }
 
   /**
@@ -83,8 +83,8 @@ class FedoraResource extends WizardPluginBase {
    */
   protected function pageDisplayOptions(array $form, FormStateInterface $form_state) {
     $display_options = parent::pageDisplayOptions($form, $form_state);
-    $row_plugin = $form_state->getValue(array('page', 'style', 'row_plugin'));
-    $row_options = $form_state->getValue(array('page', 'style', 'row_options'), array());
+    $row_plugin = $form_state->getValue(['page', 'style', 'row_plugin']);
+    $row_options = $form_state->getValue(['page', 'style', 'row_options'], []);
     $this->display_options_row($display_options, $row_plugin, $row_options);
     return $display_options;
   }
@@ -94,8 +94,8 @@ class FedoraResource extends WizardPluginBase {
    */
   protected function blockDisplayOptions(array $form, FormStateInterface $form_state) {
     $display_options = parent::blockDisplayOptions($form, $form_state);
-    $row_plugin = $form_state->getValue(array('block', 'style', 'row_plugin'));
-    $row_options = $form_state->getValue(array('block', 'style', 'row_options'), array());
+    $row_plugin = $form_state->getValue(['block', 'style', 'row_plugin']);
+    $row_options = $form_state->getValue(['block', 'style', 'row_options'], []);
     $this->displayOptionsRow($display_options, $row_plugin, $row_options);
     return $display_options;
   }
