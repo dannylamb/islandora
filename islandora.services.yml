@@ -18,3 +18,6 @@ services:
     arguments: ['@entity_type.manager', '@current_user']
     tags:
       - { name: event_subscriber }
+  islandora.versioncounter:
+    class: Drupal\islandora\VersionCounter\VersionCounter
+    arguments: ['@database']

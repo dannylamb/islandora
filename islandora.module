@@ -14,6 +14,7 @@
  * @author Diego Pino Navarro <dpino@metro.org> https://github.com/diegopino
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -83,4 +84,40 @@ function islandora_rdf_namespaces() {
     'islandora' => 'http://islandora.ca/CLAW/',
     'pcdm' => 'http://pcdm.org/models#',
   );
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function islandora_fedora_resource_insert(EntityInterface $entity) {
+  // Creates a record in the db to track the number of changes to the entity.
+  $versionCounter = \Drupal::service('islandora.versioncounter');
+  try {
+    $versionCounter->create($entity->uuid());
+  }
+  catch (\Drupal\Core\Database\IntegrityConstraintViolationException $e) {
+    \Drupal::logger('islandora')->error(
+      'Attempted to create duplicate entry for @uuid in version counter ' +
+      'table. This should never happen.',
+      ['@uuid' => $entity->uuid()]
+    );
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function islandora_fedora_resource_update(EntityInterface $entity) {
+  // Increments the number of changes to the entity.
+  $versionCounter = \Drupal::service('islandora.versioncounter');
+  $versionCounter->increment($entity->uuid());
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function islandora_fedora_resource_delete(EntityInterface $entity) {
+  // Deletes the record in the db to track the number of changes to the entity.
+  $versionCounter = \Drupal::service('islandora.versioncounter');
+  $versionCounter->delete($entity->uuid());
 }
