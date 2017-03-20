@@ -118,17 +118,17 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
 
     // Include a token for later authentication in the message.
     $token = $this->auth->generateToken();
-    if ($token !== NULL) {
-      $headers['Authorization'] = "Bearer $token";
-    }
-    else {
+    if (empty($token)) {
       // JWT isn't properly configured. Log and notify user.
       \Drupal::logger('islandora')->error(
-        'Error getting JWT token for message: @msg', ['@msg' => $e->getMessage()]
+        'Error getting JWT token for message: @msg', ['@msg' => $message]
       );
       drupal_set_message(
         t('Error getting JWT token for message. Check JWT Configuration.'), 'error'
       );
+    }
+    else {
+      $headers['Authorization'] = "Bearer $token";
     }
 
     // Transform message from string into a proper message object.
