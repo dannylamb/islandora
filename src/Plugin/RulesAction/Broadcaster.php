@@ -126,10 +126,10 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
       drupal_set_message(
         t('Error getting JWT token for message. Check JWT Configuration.'), 'error'
       );
+      return;
     }
-    else {
-      $headers['Authorization'] = "Bearer $token";
-    }
+
+    $headers['Authorization'] = "Bearer $token";
 
     // Transform message from string into a proper message object.
     $message = new Message($message, $headers);
