@@ -16,3 +16,4 @@ dependencies:
   - rules
   - search_api
   - jwt
+  - media_entity
