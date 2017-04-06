@@ -5,6 +5,7 @@ namespace Drupal\Tests\islandora\Kernel;
 use Stomp\Exception\StompException;
 use Stomp\StatefulStomp;
 use Drupal\islandora\Plugin\RulesAction\Broadcaster;
+use Drupal\jwt\Authentication\Provider\JwtAuth;
 
 /**
  * Broadcaster tests.
@@ -87,6 +88,10 @@ class BroadcasterTest extends IslandoraKernelTestBase {
         strcmp($headers['IslandoraBroadcastRecipients'], 'activemq:queue:foo,activemq:queue:bar') == 0,
         "IslandoraBroadcastRecipients header must be a comma separated list of endpoints"
       );
+      $this->assertTrue(
+        strcmp($headers['Authorization'], 'some_token') == 0,
+        "Authorization header must be set"
+      );
       $stomp->unsubscribe();
     }
     catch (StompException $e) {
@@ -106,9 +111,13 @@ class BroadcasterTest extends IslandoraKernelTestBase {
   protected function createBroadcaster(StatefulStomp $stomp) {
     // Pull the plugin definition out of the plugin system.
     $actionManager = $this->container->get('plugin.manager.rules_action');
-    $jwt = $this->container->get('jwt.authentication.jwt');
     $definitions = $actionManager->getDefinitions();
     $pluginDefinition = $definitions['islandora_broadcast'];
+
+    // Mock a JWT generator
+    $prophecy = $this->prophesize(JwtAuth::class);
+    $prophecy->generateToken()->willReturn("some_token");
+    $jwt = $prophecy->reveal();
 
     $action = new Broadcaster(
       [],
