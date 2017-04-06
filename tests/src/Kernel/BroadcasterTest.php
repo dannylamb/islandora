@@ -114,7 +114,7 @@ class BroadcasterTest extends IslandoraKernelTestBase {
     $definitions = $actionManager->getDefinitions();
     $pluginDefinition = $definitions['islandora_broadcast'];
 
-    // Mock a JWT generator
+    // Mock a JWT generator.
     $prophecy = $this->prophesize(JwtAuth::class);
     $prophecy->generateToken()->willReturn("some_token");
     $jwt = $prophecy->reveal();
