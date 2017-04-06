@@ -89,7 +89,7 @@ class BroadcasterTest extends IslandoraKernelTestBase {
         "IslandoraBroadcastRecipients header must be a comma separated list of endpoints"
       );
       $this->assertTrue(
-        strcmp($headers['Authorization'], 'some_token') == 0,
+        strcmp($headers['Authorization'], 'Bearer some_token') == 0,
         "Authorization header must be set"
       );
       $stomp->unsubscribe();
