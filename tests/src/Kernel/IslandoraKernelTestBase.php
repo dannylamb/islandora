@@ -32,6 +32,11 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'views',
     'key',
     'jwt',
+    'file',
+    'entity',
+    'image',
+    'media_entity',
+    'media_entity_image',
     'islandora',
   ];
 
