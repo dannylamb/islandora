@@ -120,7 +120,6 @@ class Broadcaster extends RulesActionBase implements ContainerFactoryPluginInter
     $token = $this->auth->generateToken();
     if ($token !== NULL) {
       $headers['Authorization'] = "Bearer $token";
-      dsm($headers['Authorization'], "TOKEN");
     }
     else {
       // JWT isn't properly configured. Log and notify user.
