@@ -21,7 +21,7 @@
     "islandora/claw-jsonld": "dev-8.x-1.x",
     "stomp-php/stomp-php": "4.*",
     "drupal/jwt": "1.0.0-alpha6",
-    "drupal/media_entity_image": "^1.6"
+    "drupal/media_entity_image": "^1.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
