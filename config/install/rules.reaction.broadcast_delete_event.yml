@@ -45,7 +45,7 @@ expression:
         uuid: 53942d65-7567-4b6b-9b43-4d67079651f6
         context_values:
           recipients:
-            - "activemq:queue:islandora-indexing-fcrepo\r"
+            - "activemq:queue:islandora-indexing-fcrepo-delete\r"
             - 'activemq:queue:islandora-indexing-triplestore'
         context_mapping:
           message: event_message
