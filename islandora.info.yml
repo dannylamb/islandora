@@ -17,3 +17,4 @@ dependencies:
   - search_api
   - jwt
   - media_entity_image
+  - rest 
