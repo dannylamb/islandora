@@ -1,21 +1,22 @@
-uuid: d40c0b76-1a6d-4dd2-8f0b-2945e30d2832
+uuid: 70d43fa1-2c63-42a7-86ca-9ccaa1d0ac6d
 langcode: en
 status: true
 dependencies:
+  module:
+    - islandora
+    - media_entity
   enforced:
     module:
       - islandora
-_core:
-  default_config_hash: jkwDP8hekY3eWzIrEN4yinGftfXZlArUaz7PsiU6BcM
-id: fedora_resource.field_ldp_contains
-field_name: field_ldp_contains
+id: fedora_resource.field_tn
+field_name: field_tn
 entity_type: fedora_resource
 type: entity_reference
 settings:
-  target_type: fedora_resource
+  target_type: media
 module: core
 locked: false
-cardinality: -1
+cardinality: 1
 translatable: true
 indexes: {  }
 persist_with_no_fields: false

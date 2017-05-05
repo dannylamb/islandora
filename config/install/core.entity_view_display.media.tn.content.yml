@@ -1,0 +1,37 @@
+uuid: cf7d61f8-9098-49c7-a46f-0f6d26692c0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.content
+    - field.field.media.tn.field_height
+    - field.field.media.tn.field_image
+    - field.field.media.tn.field_mimetype
+    - field.field.media.tn.field_width
+    - media_entity.bundle.tn
+  enforced:
+    module:
+      - islandora
+  module:
+    - image
+id: media.tn.content
+targetEntityType: media
+bundle: tn
+mode: content
+content:
+  field_image:
+    weight: 0
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+hidden:
+  created: true
+  field_height: true
+  field_mimetype: true
+  field_width: true
+  name: true
+  thumbnail: true
+  uid: true

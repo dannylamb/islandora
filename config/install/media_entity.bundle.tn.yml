@@ -1,0 +1,22 @@
+uuid: 76912590-fe79-472d-9025-3538a6dfb5cb
+langcode: en
+status: true
+dependencies:
+  module:
+    - media_entity_image
+  enforced:
+    module:
+      - islandora_image
+id: tn
+label: TN
+description: 'Thumbnail image file'
+type: image
+queue_thumbnail_downloads: false
+new_revision: false
+type_configuration:
+  source_field: field_image
+  gather_exif: false
+field_map:
+  mime: field_mimetype
+  width: field_width
+  height: field_height

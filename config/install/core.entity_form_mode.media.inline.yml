@@ -1,0 +1,13 @@
+uuid: 2cea66e8-8a46-4292-906c-24d85f6b8c04
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - islandora
+  module:
+    - media_entity
+id: media.inline
+label: Inline
+targetEntityType: media
+cache: true

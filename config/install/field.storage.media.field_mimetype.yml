@@ -1,0 +1,24 @@
+uuid: ac5aa8aa-4672-498c-b814-2e4d477b8a75
+langcode: en
+status: true
+dependencies:
+  module:
+    - media_entity
+  enforced:
+    module:
+      - islandora
+id: media.field_mimetype
+field_name: field_mimetype
+entity_type: media
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
