@@ -1,22 +1,23 @@
-uuid: 421077ad-9173-4c9b-a984-1ffa23b0116e
+uuid: 64ecf3f3-8aad-4794-a9cc-ea2320885fea
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.media.field_mimetype
-    - media_entity.bundle.medium_size
-  enforced:
-    module:
-      - islandora
-id: media.medium_size.field_mimetype
-field_name: field_mimetype
+    - field.storage.media.field_height
+    - media_entity.bundle.tn
+id: media.tn.field_height
+field_name: field_height
 entity_type: media
-bundle: medium_size
-label: Mimetype
-description: ''
+bundle: tn
+label: Height
+description: 'Thumbnail height'
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: string
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

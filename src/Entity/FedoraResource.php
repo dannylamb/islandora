@@ -345,6 +345,7 @@ class FedoraResource extends ContentEntityBase implements FedoraResourceInterfac
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // Removing from form and display until we get behaviour sorted out.
     $fields['fedora_has_parent'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Fedora has Parent'))
       ->setDescription(t('Parent Fedora Resource.'))
@@ -353,23 +354,8 @@ class FedoraResource extends ContentEntityBase implements FedoraResourceInterfac
       ->setSetting('handler', 'default')
       ->setDefaultValueCallback('\Drupal\islandora\Entity\FedoraResource::getFedoraRoot')
       ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'hidden',
-        'type' => 'author',
-        'weight' => 0,
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'autocomplete_type' => 'tags',
-          'placeholder' => '',
-        ],
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+      ->setDisplayConfigurable('form', FALSE)
+      ->setDisplayConfigurable('view', FALSE);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))

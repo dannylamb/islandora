@@ -6,7 +6,7 @@ dependencies:
     - media_entity_image
   enforced:
     module:
-      - islandora_image
+      - islandora
 id: tn
 label: TN
 description: 'Thumbnail image file'
