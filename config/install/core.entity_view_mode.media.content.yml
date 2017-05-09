@@ -5,6 +5,9 @@ dependencies:
   module:
     - media_entity
     - islandora
+  enforced:
+    module:
+      - islandora
 id: media.content
 label: Content
 targetEntityType: media
