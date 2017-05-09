@@ -2,13 +2,15 @@ uuid: 77e9e71f-f67f-438f-80eb-bb5fa931a5ec
 langcode: en
 status: true
 dependencies:
+  config:
+    - media_entity.bundle.tn
   enforced:
     module:
       - islandora
-  config:
-    - media_entity.bundle.tn
+  module:
+    - media_entity
 _core:
-  default_config_hash: SXB_6Qvx5WtM-zrkkgEOjok1YGMeyjn9Zsa7ymV2MbM
+  default_config_hash: 6L5MoXE-kIJb53NSl9cSQBFoyZNG1DWL8CFOSV60yMk
 id: media.tn
 targetEntityType: media
 bundle: tn
