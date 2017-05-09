@@ -1,0 +1,25 @@
+uuid: 77e9e71f-f67f-438f-80eb-bb5fa931a5ec
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - islandora
+  config:
+    - media_entity.bundle.tn
+_core:
+  default_config_hash: SXB_6Qvx5WtM-zrkkgEOjok1YGMeyjn9Zsa7ymV2MbM
+id: media.tn
+targetEntityType: media 
+bundle: tn 
+types:
+  - 'use:PreservationMasterFile'
+fieldMappings:
+  name:
+    properties:
+      - 'dc11:title'
+      - 'rdf:label'
+  field_image:
+    properties:
+      - 'iana:describes'
+    mapping_type: rel

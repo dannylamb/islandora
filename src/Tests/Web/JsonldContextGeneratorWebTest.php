@@ -40,7 +40,7 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
     ]);
     $rdf_source->save();
 
-    // Give it a basic rdf mapping
+    // Give it a basic rdf mapping.
     $rdf_source_mapping = RdfMapping::create([
       'id' => 'fedora_resourcce.rdf_source',
       'targetEntityType' => 'fedora_resource',
