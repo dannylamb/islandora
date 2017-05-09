@@ -10,8 +10,8 @@ dependencies:
 _core:
   default_config_hash: SXB_6Qvx5WtM-zrkkgEOjok1YGMeyjn9Zsa7ymV2MbM
 id: media.tn
-targetEntityType: media 
-bundle: tn 
+targetEntityType: media
+bundle: tn
 types:
   - 'use:PreservationMasterFile'
 fieldMappings:
