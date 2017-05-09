@@ -19,7 +19,7 @@ types:
 fieldMappings:
   name:
     properties:
-      - 'dc11:title'
+      - 'dc:title'
       - 'rdf:label'
   field_image:
     properties:
