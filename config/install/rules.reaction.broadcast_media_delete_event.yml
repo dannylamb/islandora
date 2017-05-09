@@ -1,0 +1,53 @@
+uuid: 33b8afa6-1507-4f04-acc9-5a18ca2b0ccc
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+    - rules
+  enforced:
+    module:
+      - islandora
+id: broadcast_media_delete_event
+label: 'Broadcast Media Delete Event'
+events:
+  -
+    event_name: 'rules_entity_delete:media'
+description: 'Broadcasts a ''Delete'' event when a user deletes a Media.'
+tags:
+  - ''
+config_version: '3'
+expression:
+  id: rules_rule
+  uuid: 40abb71f-da16-49c3-8646-19921e911b7e
+  conditions:
+    id: rules_and
+    uuid: 34e4e2d6-f6be-4644-ba30-b434b7f2f82b
+    conditions: {  }
+  actions:
+    id: rules_action_set
+    uuid: 4032fcca-f4ab-471e-afa0-f53e2148848d
+    actions:
+      -
+        id: rules_action
+        uuid: 8d9547b4-477d-4442-b8b6-2d677cf79d1d
+        context_values: {  }
+        context_mapping:
+          entity: media
+          user: '@user.current_user_context:current_user'
+        context_processors: {  }
+        provides_mapping: {  }
+        action_id: islandora_delete_event_generator
+      -
+        id: rules_action
+        uuid: 371b1104-1aa6-4b3d-82cf-e27168e664ae
+        context_values:
+          recipients:
+            - 'activemq:queue:islandora-indexing-triplestore'
+        context_mapping:
+          message: event_message
+        context_processors:
+          recipients:
+            rules_tokens: {  }
+        provides_mapping: {  }
+        action_id: islandora_broadcast

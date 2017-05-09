@@ -1,0 +1,53 @@
+uuid: c4447a0b-a2a8-4f32-947b-fbe1094632d5
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+    - rules
+  enforced:
+    module:
+      - islandora
+id: broadcast_media_create_event
+label: 'Broadcast Media Create Event'
+events:
+  -
+    event_name: 'rules_entity_insert:media'
+description: 'Broadcasts a ''Create'' event when a user creates a new Media.'
+tags:
+  - ''
+config_version: '3'
+expression:
+  id: rules_rule
+  uuid: 3294a215-25d9-4bfe-9e84-745f381107c5
+  conditions:
+    id: rules_and
+    uuid: 6dbe3930-7d39-4927-890e-4af4e8fb57fc
+    conditions: {  }
+  actions:
+    id: rules_action_set
+    uuid: 470ed84d-b33f-4ff4-a584-481605bc826c
+    actions:
+      -
+        id: rules_action
+        uuid: 59b35164-5e52-4664-afe1-86e8f3bda01d
+        context_values: {  }
+        context_mapping:
+          entity: media
+          user: '@user.current_user_context:current_user'
+        context_processors: {  }
+        provides_mapping: {  }
+        action_id: islandora_create_event_generator
+      -
+        id: rules_action
+        uuid: f7880d70-1411-4c60-a065-a7d187b604db
+        context_values:
+          recipients:
+            - 'activemq:queue:islandora-indexing-triplestore'
+        context_mapping:
+          message: event_message
+        context_processors:
+          recipients:
+            rules_tokens: {  }
+        provides_mapping: {  }
+        action_id: islandora_broadcast
