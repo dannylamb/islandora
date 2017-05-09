@@ -15,7 +15,7 @@ id: media.tn
 targetEntityType: media
 bundle: tn
 types:
-  - 'use:PreservationMasterFile'
+  - 'use:ThumbnailImage'
 fieldMappings:
   name:
     properties:
