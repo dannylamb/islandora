@@ -3,6 +3,8 @@
 namespace Drupal\islandora\Tests\Web;
 
 use Drupal\Core\Url;
+use Drupal\islandora\Entity\FedoraResourceType;
+use Drupal\rdf\Entity\RdfMapping;
 
 /**
  * Implements WEB tests for Context routing response in various scenarios.
@@ -30,6 +32,28 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
    */
   public function setUp() {
     parent::setUp();
+
+    // Create a bundle to test.
+    $rdf_source = FedoraResourceType::create([
+      'id' => 'rdf_source',
+      'label' => 'RdfSource',
+    ]);
+    $rdf_source->save();
+
+    // Give it a basic rdf mapping
+    $rdf_source_mapping = RdfMapping::create([
+      'id' => 'fedora_resourcce.rdf_source',
+      'targetEntityType' => 'fedora_resource',
+      'bundle' => 'rdf_source',
+      'types' => ['schema:Thing'],
+      'fieldMappings' => [
+        'name' => [
+          'properties' => ['dc11:title'],
+        ],
+      ],
+    ]);
+    $rdf_source_mapping->save();
+
     $this->user = $this->drupalCreateUser([
       'administer site configuration',
       'view published fedora resource entities',
