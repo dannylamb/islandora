@@ -85,6 +85,7 @@ function islandora_rdf_namespaces() {
     'islandora' => 'http://islandora.ca/CLAW/',
     'pcdm' => 'http://pcdm.org/models#',
     'use' => 'http://pcdm.org/use#',
+    'iana' => 'http://www.iana.org/assignments/relation/',
   ];
 }
 
