@@ -2,12 +2,11 @@ uuid: c4447a0b-a2a8-4f32-947b-fbe1094632d5
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
-    - rules
   enforced:
     module:
       - islandora
+_core:
+  default_config_hash: mRt_MC0dKA68qaoXI3WlnCg-ta5Wry0dLR2dpOqY4to
 id: broadcast_media_create_event
 label: 'Broadcast Media Create Event'
 events:
@@ -43,7 +42,8 @@ expression:
         uuid: f7880d70-1411-4c60-a065-a7d187b604db
         context_values:
           recipients:
-            - 'activemq:queue:islandora-indexing-triplestore'
+            - "activemq:queue:islandora-indexing-triplestore\r"
+            - 'activemq:queue:islandora-indexing-fcrepo-binary-create'
         context_mapping:
           message: event_message
         context_processors:

@@ -2,12 +2,11 @@ uuid: d58d3327-38d2-400b-91a0-3b00b3870121
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
-    - rules
   enforced:
     module:
       - islandora
+_core:
+  default_config_hash: qAkxtz6jH0on_W4QXhpGqZMFfgyATahnUKdynX9bl1g
 id: broadcast_media_update_event
 label: 'Broadcast Media Update Event'
 events:
@@ -43,7 +42,8 @@ expression:
         uuid: 6aa1f15c-3a39-4af5-b577-81fa7081de62
         context_values:
           recipients:
-            - 'activemq:queue:islandora-indexing-triplestore'
+            - "activemq:queue:islandora-indexing-triplestore\r"
+            - 'activemq:queue:islandora-indexing-fcrepo-binary-update'
         context_mapping:
           message: event_message
         context_processors:

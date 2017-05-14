@@ -2,12 +2,11 @@ uuid: 33b8afa6-1507-4f04-acc9-5a18ca2b0ccc
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
-    - rules
   enforced:
     module:
       - islandora
+_core:
+  default_config_hash: Jejr-Hg2lX1o7mdUt_RBxW0xfzOKhoFbGGpepW_SoZg
 id: broadcast_media_delete_event
 label: 'Broadcast Media Delete Event'
 events:
@@ -43,7 +42,8 @@ expression:
         uuid: 371b1104-1aa6-4b3d-82cf-e27168e664ae
         context_values:
           recipients:
-            - 'activemq:queue:islandora-indexing-triplestore'
+            - "activemq:queue:islandora-indexing-triplestore\r"
+            - 'activemq:queue:islandora-indexing-fcrepo-binary-delete'
         context_mapping:
           message: event_message
         context_processors:
