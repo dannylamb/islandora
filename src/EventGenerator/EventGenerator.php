@@ -76,10 +76,19 @@ class EventGenerator implements EventGeneratorInterface {
     return json_encode($event);
   }
 
+  /**
+   * Adds the 'attachment' info to the event array.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity that was updated.
+   * @param array $event
+   *   Array of info to be serialized to jsonld.
+   */
   protected function addAttachment(Media $entity, array &$event) {
     if ($entity->hasField("field_image")) {
       $file = $entity->field_image->entity;
-    } elseif ($entity->hasField("field_file")) {
+    }
+    elseif ($entity->hasField("field_file")) {
       $file = $entity->field_file->entity;
     }
     else {
