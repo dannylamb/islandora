@@ -79,7 +79,7 @@ class EventGenerator implements EventGeneratorInterface {
   /**
    * Adds the 'attachment' info to the event array.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\media_entity\Entity\Media $entity
    *   The entity that was updated.
    * @param array $event
    *   Array of info to be serialized to jsonld.
