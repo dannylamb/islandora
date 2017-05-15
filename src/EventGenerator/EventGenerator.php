@@ -92,7 +92,17 @@ class EventGenerator implements EventGeneratorInterface {
       $file = $entity->field_file->entity;
     }
     else {
-      throw new \RuntimeException("Cannot parse 'field_image' or 'field_file' from Media entity", 500);
+      \Drupal::logger('islandora')->warning(
+        "Cannot parse 'field_image' or 'field_file' from Media entity {$entity->id()}"
+      );
+      return;
+    }
+
+    if ($file === null) {
+      \Drupal::logger('islandora')->debug(
+        "'field_image' or 'field_file' is null in Media entity {$entity->id()}"
+      );
+      return;
     }
 
     $url = file_create_url($file->getFileUri());
