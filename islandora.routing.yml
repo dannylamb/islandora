@@ -17,13 +17,9 @@ system.islandora_settings:
     _permission: 'administer site configuration'
 
 # Islandora JSON-LD Routing definition
-entity.fedora_resource_type.jsonldcontext:
-  path: '/fedora_resource_context/{bundle}'
+islandora.jsonldcontext:
+  path: '/context/{entity_type}/{bundle}'
   defaults:
-    _controller: '\Drupal\islandora\Controller\FedoraResourceJsonLdContextController::content'
+    _controller: '\Drupal\islandora\Controller\JsonLdContextController::content'
   requirements:
      _permission: 'access content'
-  options:
-    parameters:
-      bundle:
-        type: entity:{fedora_resource}:{fedora_resource_type}

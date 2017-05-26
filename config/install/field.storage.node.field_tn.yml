@@ -1,17 +1,19 @@
+uuid: 70d43fa1-2c63-42a7-86ca-9ccaa1d0ac6d
 langcode: en
 status: true
 dependencies:
   module:
     - islandora
+    - media_entity
   enforced:
     module:
       - islandora
-id: fedora_resource.field_description
-field_name: field_description
-entity_type: fedora_resource
-type: string_long
+id: node.field_tn
+field_name: field_tn
+entity_type: node
+type: entity_reference
 settings:
-  case_sensitive: false
+  target_type: media
 module: core
 locked: false
 cardinality: 1

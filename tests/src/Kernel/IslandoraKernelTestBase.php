@@ -49,10 +49,11 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
 
     // Bootstrap minimal Drupal environment to run the tests.
     $this->installSchema('system', 'sequences');
+    $this->installSchema('node', 'node_access');
     $this->installEntitySchema('user');
+    $this->installEntitySchema('node');
     $this->installConfig('filter');
     $this->installSchema('islandora', 'islandora_version_count');
-    $this->installEntitySchema('fedora_resource');
   }
 
 }

@@ -1,11 +1,3 @@
-# Fedora resource type menu items definition
-entity.fedora_resource_type.collection:
-  title: 'Fedora resource type list'
-  route_name: entity.fedora_resource_type.collection
-  description: 'List Fedora resource type (bundles)'
-  parent: system.admin_structure
-  weight: 99
-
 # Menu list of Islandora configuration forms 
 system.admin_config_islandora:
   title: Islandora

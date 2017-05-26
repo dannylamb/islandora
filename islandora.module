@@ -35,40 +35,6 @@ function islandora_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Implements hook_theme().
- */
-function islandora_theme() {
-  $theme = [];
-  $theme['fedora_resource'] = [
-    'render element' => 'elements',
-    'file' => 'fedora_resource.page.inc',
-    'template' => 'fedora_resource',
-  ];
-  $theme['fedora_resource_content_add_list'] = [
-    'render element' => 'content',
-    'variables' => ['content' => NULL],
-    'file' => 'fedora_resource.page.inc',
-  ];
-  return $theme;
-}
-
-/**
- * Implements hook_theme_suggestions_HOOK().
- */
-function islandora_theme_suggestions_fedora_resource(array $variables) {
-  $suggestions = [];
-  $entity = $variables['elements']['#fedora_resource'];
-  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
-
-  $suggestions[] = 'fedora_resource__' . $sanitized_view_mode;
-  $suggestions[] = 'fedora_resource__' . $entity->bundle();
-  $suggestions[] = 'fedora_resource__' . $entity->bundle() . '__' . $sanitized_view_mode;
-  $suggestions[] = 'fedora_resource__' . $entity->id();
-  $suggestions[] = 'fedora_resource__' . $entity->id() . '__' . $sanitized_view_mode;
-  return $suggestions;
-}
-
-/**
  * Implements hook_rdf_namespaces().
  */
 function islandora_rdf_namespaces() {
@@ -92,7 +58,7 @@ function islandora_rdf_namespaces() {
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
-function islandora_fedora_resource_insert(EntityInterface $entity) {
+function islandora_node_insert(EntityInterface $entity) {
   // Creates a record in the db to track the number of changes to the entity.
   $versionCounter = \Drupal::service('islandora.versioncounter');
   try {
@@ -110,7 +76,7 @@ function islandora_fedora_resource_insert(EntityInterface $entity) {
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
-function islandora_fedora_resource_update(EntityInterface $entity) {
+function islandora_node_update(EntityInterface $entity) {
   // Increments the number of changes to the entity.
   $versionCounter = \Drupal::service('islandora.versioncounter');
   $versionCounter->increment($entity->uuid());
@@ -119,7 +85,7 @@ function islandora_fedora_resource_update(EntityInterface $entity) {
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
-function islandora_fedora_resource_delete(EntityInterface $entity) {
+function islandora_node_delete(EntityInterface $entity) {
   // Deletes the record in the db to track the number of changes to the entity.
   $versionCounter = \Drupal::service('islandora.versioncounter');
   $versionCounter->delete($entity->uuid());

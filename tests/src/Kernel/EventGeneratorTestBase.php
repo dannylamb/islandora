@@ -2,7 +2,8 @@
 
 namespace Drupal\Tests\islandora\Kernel;
 
-use Drupal\islandora\Entity\FedoraResource;
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\simpletest\UserCreationTrait;
 
 /**
@@ -22,7 +23,7 @@ abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
   /**
    * Fedora resource entity.
    *
-   * @var \Drupal\islandora\FedoraResourceInterface
+   * @var \Drupal\node\Entity\NodeInterface
    */
   protected $entity;
 
@@ -35,11 +36,17 @@ abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
     // Create a test user.
     $this->user = $this->createUser(['add fedora resource entities']);
 
+    $test_type = NodeType::create([
+      'type' => 'test_type',
+      'label' => 'Test Type',
+    ]);
+    $test_type->save();
+
     // Create a test entity.
-    $this->entity = FedoraResource::create([
-      "type" => "rdf_source",
+    $this->entity = Node::create([
+      "type" => "test_type",
       "uid" => $this->user->get('uid'),
-      "name" => "Test Fixture",
+      "title" => "Test Fixture",
       "langcode" => "und",
       "status" => 1,
     ]);

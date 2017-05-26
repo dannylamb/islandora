@@ -3,7 +3,7 @@
 namespace Drupal\islandora\Tests\Web;
 
 use Drupal\Core\Url;
-use Drupal\islandora\Entity\FedoraResourceType;
+use Drupal\node\Entity\NodeType;
 use Drupal\rdf\Entity\RdfMapping;
 
 /**
@@ -33,33 +33,32 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
   public function setUp() {
     parent::setUp();
 
-    // Create a bundle to test.
-    $rdf_source = FedoraResourceType::create([
-      'id' => 'rdf_source',
-      'label' => 'RdfSource',
+    $test_type = NodeType::create([
+      'type' => 'test_type',
+      'label' => 'Test Type',
     ]);
-    $rdf_source->save();
+    $test_type->save();
 
     // Give it a basic rdf mapping.
-    $rdf_source_mapping = RdfMapping::create([
-      'id' => 'fedora_resourcce.rdf_source',
-      'targetEntityType' => 'fedora_resource',
-      'bundle' => 'rdf_source',
+    $mapping = RdfMapping::create([
+      'id' => 'node.test_type',
+      'targetEntityType' => 'node',
+      'bundle' => 'test_type',
       'types' => ['schema:Thing'],
       'fieldMappings' => [
-        'name' => [
+        'title' => [
           'properties' => ['dc11:title'],
         ],
       ],
     ]);
-    $rdf_source_mapping->save();
+    $mapping->save();
 
     $this->user = $this->drupalCreateUser([
       'administer site configuration',
       'view published fedora resource entities',
       'access content',
-    ]
-    );
+    ]);
+
     // Login.
     $this->drupalLogin($this->user);
   }
@@ -68,7 +67,7 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
    * Tests that the Context Response Page can be reached.
    */
   public function testJsonldcontextPageExists() {
-    $url = Url::fromRoute('entity.fedora_resource_type.jsonldcontext', ['bundle' => 'rdf_source']);
+    $url = Url::fromRoute('islandora.jsonldcontext', ['entity_type' => 'node', 'bundle' => 'test_type']);
     $this->drupalGet($url);
     $this->assertResponse(200);
   }
@@ -77,7 +76,7 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
    * Tests that the response is in fact application/ld+json.
    */
   public function testJsonldcontextContentypeheaderResponseIsValid() {
-    $url = Url::fromRoute('entity.fedora_resource_type.jsonldcontext', ['bundle' => 'rdf_source']);
+    $url = Url::fromRoute('islandora.jsonldcontext', ['entity_type' => 'node', 'bundle' => 'test_type']);
     $this->drupalGet($url);
     $this->assertEqual($this->drupalGetHeader('Content-Type'), 'application/ld+json', 'Correct JSON-LD mime type was returned');
   }
@@ -86,7 +85,7 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
    * Tests that the Context received has the basic structural needs.
    */
   public function testJsonldcontextResponseIsValid() {
-    $url = Url::fromRoute('entity.fedora_resource_type.jsonldcontext', ['bundle' => 'rdf_source']);
+    $url = Url::fromRoute('islandora.jsonldcontext', ['entity_type' => 'node', 'bundle' => 'test_type']);
     $this->drupalGet($url);
     $jsonldarray = json_decode($this->getRawContent(), TRUE);
     // Check if the only key is "@context".

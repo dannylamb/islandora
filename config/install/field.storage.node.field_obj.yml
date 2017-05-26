@@ -1,17 +1,19 @@
+uuid: d31f7746-57f6-4081-973e-da400b1e51d1
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
   enforced:
     module:
       - islandora
-id: fedora_resource.field_memberof
-field_name: field_memberof
-entity_type: fedora_resource
+  module:
+    - islandora
+    - media_entity
+id: node.field_obj
+field_name: field_obj
+entity_type: node
 type: entity_reference
 settings:
-  target_type: fedora_resource
+  target_type: media
 module: core
 locked: false
 cardinality: 1

@@ -13,11 +13,11 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
 
 /**
- * Class FedoraResourceJsonLdContextController.
+ * Class JsonLdContextController.
  *
  * @package Drupal\islandora\Controller
  */
-class FedoraResourceJsonLdContextController extends ControllerBase {
+class JsonLdContextController extends ControllerBase {
 
   /**
    * Injected JsonldContextGenerator.
@@ -27,7 +27,7 @@ class FedoraResourceJsonLdContextController extends ControllerBase {
   private $jsonldContextGenerator;
 
   /**
-   * FedoraResourceJsonLdContextController constructor.
+   * JsonLdContextController constructor.
    *
    * @param \Drupal\jsonld\ContextGenerator\JsonldContextGeneratorInterface $jsonld_context_generator
    *   Injected JsonldContextGenerator.
@@ -50,8 +50,10 @@ class FedoraResourceJsonLdContextController extends ControllerBase {
   }
 
   /**
-   * Returns an JSON-LD Context for a fedora_resource bundle.
+   * Returns an JSON-LD Context for a entity bundle.
    *
+   * @param string $entity_type
+   *   Route argument, an entity type.
    * @param string $bundle
    *   Route argument, a bundle.
    * @param \Symfony\Component\HttpFoundation\Request $request
@@ -60,12 +62,12 @@ class FedoraResourceJsonLdContextController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\Response
    *   An Http response.
    */
-  public function content($bundle, Request $request) {
+  public function content($entity_type, $bundle, Request $request) {
 
     // TODO: expose cached/not cached through
     // more varied HTTP response codes.
     try {
-      $context = $this->jsonldContextGenerator->getContext('fedora_resource.' . $bundle);
+      $context = $this->jsonldContextGenerator->getContext("$entity_type.$bundle");
       $response = new CacheableJsonResponse(json_decode($context), 200);
       $response->setEncodingOptions(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
       $response->headers->set('X-Powered-By', 'Islandora CLAW API');
@@ -74,7 +76,7 @@ class FedoraResourceJsonLdContextController extends ControllerBase {
       // For now deal with Cache dependencies manually.
       $meta = new CacheableMetadata();
       $meta->setCacheContexts(['user.permissions', 'ip', 'url']);
-      $meta->setCacheTags(RdfMapping::load('fedora_resource.' . $bundle)->getCacheTags());
+      $meta->setCacheTags(RdfMapping::load("$entity_type.$bundle")->getCacheTags());
       $meta->setCacheMaxAge(Cache::PERMANENT);
       $response->addCacheableDependency($meta);
     }
