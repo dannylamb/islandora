@@ -1,0 +1,32 @@
+uuid: 3d961da9-4483-434d-b2c3-2d84f32fffee
+langcode: en
+status: true
+dependencies:
+  module:
+    - basic_auth
+    - hal
+    - jsonld
+    - jwt
+    - node
+    - user
+  enforced:
+    module:
+      - islandora
+_core:
+  default_config_hash: t_jfECmZhJqBOJuSOFn87EOi_TWi-_fRYTuJgd19vgg
+id: entity.node
+plugin_id: 'entity:node'
+granularity: resource
+configuration:
+  methods:
+    - GET
+    - POST
+    - DELETE
+    - PATCH
+  formats:
+    - hal_json
+    - jsonld
+  authentication:
+    - basic_auth
+    - jwt_auth
+    - cookie

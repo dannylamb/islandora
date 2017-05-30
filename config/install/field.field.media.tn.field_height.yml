@@ -5,6 +5,9 @@ dependencies:
   config:
     - field.storage.media.field_height
     - media_entity.bundle.tn
+  enforced:
+    module:
+      - islandora
 id: media.tn.field_height
 field_name: field_height
 entity_type: media

@@ -55,8 +55,7 @@ class JsonldContextGeneratorWebTest extends IslandoraWebTestBase {
 
     $this->user = $this->drupalCreateUser([
       'administer site configuration',
-      'view published fedora resource entities',
-      'access content',
+      'administer nodes',
     ]);
 
     // Login.
