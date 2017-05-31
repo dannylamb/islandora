@@ -1,4 +1,4 @@
-uuid: 3d961da9-4483-434d-b2c3-2d84f32fffee
+uuid: bf3d7c56-77d9-4154-a7b8-bb77c7188569
 langcode: en
 status: true
 dependencies:
@@ -7,22 +7,17 @@ dependencies:
     - hal
     - jsonld
     - jwt
-    - node
+    - media_entity
     - user
   enforced:
     module:
       - islandora
-_core:
-  default_config_hash: t_jfECmZhJqBOJuSOFn87EOi_TWi-_fRYTuJgd19vgg
-id: entity.node
-plugin_id: 'entity:node'
+id: entity.media
+plugin_id: 'entity:media'
 granularity: resource
 configuration:
   methods:
     - GET
-    - POST
-    - DELETE
-    - PATCH
   formats:
     - hal_json
     - jsonld
