@@ -17,7 +17,6 @@
 use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\rest\Entity\RestResourceConfig;
 
 /**
  * Implements hook_help().
@@ -42,21 +41,22 @@ function islandora_modules_installed($modules) {
   // Ensure the auth and serialization formats we need are available.
   if (in_array('rest', $modules)) {
     $rest_resource_config_storage = \Drupal::service('entity_type.manager')->getStorage('rest_resource_config');
-
     $rest_resource_config = $rest_resource_config_storage->load('entity.node');
 
-    if (!$rest_resource_config) {
-      $rest_resource_config = $rest_resource_config_storage->create(['id' => 'entity.node']);
+    if ($rest_resource_config) {
+      $configuration = $rest_resource_config->get('configuration');
+
+      if (!in_array('jsonld', $configuration['formats'])) {
+        $configuration['formats'][] = 'jsonld';
+      }
+
+      if (!in_array('jwt_auth', $configuration['authentication'])) {
+        $configuration['authentication'][] = 'jwt_auth';
+      }
+
+      $rest_resource_config->set('configuration', $configuration);
+      $rest_resource_config->save(TRUE);
     }
-
-    $configuration = [
-      'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
-      'formats' => ['hal_json', 'jsonld'],
-      'authentication' => ['basic_auth', 'jwt_auth', 'cookie'],
-    ];
-
-    $rest_resource_config->set('configuration', $configuration);
-    $rest_resource_config->save(TRUE);
   }
 }
 
