@@ -5,8 +5,6 @@
  * Install/update hook implementations.
  */
 
-use Drupal\rest\Entity\RestResourceConfig;
-
 /**
  * Implements hook_schema().
  */
@@ -41,20 +39,4 @@ function islandora_schema() {
     ],
   ];
   return $schema;
-}
-
-/**
- * Implemets hook_install().
- */
-function islandora_install() {
-  $rest_config = RestResourceConfig::load('entity.node');
-
-  $configuration = [
-    'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
-    'formats' => ['hal_json', 'jsonld'],
-    'authentication' => ['basic_auth', 'jwt_auth', 'cookie'],
-  ];
-
-  $rest_config->set('configuration', $configuration);
-  $rest_config->save(TRUE);
 }

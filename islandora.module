@@ -17,6 +17,7 @@
 use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\rest\Entity\RestResourceConfig;
 
 /**
  * Implements hook_help().
@@ -27,10 +28,29 @@ function islandora_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.islandora':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('This is a placeholder for future help text about Islandora.') . '</p>';
+      $output .= '<p>' . t('Islandora integrates Drupal with a Fedora repository.') . '</p>';
       return $output;
 
     default:
+  }
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function islandora_modules_installed($modules) {
+  // Ensure the auth and serialization formats we need are available.
+  if (in_array('rest', $modules) {
+    $rest_config = RestResourceConfig::load('entity.node');
+
+    $configuration = [
+      'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
+      'formats' => ['hal_json', 'jsonld'],
+      'authentication' => ['basic_auth', 'jwt_auth', 'cookie'],
+    ];
+
+    $rest_config->set('configuration', $configuration);
+    $rest_config->save(TRUE);
   }
 }
 
