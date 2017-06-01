@@ -41,7 +41,13 @@ function islandora_help($route_name, RouteMatchInterface $route_match) {
 function islandora_modules_installed($modules) {
   // Ensure the auth and serialization formats we need are available.
   if (in_array('rest', $modules)) {
-    $rest_config = RestResourceConfig::load('entity.node');
+    $rest_resource_config_storage = \Drupal::service('entity_type.manager')->getStorage('rest_resource_config');
+
+    $rest_resource_config = $rest_resource_config_storage->load('entity.node');
+
+    if (!$rest_resource_config) {
+      $rest_resource_config = $rest_resource_config_storage->create(['id' => 'entity.node']);
+    }
 
     $configuration = [
       'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -49,8 +55,8 @@ function islandora_modules_installed($modules) {
       'authentication' => ['basic_auth', 'jwt_auth', 'cookie'],
     ];
 
-    $rest_config->set('configuration', $configuration);
-    $rest_config->save(TRUE);
+    $rest_resource_config->set('configuration', $configuration);
+    $rest_resource_config->save(TRUE);
   }
 }
 

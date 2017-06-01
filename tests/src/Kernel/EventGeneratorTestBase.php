@@ -34,7 +34,7 @@ abstract class EventGeneratorTestBase extends IslandoraKernelTestBase {
     parent::setUp();
 
     // Create a test user.
-    $this->user = $this->createUser(['add fedora resource entities']);
+    $this->user = $this->createUser(['administer nodes']);
 
     $test_type = NodeType::create([
       'type' => 'test_type',
