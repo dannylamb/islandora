@@ -17,20 +17,8 @@ class EventGenerator implements EventGeneratorInterface {
    * {@inheritdoc}
    */
   public function generateCreateEvent(EntityInterface $entity, UserInterface $user) {
-    $event = [
-      "@context" => "https://www.w3.org/ns/activitystreams",
-      "type" => "Create",
-      "actor" => [
-        "type" => "Person",
-        "id" => $user->toUrl()->setAbsolute()->toString(),
-      ],
-      "object" => $entity->toUrl()->setAbsolute()->toString(),
-    ];
-
-    if ($entity instanceof Media) {
-      $this->addAttachment($entity, $event);
-    }
-
+    $event = $this->generateEvent($entity, $user);
+    $event["type"] = "Create";
     return json_encode($event);
   }
 
@@ -38,20 +26,8 @@ class EventGenerator implements EventGeneratorInterface {
    * {@inheritdoc}
    */
   public function generateUpdateEvent(EntityInterface $entity, UserInterface $user) {
-    $event = [
-      "@context" => "https://www.w3.org/ns/activitystreams",
-      "type" => "Update",
-      "actor" => [
-        "type" => "Person",
-        "id" => $user->toUrl()->setAbsolute()->toString(),
-      ],
-      "object" => $entity->toUrl()->setAbsolute()->toString(),
-    ];
-
-    if ($entity instanceof Media) {
-      $this->addAttachment($entity, $event);
-    }
-
+    $event = $this->generateEvent($entity, $user);
+    $event["type"] = "Update";
     return json_encode($event);
   }
 
@@ -59,21 +35,65 @@ class EventGenerator implements EventGeneratorInterface {
    * {@inheritdoc}
    */
   public function generateDeleteEvent(EntityInterface $entity, UserInterface $user) {
+    $event = $this->generateEvent($entity, $user);
+    $event["type"] = "Delete";
+    return json_encode($event);
+  }
+
+  /**
+   * Shared event generation function that does not impose a 'Type'.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity that was created.
+   * @param \Drupal\user\UserInterface $user
+   *   The user who created the entity.
+   *
+   * @return array
+   *   Event message as an array.
+   */
+  protected function generateEvent(EntityInterface $entity, UserInterface $user) {
+    $entity_url = $entity->toUrl()->setAbsolute()->toString();
+    $user_url = $user->toUrl()->setAbsolute()->toString();
     $event = [
       "@context" => "https://www.w3.org/ns/activitystreams",
-      "type" => "Delete",
       "actor" => [
         "type" => "Person",
-        "id" => $user->toUrl()->setAbsolute()->toString(),
+        "id" => "urn:islandora:{$user->uuid()}",
+        "url" => [
+          [
+            "type" => "Link",
+            "href" => "$user_url",
+            "mediaType" => "text/html",
+          ],
+          [
+            "type" => "Link",
+            "href" => "$user_url?_format=jsonld",
+            "mediaType" => "application/ld+json",
+          ],
+        ],
       ],
-      "object" => $entity->toUrl()->setAbsolute()->toString(),
+      "object" => [
+        "id" => "urn:islandora:{$entity->uuid()}",
+        "url" => [
+          [
+            "type" => "Link",
+            "href" => "$entity_url",
+            "mediaType" => "text/html",
+          ],
+          [
+            "type" => "Link",
+            "href" => "$entity_url?_format=jsonld",
+            "mediaType" => "application/ld+json",
+          ],
+        ],
+      ],
     ];
 
     if ($entity instanceof Media) {
       $this->addAttachment($entity, $event);
     }
 
-    return json_encode($event);
+    return $event;
   }
 
   /**
@@ -107,7 +127,7 @@ class EventGenerator implements EventGeneratorInterface {
 
     $url = file_create_url($file->getFileUri());
     $mime = $file->getMimeType();
-    $event['attachment'] = [
+    $event['object']['attachment'] = [
       'url' => $url,
       'mediaType' => $mime,
     ];
