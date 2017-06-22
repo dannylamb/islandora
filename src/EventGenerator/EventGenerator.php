@@ -67,7 +67,7 @@ class EventGenerator implements EventGeneratorInterface {
             "mediaType" => "text/html",
           ],
           [
-            "name": "Drupal JSONLD",
+            "name": "Drupal Metadata",
             "type" => "Link",
             "href" => "$user_url?_format=jsonld",
             "mediaType" => "application/ld+json",
@@ -84,7 +84,7 @@ class EventGenerator implements EventGeneratorInterface {
             "mediaType" => "text/html",
           ],
           [
-            "name": "Drupal JSONLD",
+            "name": "Drupal Metadata",
             "type" => "Link",
             "href" => "$entity_url?_format=jsonld",
             "mediaType" => "application/ld+json",
