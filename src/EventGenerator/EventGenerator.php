@@ -54,7 +54,7 @@ class EventGenerator implements EventGeneratorInterface {
   protected function generateEvent(EntityInterface $entity, UserInterface $user) {
     $entity_url = $entity->toUrl()->setAbsolute()->toString();
     $user_url = $user->toUrl()->setAbsolute()->toString();
-    $event = [
+    return [
       "@context" => "https://www.w3.org/ns/activitystreams",
       "actor" => [
         "type" => "Person",
@@ -87,49 +87,6 @@ class EventGenerator implements EventGeneratorInterface {
           ],
         ],
       ],
-    ];
-
-    if ($entity instanceof Media) {
-      $this->addAttachment($entity, $event);
-    }
-
-    return $event;
-  }
-
-  /**
-   * Adds the 'attachment' info to the event array.
-   *
-   * @param \Drupal\media_entity\Entity\Media $entity
-   *   The entity that was updated.
-   * @param array $event
-   *   Array of info to be serialized to jsonld.
-   */
-  protected function addAttachment(Media $entity, array &$event) {
-    if ($entity->hasField("field_image")) {
-      $file = $entity->field_image->entity;
-    }
-    elseif ($entity->hasField("field_file")) {
-      $file = $entity->field_file->entity;
-    }
-    else {
-      \Drupal::logger('islandora')->warning(
-        "Cannot parse 'field_image' or 'field_file' from Media entity {$entity->id()}"
-      );
-      return;
-    }
-
-    if ($file === NULL) {
-      \Drupal::logger('islandora')->debug(
-        "'field_image' or 'field_file' is null in Media entity {$entity->id()}"
-      );
-      return;
-    }
-
-    $url = file_create_url($file->getFileUri());
-    $mime = $file->getMimeType();
-    $event['object']['attachment'] = [
-      'url' => $url,
-      'mediaType' => $mime,
     ];
   }
 
