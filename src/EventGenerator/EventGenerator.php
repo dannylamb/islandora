@@ -61,11 +61,13 @@ class EventGenerator implements EventGeneratorInterface {
         "id" => "urn:islandora:{$user->uuid()}",
         "url" => [
           [
+            "name": "Drupal HTML",
             "type" => "Link",
             "href" => "$user_url",
             "mediaType" => "text/html",
           ],
           [
+            "name": "Drupal JSONLD",
             "type" => "Link",
             "href" => "$user_url?_format=jsonld",
             "mediaType" => "application/ld+json",
@@ -76,11 +78,13 @@ class EventGenerator implements EventGeneratorInterface {
         "id" => "urn:islandora:{$entity->uuid()}",
         "url" => [
           [
+            "name": "Drupal HTML",
             "type" => "Link",
             "href" => "$entity_url",
             "mediaType" => "text/html",
           ],
           [
+            "name": "Drupal JSONLD",
             "type" => "Link",
             "href" => "$entity_url?_format=jsonld",
             "mediaType" => "application/ld+json",
