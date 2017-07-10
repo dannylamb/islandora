@@ -58,40 +58,51 @@ class EventGenerator implements EventGeneratorInterface {
       "@context" => "https://www.w3.org/ns/activitystreams",
       "actor" => [
         "type" => "Person",
-        "id" => "urn:islandora:{$user->uuid()}",
+        "id" => "urn:uuid:{$user->uuid()}",
         "url" => [
           [
-            "name": "Drupal HTML",
+            "name" => "Drupal HTML",
             "type" => "Link",
             "href" => "$user_url",
             "mediaType" => "text/html",
           ],
           [
-            "name": "Drupal Metadata",
+            "name" => "Drupal JSONLD",
             "type" => "Link",
             "href" => "$user_url?_format=jsonld",
             "mediaType" => "application/ld+json",
           ],
+          [
+            "name" => "Drupal JSON",
+            "type" => "Link",
+            "href" => "$entity_url?_format=json",
+            "mediaType" => "application/json",
+          ],
         ],
       ],
       "object" => [
-        "id" => "urn:islandora:{$entity->uuid()}",
+        "id" => "urn:uuid:{$entity->uuid()}",
         "url" => [
           [
-            "name": "Drupal HTML",
+            "name" => "Drupal HTML",
             "type" => "Link",
             "href" => "$entity_url",
             "mediaType" => "text/html",
           ],
           [
-            "name": "Drupal Metadata",
+            "name" => "Drupal JSONLD",
             "type" => "Link",
             "href" => "$entity_url?_format=jsonld",
             "mediaType" => "application/ld+json",
+          ],
+          [
+            "name" => "Drupal JSON",
+            "type" => "Link",
+            "href" => "$entity_url?_format=json",
+            "mediaType" => "application/json",
           ],
         ],
       ],
     ];
   }
-
 }
