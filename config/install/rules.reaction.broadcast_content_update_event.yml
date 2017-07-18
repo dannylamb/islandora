@@ -40,7 +40,7 @@ expression:
         uuid: 7b9cf7be-40e4-4490-ae6f-07a84eb112c4
         context_values:
           recipients:
-            - "activemq:queue:islandora-indexing-fcrepo-update\r"
+            - "activemq:queue:islandora-indexing-fcrepo-content\r"
             - 'activemq:queue:islandora-indexing-triplestore'
         context_mapping:
           message: event_message

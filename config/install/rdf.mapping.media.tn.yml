@@ -39,3 +39,6 @@ fieldMappings:
     properties:
       - 'schema:author'
     mapping_type: rel
+  field_mimetype:
+    properties:
+      - 'ebucore:hasMimeType'

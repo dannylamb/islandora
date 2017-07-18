@@ -3,7 +3,8 @@
 namespace Drupal\islandora\EventGenerator;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\media_entity\Entity\Media;
+use Drupal\Core\Url;
+use Drupal\file\FileInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -52,8 +53,9 @@ class EventGenerator implements EventGeneratorInterface {
    *   Event message as an array.
    */
   protected function generateEvent(EntityInterface $entity, UserInterface $user) {
-    $entity_url = $entity->toUrl()->setAbsolute()->toString();
+
     $user_url = $user->toUrl()->setAbsolute()->toString();
+
     return [
       "@context" => "https://www.w3.org/ns/activitystreams",
       "actor" => [
@@ -61,10 +63,11 @@ class EventGenerator implements EventGeneratorInterface {
         "id" => "urn:uuid:{$user->uuid()}",
         "url" => [
           [
-            "name" => "Drupal HTML",
+            "name" => "Drupal Canonical",
             "type" => "Link",
             "href" => "$user_url",
             "mediaType" => "text/html",
+            "rel" => "canonical",
           ],
           [
             "name" => "Drupal JSONLD",
@@ -75,19 +78,68 @@ class EventGenerator implements EventGeneratorInterface {
           [
             "name" => "Drupal JSON",
             "type" => "Link",
-            "href" => "$entity_url?_format=json",
+            "href" => "$user_url?_format=json",
             "mediaType" => "application/json",
           ],
         ],
       ],
       "object" => [
         "id" => "urn:uuid:{$entity->uuid()}",
-        "url" => [
+        "url" => $this->generateEntityLinks($entity),
+      ],
+    ];
+  }
+
+  /**
+   * Generates entity urls (files are slightly different).
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity that was created.
+   *
+   * @return array
+   *   AS2 Links.
+   */
+  protected function generateEntityLinks(EntityInterface $entity) {
+    if ($entity instanceof FileInterface) {
+        $file_url = $entity->url();
+        $checksum_url = Url::fromRoute('view.file_checksum.rest_export_1', ['file' => $entity->id()])
+          ->setAbsolute()
+          ->toString();
+        $json_url = Url::fromRoute('rest.entity.file.GET.json', ['file' => $entity->id()])
+          ->setAbsolute()
+          ->toString();
+
+        return [
           [
-            "name" => "Drupal HTML",
+            "name" => "Drupal Canonical",
+            "type" => "Link",
+            "href" => "$file_url",
+            "mediaType" => $entity->getMimeType(),
+            "rel" => "canonical",
+          ],
+          [
+            "name" => "Drupal Checksum",
+            "type" => "Link",
+            "href" => "$checksum_url?_format=json",
+            "mediaType" => "application/json",
+          ],
+          [
+            "name" => "Drupal JSON",
+            "type" => "Link",
+            "href" => "$json_url?_format=json",
+            "mediaType" => "application/json",
+          ],
+        ];
+    }
+    else {
+      $entity_url = $entity->toUrl()->setAbsolute()->toString();
+      return [
+          [
+            "name" => "Drupal Canoncial",
             "type" => "Link",
             "href" => "$entity_url",
             "mediaType" => "text/html",
+            "rel" => "canonical",
           ],
           [
             "name" => "Drupal JSONLD",
@@ -101,8 +153,7 @@ class EventGenerator implements EventGeneratorInterface {
             "href" => "$entity_url?_format=json",
             "mediaType" => "application/json",
           ],
-        ],
-      ],
-    ];
+      ];
+    }
   }
 }

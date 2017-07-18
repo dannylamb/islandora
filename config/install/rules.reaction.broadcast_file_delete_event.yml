@@ -1,47 +1,46 @@
-uuid: 71df1b5d-2f04-42fa-a660-5375de9c6c51
+uuid: d35441d4-62d6-4e0d-bf6f-23ff32eab457
 langcode: en
 status: true
 dependencies:
   enforced:
     module:
       - islandora
-id: broadcast_media_delete_event
-label: 'Broadcast Media Delete Event'
+id: broadcast_file_delete_event
+label: 'Broadcast File Delete Event'
 events:
   -
-    event_name: 'rules_entity_delete:media'
-description: 'Broadcasts an AS2 event to a message broker when Media is deleted.'
+    event_name: 'rules_entity_delete:file'
+description: 'Broadcasts an AS2 event to a message broker when a File is deleted.'
 tags:
   - ''
 config_version: '3'
 expression:
   id: rules_rule
-  uuid: c12184e7-8230-4bc7-b625-2a26b4a5a913
+  uuid: 69e8870c-9d20-4cc3-9a17-de940d4c9932
   conditions:
     id: rules_and
-    uuid: 5147d740-4e32-4935-8c30-f893e7c3f86f
+    uuid: f465ad23-88a2-4026-a7ca-dbfc2d3aa031
     conditions: {  }
   actions:
     id: rules_action_set
-    uuid: 4a023b99-1cf8-410a-a082-b0c0369a807d
+    uuid: 65ce1b3b-7986-4cf2-ab03-b950212f505e
     actions:
       -
         id: rules_action
-        uuid: 1fdc07dc-72ba-4666-abb8-8d79f29b67ff
+        uuid: 2d6b2435-e986-4e53-8831-e4328aa63af3
         context_values: {  }
         context_mapping:
-          entity: media
+          entity: file
           user: '@user.current_user_context:current_user'
         context_processors: {  }
         provides_mapping: {  }
         action_id: islandora_delete_event_generator
       -
         id: rules_action
-        uuid: 75d0cf84-715b-4167-8ec2-92047a0bec56
+        uuid: f1a6a455-5486-4a4a-a3c9-4e9b3867cf64
         context_values:
           recipients:
-            - "activemq:queue:islandora-indexing-triplestore\r"
-            - 'activemq:queue:islandora-indexing-fcrepo-binary-delete'
+            - 'activemq:queue:islandora-indexing-fcrepo-delete'
         context_mapping:
           message: event_message
         context_processors:

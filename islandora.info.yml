@@ -18,3 +18,4 @@ dependencies:
   - jwt
   - media_entity_image
   - rest 
+  - filehash
