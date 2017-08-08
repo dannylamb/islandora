@@ -8,7 +8,7 @@ dependencies:
     - rest
     - serialization
     - user
-    - file_hash 
+    - filehash 
 id: file_checksum
 label: 'File Checksum'
 module: views
