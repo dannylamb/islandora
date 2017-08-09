@@ -6,6 +6,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
 use Drupal\file\FileInterface;
 use Drupal\user\UserInterface;
+use Drupal\media_entity\MediaInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * The default EventGenerator implementation.
@@ -63,23 +65,11 @@ class EventGenerator implements EventGeneratorInterface {
         "id" => "urn:uuid:{$user->uuid()}",
         "url" => [
           [
-            "name" => "Drupal Canonical",
+            "name" => "Canonical",
             "type" => "Link",
             "href" => "$user_url",
             "mediaType" => "text/html",
             "rel" => "canonical",
-          ],
-          [
-            "name" => "Drupal JSONLD",
-            "type" => "Link",
-            "href" => "$user_url?_format=jsonld",
-            "mediaType" => "application/ld+json",
-          ],
-          [
-            "name" => "Drupal JSON",
-            "type" => "Link",
-            "href" => "$user_url?_format=json",
-            "mediaType" => "application/json",
           ],
         ],
       ],
@@ -91,69 +81,118 @@ class EventGenerator implements EventGeneratorInterface {
   }
 
   /**
-   * Generates entity urls (files are slightly different).
+   * Generates entity urls depending on entity type.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity that was created.
+   *   The entity.
    *
    * @return array
    *   AS2 Links.
    */
   protected function generateEntityLinks(EntityInterface $entity) {
     if ($entity instanceof FileInterface) {
-        $file_url = $entity->url();
-        $checksum_url = Url::fromRoute('view.file_checksum.rest_export_1', ['file' => $entity->id()])
-          ->setAbsolute()
-          ->toString();
-        $json_url = Url::fromRoute('rest.entity.file.GET.json', ['file' => $entity->id()])
-          ->setAbsolute()
-          ->toString();
+      return $this->generateFileLinks($entity);
+    }
+    elseif ($entity instanceof MediaInterface) {
+      return $this->generateMediaLinks($entity);
+    }
 
-        return [
-          [
-            "name" => "Drupal Canonical",
-            "type" => "Link",
-            "href" => "$file_url",
-            "mediaType" => $entity->getMimeType(),
-            "rel" => "canonical",
-          ],
-          [
-            "name" => "Drupal Checksum",
-            "type" => "Link",
-            "href" => "$checksum_url?_format=json",
-            "mediaType" => "application/json",
-          ],
-          [
-            "name" => "Drupal JSON",
-            "type" => "Link",
-            "href" => "$json_url?_format=json",
-            "mediaType" => "application/json",
-          ],
-        ];
-    }
-    else {
-      $entity_url = $entity->toUrl()->setAbsolute()->toString();
-      return [
-          [
-            "name" => "Drupal Canoncial",
-            "type" => "Link",
-            "href" => "$entity_url",
-            "mediaType" => "text/html",
-            "rel" => "canonical",
-          ],
-          [
-            "name" => "Drupal JSONLD",
-            "type" => "Link",
-            "href" => "$entity_url?_format=jsonld",
-            "mediaType" => "application/ld+json",
-          ],
-          [
-            "name" => "Drupal JSON",
-            "type" => "Link",
-            "href" => "$entity_url?_format=json",
-            "mediaType" => "application/json",
-          ],
-      ];
-    }
+    return $this->generateNodeLinks($entity);
+  }
+
+  /**
+   * Generates file urls.
+   *
+   * @param \Drupal\file\FileInterface $file
+   *   The file.
+   *
+   * @return array
+   *   AS2 Links.
+   */
+  protected function generateFileLinks(FileInterface $file)
+  {
+    $file_url = $file->url();
+    $checksum_url = Url::fromRoute('view.file_checksum.rest_export_1', ['file' => $file->id()])
+      ->setAbsolute()
+      ->toString();
+
+    return [
+      [
+        "name" => "File",
+        "type" => "Link",
+        "href" => "$file_url",
+        "mediaType" => $file->getMimeType(),
+      ],
+      [
+        "name" => "Checksum",
+        "type" => "Link",
+        "href" => "$checksum_url?_format=json",
+        "mediaType" => "application/json",
+      ],
+    ];
+  }
+
+  /**
+   * Generates media urls.
+   *
+   * @param \Drupal\media_entity\MediaInterface $media
+   *   The media.
+   *
+   * @return array
+   *   AS2 Links.
+   */
+  protected function generateMediaLinks(MediaInterface $media)
+  {
+    $url = $media->toUrl()->setAbsolute()->toString();
+    return [
+        [
+          "name" => "Canoncial",
+          "type" => "Link",
+          "href" => "$url",
+          "mediaType" => "text/html",
+          "rel" => "canonical",
+        ],
+        [
+          "name" => "JSONLD",
+          "type" => "Link",
+          "href" => "$url?_format=jsonld",
+          "mediaType" => "application/ld+json",
+        ],
+        [
+          "name" => "JSON",
+          "type" => "Link",
+          "href" => "$url?_format=json",
+          "mediaType" => "application/json",
+        ],
+    ];
+  }
+
+  /**
+   * Generates node urls.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   *
+   * @return array
+   *   AS2 Links.
+   */
+  protected function generateNodeLinks(NodeInterface $node)
+  {
+    $url = $node->toUrl()->setAbsolute()->toString();
+    return [
+        [
+          "name" => "Canoncial",
+          "type" => "Link",
+          "href" => "$url",
+          "mediaType" => "text/html",
+          "rel" => "canonical",
+        ],
+        [
+          "name" => "JSONLD",
+          "type" => "Link",
+          "href" => "$url?_format=jsonld",
+          "mediaType" => "application/ld+json",
+        ],
+    ];
   }
 }
