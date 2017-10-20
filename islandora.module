@@ -17,7 +17,6 @@
 use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
 /**
  * Implements hook_help().

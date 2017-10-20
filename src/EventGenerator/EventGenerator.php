@@ -109,8 +109,7 @@ class EventGenerator implements EventGeneratorInterface {
    * @return array
    *   AS2 Links.
    */
-  protected function generateFileLinks(FileInterface $file)
-  {
+  protected function generateFileLinks(FileInterface $file) {
     $file_url = $file->url();
     $checksum_url = Url::fromRoute('view.file_checksum.rest_export_1', ['file' => $file->id()])
       ->setAbsolute()
@@ -141,8 +140,7 @@ class EventGenerator implements EventGeneratorInterface {
    * @return array
    *   AS2 Links.
    */
-  protected function generateMediaLinks(MediaInterface $media)
-  {
+  protected function generateMediaLinks(MediaInterface $media) {
     $url = $media->toUrl()->setAbsolute()->toString();
     return [
         [
@@ -176,8 +174,7 @@ class EventGenerator implements EventGeneratorInterface {
    * @return array
    *   AS2 Links.
    */
-  protected function generateNodeLinks(NodeInterface $node)
-  {
+  protected function generateNodeLinks(NodeInterface $node) {
     $url = $node->toUrl()->setAbsolute()->toString();
     return [
         [
@@ -195,4 +192,5 @@ class EventGenerator implements EventGeneratorInterface {
         ],
     ];
   }
+
 }
