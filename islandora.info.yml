@@ -19,3 +19,4 @@ dependencies:
   - media_entity_image
   - rest 
   - filehash
+  - basic_auth
