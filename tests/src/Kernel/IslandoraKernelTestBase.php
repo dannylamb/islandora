@@ -25,6 +25,7 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'inline_entity_form',
     'serialization',
     'rest',
+    'basic_auth',
     'hal',
     'rdf',
     'typed_data',
