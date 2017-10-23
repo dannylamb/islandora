@@ -1,0 +1,4 @@
+
+view checksums:
+  title: 'View Checksums'
+  description: 'Allows access to viewing file checksums'

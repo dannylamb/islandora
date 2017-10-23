@@ -2,18 +2,15 @@ uuid: cd3f8b61-8032-4c3d-9de3-624b298c9bca
 langcode: en
 status: true
 dependencies:
-  config:
-    - user.role.administrator
-    - user.role.authenticated
   module:
-    - jwt
     - basic_auth
     - file
+    - jwt
     - rest
     - serialization
     - user
 _core:
-  default_config_hash: nw92kfBH0BZ0e0b6YVNeNcTnibK3hKcEnlcfHnwqXmE
+  default_config_hash: e7XqQa-N16XDqeDTA7Ohgx6iLb6mIQ1RUs0krFFIbAw
 id: file_checksum
 label: 'File Checksum'
 module: views
@@ -30,11 +27,8 @@ display:
     position: 0
     display_options:
       access:
-        type: role
-        options:
-          role:
-            authenticated: authenticated
-            administrator: administrator
+        type: none
+        options: {  }
       cache:
         type: tag
         options: {  }
@@ -183,7 +177,6 @@ display:
         - request_format
         - url
         - url.query_args
-        - user.roles
       tags: {  }
   rest_export_1:
     display_plugin: rest_export
@@ -217,5 +210,5 @@ display:
         - 'languages:language_interface'
         - request_format
         - url
-        - user.roles
       tags: {  }
+

@@ -32,6 +32,8 @@ abstract class IslandoraWebTestBase extends WebTestBase {
     'views',
     'key',
     'jwt',
+    'basic_auth',
+    'filehash',
     'islandora',
   ];
 

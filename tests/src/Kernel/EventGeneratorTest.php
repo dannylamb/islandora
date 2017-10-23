@@ -88,11 +88,10 @@ class EventGeneratorTest extends EventGeneratorTestBase {
     $this->assertTrue($msg["actor"]["type"] == "Person", "Actor must be a 'Person'.");
     $this->assertTrue(array_key_exists("id", $msg["actor"]), "Actor must have 'id' key.");
     $this->assertTrue(
-        $msg["actor"]["id"] == "urn:islandora:{$this->user->uuid()}",
+        $msg["actor"]["id"] == "urn:uuid:{$this->user->uuid()}",
         "Id must be an URN with user's UUID"
     );
     $this->assertTrue(array_key_exists("url", $msg["actor"]), "Actor must have 'url' key.");
-    $this->assertTrue(count($msg["actor"]["url"]) == 2, "'url' key must have 2 entries");
     foreach ($msg['actor']['url'] as $url) {
       $this->assertTrue($url['type'] == 'Link', "'url' entries must have type 'Link'");
       $this->assertTrue(
@@ -105,11 +104,10 @@ class EventGeneratorTest extends EventGeneratorTestBase {
     $this->assertTrue(array_key_exists('object', $msg), "Message must have 'object' key.");
     $this->assertTrue(array_key_exists("id", $msg["object"]), "Object must have 'id' key.");
     $this->assertTrue(
-        $msg["object"]["id"] == "urn:islandora:{$this->entity->uuid()}",
+        $msg["object"]["id"] == "urn:uuid:{$this->entity->uuid()}",
         "Id must be an URN with entity's UUID"
     );
     $this->assertTrue(array_key_exists("url", $msg["actor"]), "Object must have 'url' key.");
-    $this->assertTrue(count($msg["object"]["url"]) == 2, "'url' key must have 2 entries");
     foreach ($msg['actor']['url'] as $url) {
       $this->assertTrue($url['type'] == 'Link', "'url' entries must have type 'Link'");
       $this->assertTrue(
