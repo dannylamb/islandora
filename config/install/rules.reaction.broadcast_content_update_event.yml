@@ -41,7 +41,7 @@ expression:
         context_values:
           recipients:
             - "activemq:queue:islandora-indexing-fcrepo-content\r"
-            - 'activemq:queue:islandora-indexing-triplestore'
+            - 'activemq:queue:islandora-indexing-triplestore-index'
         context_mapping:
           message: event_message
         context_processors:
