@@ -21,10 +21,6 @@ fieldMappings:
     properties:
       - 'dc:title'
       - 'rdf:label'
-  field_image:
-    properties:
-      - 'iana:describes'
-    mapping_type: rel
   created:
     properties:
       - 'schema:dateCreated'
