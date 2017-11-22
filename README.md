@@ -5,7 +5,13 @@
 
 ## Introduction
 
-Islandora modules for Drupal 8.2.x
+CLAW's core Islandora module for Drupal 8.x
+
+## Installation
+
+For a fully automated install, see [claw-playbook](https://github.com/Islandora-Devops/claw-playbook).  If you're installing
+manually, the REST configuration for both Nodes and Media need to be enabled.  `jwt_auth` and `jsonld` formats needs to be set
+for both, with Media additionally needing the `json` format. 
 
 ## Maintainers
 
