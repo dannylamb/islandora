@@ -85,17 +85,11 @@ function islandora_rdf_namespaces() {
  * Implements hook_ENTITY_TYPE_insert().
  */
 function islandora_node_insert(EntityInterface $entity) {
-  // Creates a record in the db to track the number of changes to the entity.
-  $versionCounter = \Drupal::service('islandora.versioncounter');
-  try {
-    $versionCounter->create($entity->uuid());
-  }
-  catch (IntegrityConstraintViolationException $e) {
-    \Drupal::logger('islandora')->error(
-      'Attempted to create duplicate entry for @uuid in version counter ' .
-      'table. This should never happen.',
-      ['@uuid' => $entity->uuid()]
-    );
+  /** @var \Drupal\context\ContextManager $context_manager */
+  $context_manager = \Drupal::service('context.manager');
+
+  foreach ($context_manager->getActiveReactions('index') as $reaction) {
+    $reaction->execute($entity);
   }
 }
 
@@ -103,9 +97,36 @@ function islandora_node_insert(EntityInterface $entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function islandora_node_update(EntityInterface $entity) {
-  // Increments the number of changes to the entity.
-  $versionCounter = \Drupal::service('islandora.versioncounter');
-  $versionCounter->increment($entity->uuid());
+  /** @var \Drupal\context\ContextManager $context_manager */
+  $context_manager = \Drupal::service('context.manager');
+
+  foreach ($context_manager->getActiveReactions('index') as $reaction) {
+    $reaction->execute($entity);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function islandora_media_insert(EntityInterface $entity) {
+  /** @var \Drupal\context\ContextManager $context_manager */
+  $context_manager = \Drupal::service('context.manager');
+
+  foreach ($context_manager->getActiveReactions('index') as $reaction) {
+    $reaction->execute($entity);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function islandora_media_update(EntityInterface $entity) {
+  /** @var \Drupal\context\ContextManager $context_manager */
+  $context_manager = \Drupal::service('context.manager');
+
+  foreach ($context_manager->getActiveReactions('index') as $reaction) {
+    $reaction->execute($entity);
+  }
 }
 
 /**
