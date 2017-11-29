@@ -1,0 +1,12 @@
+uuid: 2d06308d-b848-4114-aa3d-0abe1faa4d8b
+langcode: en
+status: true
+dependencies:
+  module:
+    - action
+id: say_not_a_collection
+label: 'Say "not a collection"'
+type: system
+plugin: action_message_action
+configuration:
+  message: 'I''m not a collection!'
