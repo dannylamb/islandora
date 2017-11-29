@@ -4,6 +4,9 @@ status: true
 dependencies:
   module:
     - action
+  enforced:
+    module:
+      - islandora
 id: say_not_a_collection
 label: 'Say "not a collection"'
 type: system

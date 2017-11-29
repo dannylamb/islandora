@@ -1,0 +1,32 @@
+uuid: 672da32c-5076-4872-8a3d-caadf84dc55f
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+    - node
+  module:
+    enforced:
+      - islandora
+name: collection
+label: Collection
+group: Islandora
+description: 'Reactions for Islandora Collections'
+requireAllConditions: false
+disabled: false
+conditions:
+  node_type:
+    id: node_type
+    bundles:
+      islandora_collection: islandora_collection
+    negate: 0
+    uuid: 9dcd15cb-46d0-4dac-81ca-cbc14d7fd3b7
+    context_mapping:
+      node: '@node.node_route_context:node'
+reactions:
+  index:
+    id: index
+    actions:
+      say_collection: say_collection
+    saved: false
+weight: 0
