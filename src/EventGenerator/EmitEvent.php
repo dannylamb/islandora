@@ -126,6 +126,8 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
     $user = $this->userStorage->load($this->account->id());
     $message = $this->eventGenerator->generateCreateEvent($entity, $user);
 
+    dsm($message);
+
     // Transform message from string into a proper message object.
     $message = new Message($message, ['Authorization' => "Bearer $token"]);
 
