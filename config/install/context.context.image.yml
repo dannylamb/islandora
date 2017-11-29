@@ -27,6 +27,6 @@ reactions:
   index:
     id: index
     actions:
-      say_not_a_collection: say_not_a_collection
+      say_image: say_image
     saved: false
 weight: 0

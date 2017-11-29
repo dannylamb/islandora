@@ -7,9 +7,9 @@ dependencies:
   enforced:
     module:
       - islandora
-id: say_not_a_collection
-label: 'Say "not a collection"'
+id: say_image
+label: 'Say "image"'
 type: system
 plugin: action_message_action
 configuration:
-  message: 'I''m not a collection!'
+  message: 'I''m an image!'
