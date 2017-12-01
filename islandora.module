@@ -81,61 +81,61 @@ function islandora_rdf_namespaces() {
   ];
 }
 
-/**
- * Implements hook_ENTITY_TYPE_insert().
- */
-function islandora_node_insert(EntityInterface $entity) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
+function islandora_entity_insert(EntityInterface $entity) {
+  switch ($entity->getEntityTypeId()) {
+    case 'node':
+    case 'media':
+    case 'file':
+      /** @var \Drupal\context\ContextManager $context_manager */
+      $context_manager = \Drupal::service('context.manager');
 
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($entity);
+      foreach ($context_manager->getActiveReactions('index') as $reaction) {
+        $reaction->execute($entity);
+      }
+      break;
+    default:
+      break;
   }
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
-function islandora_node_update(EntityInterface $entity) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
+function islandora_entity_update(EntityInterface $entity) {
+  switch ($entity->getEntityTypeId()) {
+    case 'node':
+    case 'media':
+    case 'file':
+      /** @var \Drupal\context\ContextManager $context_manager */
+      $context_manager = \Drupal::service('context.manager');
 
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($entity);
+      foreach ($context_manager->getActiveReactions('index') as $reaction) {
+        $reaction->execute($entity);
+      }
+      break;
+    default:
+      break;
   }
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_ENTITY_TYPE_delete().
  */
-function islandora_media_insert(EntityInterface $entity) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
+function islandora_entity_delete(EntityInterface $entity) {
+  switch ($entity->getEntityTypeId()) {
+    case 'node':
+    case 'media':
+    case 'file':
+      /** @var \Drupal\context\ContextManager $context_manager */
+      $context_manager = \Drupal::service('context.manager');
 
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($entity);
+      foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
+        $reaction->execute($entity);
+      }
+      break;
+    default:
+      break;
   }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function islandora_media_update(EntityInterface $entity) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($entity);
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function islandora_node_delete(EntityInterface $entity) {
-  // Deletes the record in the db to track the number of changes to the entity.
-  $versionCounter = \Drupal::service('islandora.versioncounter');
-  $versionCounter->delete($entity->uuid());
 }
 
 /**
