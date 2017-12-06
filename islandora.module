@@ -88,138 +88,86 @@ function islandora_rdf_namespaces() {
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_entity_insert().
  */
-function islandora_node_insert(NodeInterface $node) {
-  /** @var \Drupal\context\ContextManager $context_manager */
+function islandora_entity_insert(EntityInterface $entity) {
+  switch ($entity->getEntityType()->id()) {
+    case "node":
+      $provider = new NodeContextProvider($entity);
+      break;
+    case "media":
+      $provider = new MediaContextProvider($entity);
+      break;
+    case "file":
+      $provider = new FileContextProvider($entity);
+      break;
+    default:
+      $provider = NULL;
+      break;
+  }
+
   $context_manager = \Drupal::service('context.manager');
-  $provider = new NodeContextProvider($node);
   $provided = $provider->getRuntimeContexts([]);
   $context_manager->evaluateContexts($provided);
 
   foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($node);
+    $reaction->execute($execute);
   }
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_entity_update().
  */
-function islandora_media_insert(MediaInterface $media) {
-  /** @var \Drupal\context\ContextManager $context_manager */
+function islandora_entity_update(EntityInterface $entity) {
+  switch ($entity->getEntityType()->id()) {
+    case "node":
+      $provider = new NodeContextProvider($entity);
+      break;
+    case "media":
+      $provider = new MediaContextProvider($entity);
+      break;
+    case "file":
+      $provider = new FileContextProvider($entity);
+      break;
+    default:
+      $provider = NULL;
+      break;
+  }
+
   $context_manager = \Drupal::service('context.manager');
-  $provider = new MediaContextProvider($media);
   $provided = $provider->getRuntimeContexts([]);
   $context_manager->evaluateContexts($provided);
 
   foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($media);
+    $reaction->execute($execute);
   }
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_entity_delete().
  */
-function islandora_file_insert(FileInterface $file) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new FileContextProvider($file);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($file);
+function islandora_entity_delete(EntityInterface $entity) {
+  switch ($entity->getEntityType()->id()) {
+    case "node":
+      $provider = new NodeContextProvider($entity);
+      break;
+    case "media":
+      $provider = new MediaContextProvider($entity);
+      break;
+    case "file":
+      $provider = new FileContextProvider($entity);
+      break;
+    default:
+      $provider = NULL;
+      break;
   }
-}
 
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function islandora_node_update(NodeInterface $node) {
-  /** @var \Drupal\context\ContextManager $context_manager */
   $context_manager = \Drupal::service('context.manager');
-  $provider = new NodeContextProvider($node);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($node);
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function islandora_media_update(MediaInterface $media) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new MediaContextProvider($media);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($media);
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_update().
- */
-function islandora_file_update(FileInterface $file) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new FileContextProvider($file);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($file);
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_delete().
- */
-function islandora_node_delete(NodeInterface $node) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new NodeContextProvider($node);
   $provided = $provider->getRuntimeContexts([]);
   $context_manager->evaluateContexts($provided);
 
   foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
-    $reaction->execute($node);
-  }
-}
-
-
-/**
- * Implements hook_ENTITY_TYPE_delete().
- */
-function islandora_media_delete(MediaInterface $media) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new MediaContextProvider($media);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
-    $reaction->execute($media);
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_delete().
- */
-function islandora_file_delete(FileInterface $file) {
-  /** @var \Drupal\context\ContextManager $context_manager */
-  $context_manager = \Drupal::service('context.manager');
-  $provider = new FileContextProvider($file);
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
-    $reaction->execute($file);
+    $reaction->execute($execute);
   }
 }
 

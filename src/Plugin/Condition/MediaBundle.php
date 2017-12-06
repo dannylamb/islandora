@@ -109,7 +109,6 @@ class MediaBundle extends ConditionPluginBase implements ContainerFactoryPluginI
       return TRUE;
     }
     $media = $this->getContextValue('media');
-    dsm("MEDIA IS IN CONTEXT");
     return !empty($this->configuration['bundles'][$media->bundle()]);
   }
 

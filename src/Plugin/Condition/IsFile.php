@@ -35,7 +35,6 @@ class IsFile extends ConditionPluginBase {
     // Getting the context value will short-circuit if the file isn't in
     // context.
     $this->getContextValue('file');
-    dsm("FILE IS IN CONTEXT");
     return TRUE;
   }
 
