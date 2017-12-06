@@ -24,3 +24,13 @@ services:
   logger.channel.islandora:
       parent: logger.channel_base
       arguments: ['islandora']
+  islandora.media_route_context_provider:
+    class: Drupal\islandora\ContextProvider\MediaRouteContextProvider
+    arguments: ['@current_route_match']
+    tags:
+      - { name: 'context_provider' }
+  islandora.file_route_context_provider:
+    class: Drupal\islandora\ContextProvider\FileRouteContextProvider
+    arguments: ['@current_route_match']
+    tags:
+      - { name: 'context_provider' }

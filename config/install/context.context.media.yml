@@ -1,0 +1,40 @@
+uuid: c144ae9e-0c93-445b-8deb-9e26ae97c497
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+  enforced:
+    module:
+      - islandora
+name: media
+label: Media
+group: Islandora
+description: 'Reactions for all Media'
+requireAllConditions: false
+disabled: false
+conditions:
+  media_bundle:
+    id: media_bundle
+    bundles:
+      image_tiff: image_tiff
+      jp2: jp2
+      tn: tn
+      web_content: web_content
+    negate: 0
+    uuid: d54bbae0-cba3-465c-8ba9-b9857f8302b2
+    context_mapping:
+      media: '@islandora.media_route_context_provider:media'
+reactions:
+  index:
+    id: index
+    actions:
+      index_media_in_fedora: index_media_in_fedora
+      index_media_in_triplestore: index_media_in_triplestore
+    saved: false
+  deindex:
+    id: deindex
+    actions:
+      de_index_media_from_triplestore: de_index_media_from_triplestore
+    saved: false
+weight: 0

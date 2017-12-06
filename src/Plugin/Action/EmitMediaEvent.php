@@ -5,7 +5,7 @@ namespace Drupal\islandora\Plugin\Action;
 use Drupal\islandora\EventGenerator\EmitEvent;
 
 /**
- * Emits a Node event.
+ * Emits a Media event.
  *
  * @Action(
  *   id = "emit_media_event",

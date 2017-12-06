@@ -22,3 +22,37 @@ action.configuration.emit_node_event:
     event:
       type: text
       label: 'Event Type'
+
+action.configuration.emit_media_event:
+  type: mapping
+  label: 'Emit a Media event to a queue/topic'
+  mapping:
+    queue:
+      type: text
+      label: 'Queue'
+    event:
+      type: text
+      label: 'Event Type'
+
+action.configuration.emit_file_event:
+  type: mapping
+  label: 'Emit a Flie event to a queue/topic'
+  mapping:
+    queue:
+      type: text
+      label: 'Queue'
+    event:
+      type: text
+      label: 'Event Type'
+
+condition.plugin.media_bundle:
+  type: condition.plugin
+  mapping:
+    bundles:
+      type: sequence
+      sequence:
+        type: string
+
+condition.plugin.is_file:
+  type: condition.plugin
+  mapping:

@@ -1,0 +1,40 @@
+uuid: 6035c38f-8bdf-4bb1-b1ef-f0d9d23b686d
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+    - node
+  enforced:
+    module:
+      - islandora
+name: node
+label: Node
+group: Islandora
+description: 'Reactions for all Nodes'
+requireAllConditions: false
+disabled: false
+conditions:
+  node_type:
+    id: node_type
+    bundles:
+      islandora_collection: islandora_collection
+      islandora_image: islandora_image
+    negate: 0
+    uuid: f906c047-588f-4605-92f4-6e9a1319d41d
+    context_mapping:
+      node: '@node.node_route_context:node'
+reactions:
+  index:
+    id: index
+    actions:
+      index_node_in_fedora: index_node_in_fedora
+      index_node_in_triplestore: index_node_in_triplestore
+    saved: false
+  deindex:
+    id: deindex
+    actions:
+      de_index_node_from_fedora: de_index_node_from_fedora
+      de_index_node_from_triplestore: de_index_node_from_triplestore
+    saved: false
+weight: 0

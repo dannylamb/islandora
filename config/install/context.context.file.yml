@@ -1,0 +1,34 @@
+uuid: 12ca058e-6d7f-46f0-95f3-ddaa3a06e187
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+  enforced:
+    module:
+      - islandora
+name: file
+label: File
+group: Islandora
+description: 'Reactions for all Files'
+requireAllConditions: false
+disabled: false
+conditions:
+  is_file:
+    id: is_file
+    negate: 0
+    uuid: a637d232-1b80-4bb3-8f46-e21a9cc74ce9
+    context_mapping:
+      file: '@islandora.file_route_context_provider:file'
+reactions:
+  index:
+    id: index
+    actions:
+      index_file_in_fedora: index_file_in_fedora
+    saved: false
+  deindex:
+    id: deindex
+    actions:
+      de_index_file_from_fedora: de_index_file_from_fedora
+    saved: false
+weight: 0
