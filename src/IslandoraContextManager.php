@@ -24,7 +24,7 @@ class IslandoraContextManager extends ContextManager {
     /** @var \Drupal\context\ContextInterface $context */
     foreach ($this->getContexts() as $context) {
       if ($this->evaluateContextConditions($context, $provided) && !$context->disabled()) {
-        $this->activeContexts[] = $context;
+        $this->activeContexts[$context->id()] = $context;
       }
     }
 
@@ -72,13 +72,11 @@ class IslandoraContextManager extends ContextManager {
    * @return bool
    */
   protected function applyContexts(ConditionPluginCollection &$conditions, array $provided = []) {
-
     foreach ($conditions as $condition) {
       if ($condition instanceof ContextAwarePluginInterface) {
         try {
           $contexts = $this->contextRepository->getRuntimeContexts(array_values($condition->getContextMapping()));
-          $contexts += $provided;
-          $this->contextHandler->applyContextMapping($condition, $contexts);
+          $this->contextHandler->applyContextMapping($condition, $provided + $contexts);
         }
         catch (ContextException $e) {
           return FALSE;

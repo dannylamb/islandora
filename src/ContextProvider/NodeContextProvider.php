@@ -38,7 +38,7 @@ class NodeContextProvider implements ContextProviderInterface {
   public function getRuntimeContexts(array $unqualified_context_ids) {
     $context_definition = new ContextDefinition('entity:node', NULL, FALSE);
     $context = new Context($context_definition, $this->node);
-    return ['node' => $context];
+    return ['@node.node_route_context:node' => $context];
   }
 
   /**
@@ -46,7 +46,7 @@ class NodeContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:node', $this->t('Node from entity hook')));
-    return ['node' => $context];
+    return ['@node.node_route_context:node' => $context];
   }
 
 }

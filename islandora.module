@@ -106,12 +106,15 @@ function islandora_entity_insert(EntityInterface $entity) {
       break;
   }
 
-  $context_manager = \Drupal::service('context.manager');
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
 
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($execute);
+  if ($provider) {
+    $context_manager = \Drupal::service('context.manager');
+    $provided = $provider->getRuntimeContexts([]);
+    $context_manager->evaluateContexts($provided);
+
+    foreach ($context_manager->getActiveReactions('index') as $reaction) {
+      $reaction->execute($entity);
+    }
   }
 }
 
@@ -134,12 +137,14 @@ function islandora_entity_update(EntityInterface $entity) {
       break;
   }
 
-  $context_manager = \Drupal::service('context.manager');
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
+  if ($provider) {
+    $context_manager = \Drupal::service('context.manager');
+    $provided = $provider->getRuntimeContexts([]);
+    $context_manager->evaluateContexts($provided);
 
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($execute);
+    foreach ($context_manager->getActiveReactions('index') as $reaction) {
+      $reaction->execute($entity);
+    }
   }
 }
 
@@ -162,12 +167,14 @@ function islandora_entity_delete(EntityInterface $entity) {
       break;
   }
 
-  $context_manager = \Drupal::service('context.manager');
-  $provided = $provider->getRuntimeContexts([]);
-  $context_manager->evaluateContexts($provided);
+  if ($provider) {
+    $context_manager = \Drupal::service('context.manager');
+    $provided = $provider->getRuntimeContexts([]);
+    $context_manager->evaluateContexts($provided);
 
-  foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
-    $reaction->execute($execute);
+    foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
+      $reaction->execute($entity);
+    }
   }
 }
 

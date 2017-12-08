@@ -38,7 +38,6 @@ class FileRouteContextProvider implements ContextProviderInterface {
    * {@inheritdoc}
    */
   public function getRuntimeContexts(array $unqualified_context_ids) {
-    $result = [];
     $context_definition = new ContextDefinition('entity:file', NULL, FALSE);
     $value = NULL;
     if (($route_object = $this->routeMatch->getRouteObject()) && ($route_contexts = $route_object->getOption('parameters')) && isset($route_contexts['file'])) {
@@ -52,9 +51,7 @@ class FileRouteContextProvider implements ContextProviderInterface {
 
     $context = new Context($context_definition, $value);
     $context->addCacheableDependency($cacheability);
-    $result['file'] = $context;
-
-    return $result;
+    return ['@islandora.file_route_context:file' => $context];
   }
 
   /**
@@ -62,7 +59,7 @@ class FileRouteContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:file', $this->t('File from URL')));
-    return ['file' => $context];
+    return ['@islandora.file_route_context:file' => $context];
   }
 
 }
