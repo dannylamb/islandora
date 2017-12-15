@@ -105,10 +105,10 @@ class MediaBundle extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function evaluate() {
+    $media = $this->getContextValue('media');
     if (empty($this->configuration['bundles']) && !$this->isNegated()) {
       return TRUE;
     }
-    $media = $this->getContextValue('media');
     return !empty($this->configuration['bundles'][$media->bundle()]);
   }
 

@@ -114,7 +114,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
     if (empty($token)) {
       // JWT isn't properly configured. Log and notify user.
       \Drupal::logger('islandora')->error(
-        'Error getting JWT token for message: @msg', ['@msg' => $message]
+        t('Error getting JWT token for message. Check JWT Configuration.')
       );
       drupal_set_message(
         t('Error getting JWT token for message. Check JWT Configuration.'), 'error'
@@ -124,7 +124,16 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
 
     // Generate the event message.
     $user = $this->userStorage->load($this->account->id());
-    $message = $this->eventGenerator->generateCreateEvent($entity, $user);
+
+    if ($this->configuration['event'] == 'create') {
+      $message = $this->eventGenerator->generateCreateEvent($entity, $user);
+    }
+    elseif ($this->configuration['event'] == 'update') {
+      $message = $this->eventGenerator->generateUpdateEvent($entity, $user);
+    }
+    elseif ($this->configuration['event'] == 'delete') {
+      $message = $this->eventGenerator->generateDeleteEvent($entity, $user);
+    }
 
     // Transform message from string into a proper message object.
     $message = new Message($message, ['Authorization' => "Bearer $token"]);

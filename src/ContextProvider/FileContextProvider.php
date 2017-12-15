@@ -38,7 +38,7 @@ class FileContextProvider implements ContextProviderInterface {
   public function getRuntimeContexts(array $unqualified_context_ids) {
     $context_definition = new ContextDefinition('entity:file', NULL, FALSE);
     $context = new Context($context_definition, $this->file);
-    return ['file' => $context];
+    return ['@islandora.file_route_context_provider:file' => $context];
   }
 
   /**
@@ -46,7 +46,7 @@ class FileContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:file', $this->t('File from entity hook')));
-    return ['file' => $context];
+    return ['@islandora.file_route_context_provider:file' => $context];
   }
 
 }

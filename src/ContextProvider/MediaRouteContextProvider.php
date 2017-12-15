@@ -56,7 +56,7 @@ class MediaRouteContextProvider implements ContextProviderInterface {
 
     $context = new Context($context_definition, $value);
     $context->addCacheableDependency($cacheability);
-    return ['@islandora.media_route_context:media' => $context];
+    return ['media' => $context];
   }
 
   /**
@@ -64,7 +64,7 @@ class MediaRouteContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:media', $this->t('Media from URL')));
-    return ['@islandora.media_route_context:media' => $context];
+    return ['media' => $context];
   }
 
 }

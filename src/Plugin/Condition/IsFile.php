@@ -3,10 +3,7 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Plugin\Exception\ContextException;
 
 /**
  * Provides an 'Is File' condition.
@@ -33,9 +30,8 @@ class IsFile extends ConditionPluginBase {
    */
   public function evaluate() {
     // Getting the context value will short-circuit if the file isn't in
-    // context.
-    $this->getContextValue('file');
-    return TRUE;
+    // context. So return FALSE if that happens.
+    return $this->getContextValue('file');
   }
 
 }

@@ -53,6 +53,14 @@ condition.plugin.media_bundle:
       sequence:
         type: string
 
+condition.plugin.is_node:
+  type: condition.plugin
+  mapping:
+
+condition.plugin.is_media:
+  type: condition.plugin
+  mapping:
+
 condition.plugin.is_file:
   type: condition.plugin
   mapping:

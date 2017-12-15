@@ -38,7 +38,7 @@ class MediaContextProvider implements ContextProviderInterface {
   public function getRuntimeContexts(array $unqualified_context_ids) {
     $context_definition = new ContextDefinition('entity:media', NULL, FALSE);
     $context = new Context($context_definition, $this->media);
-    return ['media' => $context];
+    return ['@islandora.media_route_context_provider:media' => $context];
   }
 
   /**
@@ -46,7 +46,7 @@ class MediaContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:media', $this->t('Media from entity hook')));
-    return ['media' => $context];
+    return ['@islandora.media_route_context_provider:media' => $context];
   }
 
 }

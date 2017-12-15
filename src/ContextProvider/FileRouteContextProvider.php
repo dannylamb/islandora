@@ -51,7 +51,7 @@ class FileRouteContextProvider implements ContextProviderInterface {
 
     $context = new Context($context_definition, $value);
     $context->addCacheableDependency($cacheability);
-    return ['@islandora.file_route_context:file' => $context];
+    return ['file' => $context];
   }
 
   /**
@@ -59,7 +59,7 @@ class FileRouteContextProvider implements ContextProviderInterface {
    */
   public function getAvailableContexts() {
     $context = new Context(new ContextDefinition('entity:file', $this->t('File from URL')));
-    return ['@islandora.file_route_context:file' => $context];
+    return ['file' => $context];
   }
 
 }

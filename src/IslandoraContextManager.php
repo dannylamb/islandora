@@ -75,8 +75,12 @@ class IslandoraContextManager extends ContextManager {
     foreach ($conditions as $condition) {
       if ($condition instanceof ContextAwarePluginInterface) {
         try {
-          $contexts = $this->contextRepository->getRuntimeContexts(array_values($condition->getContextMapping()));
-          $this->contextHandler->applyContextMapping($condition, $provided + $contexts);
+          if (empty($provided)) {
+            $contexts = $this->contextRepository->getRuntimeContexts(array_values($condition->getContextMapping()));
+          } else {
+            $contexts = $provided;
+          }
+          $this->contextHandler->applyContextMapping($condition, $contexts);
         }
         catch (ContextException $e) {
           return FALSE;
