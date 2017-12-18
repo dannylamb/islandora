@@ -12,5 +12,5 @@ label: 'Index Node in Fedora'
 type: node
 plugin: emit_node_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-fcrepo-content'
+  queue: 'islandora-indexing-fcrepo-content'
   event: update

@@ -12,5 +12,5 @@ label: 'De-index Media from Triplestore'
 type: media
 plugin: emit_media_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-triplestore-delete'
+  queue: 'islandora-indexing-triplestore-delete'
   event: delete

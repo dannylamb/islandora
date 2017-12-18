@@ -12,5 +12,5 @@ label: 'Index File in Fedora'
 type: file
 plugin: emit_file_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-fcrepo-file'
+  queue: 'islandora-indexing-fcrepo-file'
   event: update

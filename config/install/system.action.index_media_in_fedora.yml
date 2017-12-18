@@ -12,5 +12,5 @@ label: 'Index Media in Fedora'
 type: media
 plugin: emit_media_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-fcrepo-media'
+  queue: 'islandora-indexing-fcrepo-media'
   event: update

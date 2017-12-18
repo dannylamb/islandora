@@ -12,5 +12,5 @@ label: 'Index Media in Triplestore'
 type: media
 plugin: emit_media_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-triplestore-index'
+  queue: 'islandora-indexing-triplestore-index'
   event: update

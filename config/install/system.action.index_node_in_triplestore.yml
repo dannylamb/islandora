@@ -12,5 +12,5 @@ label: 'Index Node in Triplestore'
 type: node
 plugin: emit_node_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-triplestore-index'
+  queue: 'islandora-indexing-triplestore-index'
   event: update

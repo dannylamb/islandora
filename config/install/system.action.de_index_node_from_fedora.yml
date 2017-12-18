@@ -12,5 +12,5 @@ label: 'De-index Node from Fedora'
 type: node
 plugin: emit_node_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-fcrepo-delete'
+  queue: 'islandora-indexing-fcrepo-delete'
   event: delete

@@ -12,5 +12,5 @@ label: 'De-index File from Fedora'
 type: file
 plugin: emit_file_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-fcrepo-delete'
+  queue: 'islandora-indexing-fcrepo-delete'
   event: delete

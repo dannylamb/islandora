@@ -12,5 +12,5 @@ label: 'De-index Node from Triplestore'
 type: node
 plugin: emit_node_event
 configuration:
-  queue: 'activemq:queue:islandora-indexing-triplestore-delete'
+  queue: 'islandora-indexing-triplestore-delete'
   event: delete
