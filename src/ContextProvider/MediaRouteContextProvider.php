@@ -68,4 +68,3 @@ class MediaRouteContextProvider implements ContextProviderInterface {
   }
 
 }
-

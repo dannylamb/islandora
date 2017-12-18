@@ -12,4 +12,4 @@ use Drupal\islandora\PresetReaction\PresetReaction;
  *   label = @Translation("Index")
  * )
  */
-class IndexReaction extends PresetReaction { }
+class IndexReaction extends PresetReaction {}

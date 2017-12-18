@@ -14,11 +14,7 @@
  * @author Diego Pino Navarro <dpino@metro.org> https://github.com/diegopino
  */
 
-use Drupal\Core\Database\IntegrityConstraintViolationException;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\media_entity\MediaInterface;
-use Drupal\node\NodeInterface;
-use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
@@ -88,133 +84,6 @@ function islandora_rdf_namespaces() {
 }
 
 /**
-function islandora_node_insert(NodeInterface $node) {
-  _node_index($node);
-}
-
-function islandora_node_update(NodeInterface $node) {
-  dsm("IN NODE UPDATE");
-  _node_index($node);
-}
-
-function _node_index(NodeInterface $node) {
-  $provider = new NodeContextProvider($node);
-  $provided = $provider->getRuntimeContexts([]);
-
-  $context_manager = \Drupal::service('context.manager');
-  $context_manager->evaluateContexts($provided);
-
-  foreach ($context_manager->getActiveReactions('index') as $reaction) {
-    $reaction->execute($node);
-  }
-}
-
-function islandora_media_insert(MediaInterface $media) {
-  _media_index($media);
-}
-
-function islandora_media_update(MediaInterface $media) {
-  dsm("IN MEDIA UPDATE");
-  _media_index($media);
-}
-
-function _media_index(MediaInterface $media) {
-  // Create a context for the media.
-  $provider = new MediaContextProvider($media);
-  $provided = $provider->getRuntimeContexts([]);
-
-  $nids = _get_referencing_nodes($media);
-
-  _execute_context_reactions('index', $nids, $media, $provided);
-}
-
-// I AM TRYING TO FIGURE OUT WHERE THE QUERY EXCEPTION IS COMING FROM
-function _get_referencing_nodes(MediaInterface $media) {
-  // Get all node fields that are entity references to Media.
-  $fields = \Drupal::entityQuery('field_storage_config')
-    ->condition('entity_type', 'node')
-    ->condition('type', 'entity_reference')
-    ->condition('settings.target_type', 'media')
-    ->execute();
-
-  // Process field names, stripping off 'node.' and appending 'target_id'
-  $conditions = array_map(
-    function($field) { return ltrim($field, 'node.') . '.target_id'; },
-    $fields
-  ); 
-
-  if (empty($conditions)) {
-    return [];
-  }
-
-  // I'm RIGHT HERE
-  // Get all nodes that reference this media.
-  $query = \Drupal::entityQuery('node', 'OR');
-  foreach ($conditions as $condition) {
-    $query->condition($condition, $media->id());
-  }
-
-  return $query->execute();
-}
-
-function _execute_context_reactions($reaction_type, $nids, $entity, array $provided) {
-  $context_manager = \Drupal::service('context.manager');
-  // If there are no referencing nodes, just fire the reactions with the Media in context.
-  if (empty($nids)) {
-    $context_manager->evaluateContexts($provided);
-    foreach ($context_manager->getActiveReactions($reaction_type) as $reaction) {
-      $reaction->execute($entity);
-    }
-  }
-  // Otherwise, fire reactions per node / media combo.
-  else {
-    dsm($nids);
-    foreach ($nids as $nid) {
-      $node = \Drupal\node\Entity\Node::load($nid);
-      if (!$node) {
-        continue;
-      }
-      $provider = new NodeContextProvider($node);
-      $context_manager->evaluateContexts($provided + $provider->getRuntimeContexts([]));
-      foreach ($context_manager->getActiveReactions($reaction_type) as $reaction) {
-        $reaction->execute($entity);
-      }
-    }
-  }
-}
-
-function _file_index(FileInterface $file) {
-  $provider = new FileContextProvider($file);
-  $provided = $provider->getRuntimeContexts([]);
-
-  $references = file_get_file_references($file, NULL, \Drupal\Core\Entity\EntityStorageInterface::FIELD_LOAD_CURRENT, NULL);
-
-  // Ignore Drupal thumbnails.
-  unset($references['thumbnail']);
-
-  foreach ($references as $field => $reference) {
-    foreach ($reference['media'] as $media) {
-      $provider = new MediaContextProvider($media);
-      _execute_context_reactions(
-        'index',
-        _get_referencing_nodes($media),
-        $media,
-        $provider->getRuntimeContexts([]) + $provided
-      );
-    }
-  }
-}
-
-function islandora_file_insert(FileInterface $file) {
-  _file_index($file);
-}
-
-function islandora_file_update(FileInterface $file) {
-  _file_index($file);
-}
-*/
-
-/**
  * Implements hook_entity_insert().
  */
 function islandora_entity_insert(EntityInterface $entity) {
@@ -222,12 +91,15 @@ function islandora_entity_insert(EntityInterface $entity) {
     case "node":
       $provider = new NodeContextProvider($entity);
       break;
+
     case "media":
       $provider = new MediaContextProvider($entity);
       break;
+
     case "file":
       $provider = new FileContextProvider($entity);
       break;
+
     default:
       $provider = NULL;
       break;
@@ -252,12 +124,15 @@ function islandora_entity_update(EntityInterface $entity) {
     case "node":
       $provider = new NodeContextProvider($entity);
       break;
+
     case "media":
       $provider = new MediaContextProvider($entity);
       break;
+
     case "file":
       $provider = new FileContextProvider($entity);
       break;
+
     default:
       $provider = NULL;
       break;
@@ -282,12 +157,15 @@ function islandora_entity_delete(EntityInterface $entity) {
     case "node":
       $provider = new NodeContextProvider($entity);
       break;
+
     case "media":
       $provider = new MediaContextProvider($entity);
       break;
+
     case "file":
       $provider = new FileContextProvider($entity);
       break;
+
     default:
       $provider = NULL;
       break;

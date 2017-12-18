@@ -2,9 +2,6 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
-use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\TestFileCreationTrait;
-
 /**
  * Tests the IsMedia condition.
  *
@@ -27,22 +24,29 @@ class IsMediaTest extends IslandoraFunctionalTestBase {
    */
   public function testIsMedia() {
     // Create a test user.
-    $account = $this->drupalCreateUser(['bypass node access', 'administer contexts', 'view media', 'create media', 'update media']);
+    $account = $this->drupalCreateUser([
+      'bypass node access',
+      'administer contexts',
+      'view media',
+      'create media',
+      'update media',
+    ]);
     $this->drupalLogin($account);
 
     $this->createContext('Test', 'test');
     $this->addCondition('test', 'is_media');
     $this->addPresetReaction('test', 'index', 'hello_world');
-    
-    // Add a new Thumbnail media and confirm Hello World! is printed to the screen.
+
+    // Add a new Thumbnail media and confirm Hello World! is printed to the
+    // screen.
     $this->createThumbnailWithFile();
     $this->assertSession()->pageTextContains("Hello World!");
 
-    // Create a new node
+    // Create a new node.
     $this->postNodeAddForm('test_type', ['title[0][value]' => 'Test Node'], 'Save');
 
-    // Confirm Hello World! is not printed to the screen
+    // Confirm Hello World! is not printed to the screen.
     $this->assertSession()->pageTextNotContains("Hello World!");
   }
-}
 
+}

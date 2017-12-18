@@ -8,13 +8,15 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\islandora\EventGenerator\EventGeneratorInterface;
 use Drupal\jwt\Authentication\Provider\JwtAuth;
 use Stomp\Exception\StompException;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Message;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Configurable action base for actions that publish messages to queues.
+ */
 abstract class EmitEvent extends ConfigurableActionBase implements ContainerFactoryPluginInterface {
 
   /**
@@ -61,14 +63,16 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Session\AccountInterface
-   *   Current user
-   * @param \Drupal\islandora\EventGenerator\EventGeneratorInterface
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Current user.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $user_storage
+   *   User storage.
+   * @param \Drupal\islandora\EventGenerator\EventGeneratorInterface $event_generator
    *   EventGenerator service to serialize AS2 events.
    * @param \Stomp\StatefulStomp $stomp
-   *   Stomp client
+   *   Stomp client.
    * @param \Drupal\jwt\Authentication\Provider\JwtAuth $auth
-   *   JWT Auth client
+   *   JWT Auth client.
    */
   public function __construct(
     array $configuration,
@@ -214,4 +218,3 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
   }
 
 }
-

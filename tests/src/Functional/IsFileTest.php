@@ -2,9 +2,6 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
-use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\TestFileCreationTrait;
-
 /**
  * Tests the IsFile condition.
  *
@@ -27,7 +24,12 @@ class IsFileTest extends IslandoraFunctionalTestBase {
    */
   public function testIsFile() {
     // Create a test user.
-    $account = $this->drupalCreateUser(['administer contexts', 'view media', 'create media', 'update media']);
+    $account = $this->drupalCreateUser([
+      'administer contexts',
+      'view media',
+      'create media',
+      'update media',
+    ]);
     $this->drupalLogin($account);
 
     // Set it up.
@@ -35,7 +37,8 @@ class IsFileTest extends IslandoraFunctionalTestBase {
     $this->addCondition('test', 'is_file');
     $this->addPresetReaction('test', 'index', 'hello_world');
 
-    // Add a new Thumbnail media and confirm Hello World! is printed to the screen for the file upload.
+    // Add a new Thumbnail media and confirm Hello World! is printed to the
+    // screen for the file upload.
     $this->createThumbnailWithFile();
     $this->assertSession()->pageTextContains("Hello World!");
 
@@ -48,7 +51,8 @@ class IsFileTest extends IslandoraFunctionalTestBase {
     ];
     $this->postEntityEditForm($url, $values, 'Save and keep published');
 
-    // Confirm Hello World! is not printed to the screen
+    // Confirm Hello World! is not printed to the screen.
     $this->assertSession()->pageTextNotContains("Hello World!");
   }
+
 }

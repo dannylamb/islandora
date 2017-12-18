@@ -34,12 +34,13 @@ class IslandoraContextManager extends ContextManager {
   /**
    * Evaluate a contexts conditions.
    *
-   * @param ContextInterface $context
+   * @param \Drupal\context\ContextInterface $context
    *   The context to evaluate conditions for.
    * @param \Drupal\Core\Plugin\Context\Context[] $provided
    *   Additional provided (core) contexts to apply to Conditions.
    *
    * @return bool
+   *   TRUE if conditions pass
    */
   public function evaluateContextConditions(ContextInterface $context, array $provided = []) {
     $conditions = $context->getConditions();
@@ -64,12 +65,13 @@ class IslandoraContextManager extends ContextManager {
   /**
    * Apply context to all the context aware conditions in the collection.
    *
-   * @param ConditionPluginCollection $conditions
+   * @param \Drupal\Core\Condition\ConditionPluginCollection $conditions
    *   A collection of conditions to apply context to.
    * @param \Drupal\Core\Plugin\Context\Context[] $provided
    *   Additional provided (core) contexts to apply to Conditions.
    *
    * @return bool
+   *   TRUE if conditions pass
    */
   protected function applyContexts(ConditionPluginCollection &$conditions, array $provided = []) {
     foreach ($conditions as $condition) {
@@ -77,7 +79,8 @@ class IslandoraContextManager extends ContextManager {
         try {
           if (empty($provided)) {
             $contexts = $this->contextRepository->getRuntimeContexts(array_values($condition->getContextMapping()));
-          } else {
+          }
+          else {
             $contexts = $provided;
           }
           $this->contextHandler->applyContextMapping($condition, $contexts);

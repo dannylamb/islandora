@@ -13,4 +13,4 @@ use Drupal\islandora\EventGenerator\EmitEvent;
  *   type = "file"
  * )
  */
-class EmitFileEvent extends EmitEvent { }
+class EmitFileEvent extends EmitEvent {}

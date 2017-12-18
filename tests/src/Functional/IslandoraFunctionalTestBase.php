@@ -5,14 +5,24 @@ namespace Drupal\Tests\islandora\Functional;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
+/**
+ * Base class for Functional tests.
+ */
 class IslandoraFunctionalTestBase extends BrowserTestBase {
 
   use TestFileCreationTrait;
 
   protected static $modules = ['context_ui', 'islandora'];
 
-  protected static $configSchemaCheckerExclusions = ['jwt.config', 'context.context.test', 'key.key.test'];
+  protected static $configSchemaCheckerExclusions = [
+    'jwt.config',
+    'context.context.test',
+    'key.key.test',
+  ];
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 
@@ -30,7 +40,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
       'type' => 'system',
       'plugin' => 'action_message_action',
       'configuration' => [
-        'message' => 'Hello World!', 
+        'message' => 'Hello World!',
       ],
     ]);
     $hello_world->save();
@@ -88,7 +98,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    * Create a new node by posting its add form.
    */
   protected function postNodeAddForm($bundle_id, $values, $button_text) {
-    $this->drupalPostForm("node/add/$bundle_id", $values, t($button_text));
+    $this->drupalPostForm("node/add/$bundle_id", $values, t('@text', ['@text' => $button_text]));
     $this->assertResponse(200);
   }
 
@@ -96,7 +106,8 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    * Edits a node by posting its edit form.
    */
   protected function postEntityEditForm($entity_url, $values, $button_text) {
-    $this->drupalPostForm("$entity_url/edit", $values, t($button_text));
+    $this->drupalPostForm("$entity_url/edit", $values, t('@text', ['@text' => $button_text]));
     $this->assertResponse(200);
   }
+
 }

@@ -13,5 +13,4 @@ use Drupal\islandora\EventGenerator\EmitEvent;
  *   type = "media"
  * )
  */
-class EmitMediaEvent extends EmitEvent { }
-
+class EmitMediaEvent extends EmitEvent {}

@@ -3,22 +3,27 @@
 namespace Drupal\islandora\PresetReaction;
 
 use Drupal\context\ContextReactionPluginBase;
-use Drupal\Core\Action\ActionManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Exposes one or more configured actions as a Context reaction.
+ */
 class PresetReaction extends ContextReactionPluginBase implements ContainerFactoryPluginInterface {
 
   protected $actionStorage;
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityStorageInterface $action_storage) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->actionStorage = $action_storage;
   }
-  
+
   /**
    * {@inheritdoc}
    */

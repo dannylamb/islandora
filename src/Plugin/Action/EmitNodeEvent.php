@@ -13,4 +13,4 @@ use Drupal\islandora\EventGenerator\EmitEvent;
  *   type = "node"
  * )
  */
-class EmitNodeEvent extends EmitEvent { }
+class EmitNodeEvent extends EmitEvent {}

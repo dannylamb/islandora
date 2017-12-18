@@ -3,7 +3,6 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
-use Drupal\Core\Plugin\Exception\ContextException;
 
 /**
  * Provides an 'Is File' condition.

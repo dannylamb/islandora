@@ -9,6 +9,9 @@ namespace Drupal\Tests\islandora\Functional;
  */
 class IndexingTest extends IslandoraFunctionalTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 
@@ -19,7 +22,7 @@ class IndexingTest extends IslandoraFunctionalTestBase {
       'type' => 'system',
       'plugin' => 'action_message_action',
       'configuration' => [
-        'message' => 'Goodbye, Cruel World!', 
+        'message' => 'Goodbye, Cruel World!',
       ],
     ]);
     $goodbye_world->save();
@@ -37,20 +40,24 @@ class IndexingTest extends IslandoraFunctionalTestBase {
    */
   public function testIndexing() {
     // Create a test user.
-    $account = $this->drupalCreateUser(['bypass node access', 'administer contexts', 'administer actions']);
+    $account = $this->drupalCreateUser([
+      'bypass node access',
+      'administer contexts',
+      'administer actions',
+    ]);
     $this->drupalLogin($account);
 
     $this->createContext('Test', 'test');
     $this->addPresetReaction('test', 'index', 'hello_world');
 
-    // Create a new node and confirm Hello World! is printed to the screen
+    // Create a new node and confirm Hello World! is printed to the screen.
     $this->postNodeAddForm('test_type', ['title[0][value]' => 'Test Node'], 'Save');
     $this->assertSession()->pageTextContains("Hello World!");
 
     // Stash the node's url.
     $url = $this->getUrl();
 
-    // Edit the node and confirm Hello World! is printed to the screen
+    // Edit the node and confirm Hello World! is printed to the screen.
     $this->postEntityEditForm($url, ['title[0][value]' => 'Test Node Changed'], 'Save');
     $this->assertSession()->pageTextContains("Hello World!");
 
@@ -61,7 +68,7 @@ class IndexingTest extends IslandoraFunctionalTestBase {
     $this->drupalPostForm("$url/delete", [], t('Delete'));
     $this->assertSession()->statusCodeEquals(200);
 
-    // Confirm Goodbye, Cruel World! is printed to the screen
+    // Confirm Goodbye, Cruel World! is printed to the screen.
     $this->assertSession()->pageTextContains("Goodbye, Cruel World!");
   }
 

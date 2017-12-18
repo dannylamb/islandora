@@ -7,7 +7,6 @@ use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\ContextProviderInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\file\FileInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**

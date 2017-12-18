@@ -12,5 +12,4 @@ use Drupal\islandora\PresetReaction\PresetReaction;
  *   label = @Translation("De-index")
  * )
  */
-class DeindexReaction extends PresetReaction { }
-
+class DeindexReaction extends PresetReaction {}
