@@ -3,6 +3,7 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\file\FileInterface;
 
 /**
  * Provides an 'Is File' condition.
@@ -28,9 +29,7 @@ class IsFile extends ConditionPluginBase {
    * {@inheritdoc}
    */
   public function evaluate() {
-    // Getting the context value will short-circuit if the file isn't in
-    // context. So return FALSE if that happens.
-    return $this->getContextValue('file');
+    return $this->getContextValue('file') instanceof FileInterface;
   }
 
 }

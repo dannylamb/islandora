@@ -21,6 +21,8 @@ class IslandoraContextManager extends ContextManager {
    */
   public function evaluateContexts(array $provided = []) {
 
+    $this->activeContexts = [];
+
     /** @var \Drupal\context\ContextInterface $context */
     foreach ($this->getContexts() as $context) {
       if ($this->evaluateContextConditions($context, $provided) && !$context->disabled()) {

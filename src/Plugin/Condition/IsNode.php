@@ -3,6 +3,7 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\node\NodeInterface;
 
 /**
  * Provides an 'Is Node' condition.
@@ -28,7 +29,7 @@ class IsNode extends ConditionPluginBase {
    * {@inheritdoc}
    */
   public function evaluate() {
-    return $this->getContextValue('node');
+    return $this->getContextValue('node') instanceof NodeInterface;
   }
 
 }

@@ -3,6 +3,7 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
+use Drupal\media_entity\MediaInterface;
 
 /**
  * Provides an 'Is Media' condition.
@@ -28,7 +29,7 @@ class IsMedia extends ConditionPluginBase {
    * {@inheritdoc}
    */
   public function evaluate() {
-    return $this->getContextValue('media');
+    return $this->getContextValue('media') instanceof MediaInterface;
   }
 
 }
