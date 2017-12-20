@@ -17,6 +17,9 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
   protected static $configSchemaCheckerExclusions = [
     'jwt.config',
     'context.context.test',
+    'context.context.node',
+    'context.context.media',
+    'context.context.file',
     'key.key.test',
   ];
 
@@ -25,6 +28,13 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    */
   public function setUp() {
     parent::setUp();
+
+    // Delete the context entities provided by the module.
+    // This will get removed as we split apart contexts into different
+    // solution packs.
+    $this->container->get('entity_type.manager')->getStorage('context')->load('node')->delete();
+    $this->container->get('entity_type.manager')->getStorage('context')->load('media')->delete();
+    $this->container->get('entity_type.manager')->getStorage('context')->load('file')->delete();
 
     // Create a test content type.
     $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
