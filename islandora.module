@@ -117,6 +117,39 @@ function islandora_entity_insert(EntityInterface $entity) {
 }
 
 /**
+ * Implements hook_entity_update().
+ */
+function islandora_entity_update(EntityInterface $entity) {
+  switch ($entity->getEntityType()->id()) {
+    case "node":
+      $provider = new NodeContextProvider($entity);
+      break;
+
+    case "media":
+      $provider = new MediaContextProvider($entity);
+      break;
+
+    case "file":
+      $provider = new FileContextProvider($entity);
+      break;
+
+    default:
+      $provider = NULL;
+      break;
+  }
+
+  if ($provider) {
+    $context_manager = \Drupal::service('context.manager');
+    $provided = $provider->getRuntimeContexts([]);
+    $context_manager->evaluateContexts($provided);
+
+    foreach ($context_manager->getActiveReactions('index') as $reaction) {
+      $reaction->execute($entity);
+    }
+  }
+}
+
+/**
  * Implements hook_entity_delete().
  */
 function islandora_entity_delete(EntityInterface $entity) {
