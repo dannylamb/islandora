@@ -43,7 +43,7 @@ class MediaRouteContextProvider implements ContextProviderInterface {
     $value = NULL;
 
     // Hack the media out of the route.
-    $route_object = $this->routeMatch->getRouteObject(); 
+    $route_object = $this->routeMatch->getRouteObject();
     if ($route_object) {
       $route_contexts = $route_object->getOption('parameters');
       if ($route_contexts && isset($route_contexts['media'])) {
