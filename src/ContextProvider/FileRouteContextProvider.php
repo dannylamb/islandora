@@ -39,9 +39,16 @@ class FileRouteContextProvider implements ContextProviderInterface {
   public function getRuntimeContexts(array $unqualified_context_ids) {
     $context_definition = new ContextDefinition('entity:file', NULL, FALSE);
     $value = NULL;
-    if (($route_object = $this->routeMatch->getRouteObject()) && ($route_contexts = $route_object->getOption('parameters')) && isset($route_contexts['file'])) {
-      if ($file = $this->routeMatch->getParameter('file')) {
-        $value = $file;
+
+    // Hack the file out of the route.
+    $route_object = $this->routeMatch->getRouteObject(); 
+    if ($route_object) {
+      $route_contexts = $route_object->getOption('parameters');
+      if ($route_contexts && isset($route_contexts['file'])) {
+        $file = $this->routeMatch->getParameter('file');
+        if ($file) {
+          $value = $file;
+        }
       }
     }
 

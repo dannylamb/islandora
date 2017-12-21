@@ -41,14 +41,21 @@ class MediaRouteContextProvider implements ContextProviderInterface {
     $result = [];
     $context_definition = new ContextDefinition('entity:media', NULL, FALSE);
     $value = NULL;
-    if (($route_object = $this->routeMatch->getRouteObject()) && ($route_contexts = $route_object->getOption('parameters')) && isset($route_contexts['media'])) {
-      if ($media = $this->routeMatch->getParameter('media')) {
-        $value = $media;
+
+    // Hack the media out of the route.
+    $route_object = $this->routeMatch->getRouteObject(); 
+    if ($route_object) {
+      $route_contexts = $route_object->getOption('parameters');
+      if ($route_contexts && isset($route_contexts['media'])) {
+        $media = $this->routeMatch->getParameter('media');
+        if ($media) {
+          $value = $media;
+        }
       }
-    }
-    elseif ($this->routeMatch->getRouteName() == 'entity.media.add_form') {
-      $media_bundle = $this->routeMatch->getParameter('media_bundle');
-      $value = Media::create(['bundle' => $media_bundle->id()]);
+      elseif ($this->routeMatch->getRouteName() == 'entity.media.add_form') {
+        $media_bundle = $this->routeMatch->getParameter('media_bundle');
+        $value = Media::create(['bundle' => $media_bundle->id()]);
+      }
     }
 
     $cacheability = new CacheableMetadata();
