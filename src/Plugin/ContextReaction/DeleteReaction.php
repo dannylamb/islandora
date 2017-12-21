@@ -5,11 +5,11 @@ namespace Drupal\islandora\Plugin\ContextReaction;
 use Drupal\islandora\PresetReaction\PresetReaction;
 
 /**
- * De-indexing context reaction.
+ * Delete context reaction.
  *
  * @ContextReaction(
- *   id = "deindex",
- *   label = @Translation("De-index")
+ *   id = "delete",
+ *   label = @Translation("Delete")
  * )
  */
-class DeindexReaction extends PresetReaction {}
+class DeleteReaction extends PresetReaction {}

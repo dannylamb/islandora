@@ -1,4 +1,4 @@
-uuid: 23ad55f4-301b-4ffb-b542-4cf2c0c291d8
+uuid: 4340c20a-d314-4cbf-a26f-c36d7180ede5
 langcode: en
 status: true
 dependencies:
@@ -7,10 +7,10 @@ dependencies:
   enforced:
     module:
       - islandora
-id: de_index_node_from_fedora
-label: 'De-index Node from Fedora'
+id: delete_node_from_triplestore
+label: 'Delete Node from Triplestore'
 type: node
 plugin: emit_node_event
 configuration:
-  queue: 'islandora-indexing-fcrepo-delete'
+  queue: 'islandora-indexing-triplestore-delete'
   event: delete

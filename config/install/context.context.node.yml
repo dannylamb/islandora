@@ -27,10 +27,10 @@ reactions:
       index_node_in_fedora: index_node_in_fedora
       index_node_in_triplestore: index_node_in_triplestore
     saved: false
-  deindex:
-    id: deindex
+  delete:
+    id: delete
     actions:
-      de_index_node_from_fedora: de_index_node_from_fedora
-      de_index_node_from_triplestore: de_index_node_from_triplestore
+      delete_node_from_fedora: delete_node_from_fedora
+      delete_node_from_triplestore: delete_node_from_triplestore
     saved: false
 weight: 0

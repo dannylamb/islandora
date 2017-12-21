@@ -176,7 +176,7 @@ function islandora_entity_delete(EntityInterface $entity) {
     $provided = $provider->getRuntimeContexts([]);
     $context_manager->evaluateContexts($provided);
 
-    foreach ($context_manager->getActiveReactions('deindex') as $reaction) {
+    foreach ($context_manager->getActiveReactions('delete') as $reaction) {
       $reaction->execute($entity);
     }
   }

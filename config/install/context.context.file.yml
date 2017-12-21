@@ -26,9 +26,9 @@ reactions:
     actions:
       index_file_in_fedora: index_file_in_fedora
     saved: false
-  deindex:
-    id: deindex
+  delete:
+    id: delete
     actions:
-      de_index_file_from_fedora: de_index_file_from_fedora
+      delete_file_from_fedora: delete_file_from_fedora
     saved: false
 weight: 0

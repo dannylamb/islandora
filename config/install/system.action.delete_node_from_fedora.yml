@@ -1,4 +1,4 @@
-uuid: 76d619dd-54f1-4047-8e89-54d5f1a7c16a
+uuid: 23ad55f4-301b-4ffb-b542-4cf2c0c291d8
 langcode: en
 status: true
 dependencies:
@@ -7,10 +7,10 @@ dependencies:
   enforced:
     module:
       - islandora
-id: de_index_file_from_fedora
-label: 'De-index File from Fedora'
-type: file
-plugin: emit_file_event
+id: delete_node_from_fedora
+label: 'Delete Node from Fedora'
+type: node
+plugin: emit_node_event
 configuration:
   queue: 'islandora-indexing-fcrepo-delete'
   event: delete

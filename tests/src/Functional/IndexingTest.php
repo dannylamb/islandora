@@ -62,7 +62,7 @@ class IndexingTest extends IslandoraFunctionalTestBase {
     $this->assertSession()->pageTextContains("Hello World!");
 
     // Add the Goodbye World reaction.
-    $this->addPresetReaction('test', 'deindex', 'goodbye_world');
+    $this->addPresetReaction('test', 'delete', 'goodbye_world');
 
     // Delete the node.
     $this->drupalPostForm("$url/delete", [], t('Delete'));

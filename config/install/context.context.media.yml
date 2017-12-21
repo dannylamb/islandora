@@ -27,9 +27,9 @@ reactions:
       index_media_in_fedora: index_media_in_fedora
       index_media_in_triplestore: index_media_in_triplestore
     saved: false
-  deindex:
-    id: deindex
+  delete:
+    id: delete
     actions:
-      de_index_media_from_triplestore: de_index_media_from_triplestore
+      delete_media_from_triplestore: delete_media_from_triplestore
     saved: false
 weight: 0

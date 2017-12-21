@@ -7,8 +7,8 @@ dependencies:
   enforced:
     module:
       - islandora
-id: de_index_media_from_triplestore
-label: 'De-index Media from Triplestore'
+id: delete_media_from_triplestore
+label: 'Delete Media from Triplestore'
 type: media
 plugin: emit_media_event
 configuration:
