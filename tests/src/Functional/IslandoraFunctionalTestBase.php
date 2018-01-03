@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
+use Drupal\node\NodeInterface;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
@@ -118,6 +119,66 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
   protected function postEntityEditForm($entity_url, $values, $button_text) {
     $this->drupalPostForm("$entity_url/edit", $values, t('@text', ['@text' => $button_text]));
     $this->assertResponse(200);
+  }
+
+  /**
+   * Utility function to check if a link header is included in the response.
+   *
+   * @param string $rel
+   *   The relation to search for.
+   *
+   * @return bool
+   *   TRUE if link header with relation is included in the response.
+   */
+  protected function doesNotHaveLinkHeader($rel) {
+    $headers = $this->getSession()->getResponseHeaders();
+
+    foreach ($headers['Link'] as $link_header) {
+      if (strpos($link_header, "rel=\"$rel\"") !== FALSE) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Checks if the collection link header contains the correct uri.
+   *
+   * @param string $rel
+   *   The expected relation type of the link header.
+   * @param \Drupal\node\NodeInterface $node
+   *   The node whose uri is expected in the link header.
+   * @param string $title
+   *   The expected title of the link header.
+   *
+   * @return int
+   *   The number of times the correct header appears.
+   */
+  protected function validateLinkHeader($rel, NodeInterface $node, $title = '') {
+    $node_url = $node->url('canonical', ['absolute' => TRUE]);
+
+    $regex = '/<(.*)>; rel="' . preg_quote($rel) . '"';
+    if (!empty($title)) {
+      $regex .= '; title="' . preg_quote($title) . '"';
+    }
+    $regex .= '/';
+
+    $count = 0;
+
+    $headers = $this->getSession()->getResponseHeaders();
+
+    foreach ($headers['Link'] as $link_headers) {
+      $split = explode(',', $link_headers);
+      foreach ($split as $link_header) {
+        $matches = [];
+        if (preg_match($regex, $link_header, $matches) && $matches[1] == $node_url) {
+          $count++;
+        }
+      }
+    }
+
+    return $count;
   }
 
 }
