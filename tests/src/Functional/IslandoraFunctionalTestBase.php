@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
-use Drupal\node\NodeInterface;
+use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
@@ -56,6 +56,25 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     ]);
     $hello_world->save();
 
+    // Enable the json REST endpoint for files.
+    $file_json = $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
+      'id' => 'entity.file',
+      'granularity' => 'resource',
+      'configuration' => [
+        'methods' => [
+          'GET',
+        ],
+        'formats' => [
+          'json',
+        ],
+        'authentication' => [
+          'cookie',
+        ],
+      ],
+    ]);
+    $file_json->save();
+
+    $this->container->get('router.builder')->rebuild();
   }
 
   /**
@@ -87,6 +106,9 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
 
   /**
    * Creates a new TN media with a file.
+   *
+   * @return array
+   *   Associative array of urls to validate against.
    */
   protected function createThumbnailWithFile() {
     // Have to do this in two steps since there's no ajax for the alt text.
@@ -103,6 +125,21 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('edit-field-image-0-alt', 'alt text');
     $this->getSession()->getPage()->pressButton(t('Save and publish'));
     $this->assertResponse(200);
+
+    $results = $this->container->get('entity_type.manager')->getStorage('file')->loadByProperties(['filename' => $file->filename]);
+    $file_entity = reset($results);
+    $file_url = $file_entity->url('canonical', ['absolute' => TRUE]);
+    $rest_url = Url::fromRoute('rest.entity.file.GET.json', ['file' => $file_entity->id()])
+      ->setAbsolute()
+      ->toString();
+    $rest_url .= "?_format=json";
+    return [
+      'media' => $this->getUrl(),
+      'file' => [
+        'file' => $file_url,
+        'rest' => $rest_url,
+      ],
+    ];
   }
 
   /**
@@ -147,23 +184,25 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    *
    * @param string $rel
    *   The expected relation type of the link header.
-   * @param \Drupal\node\NodeInterface $node
-   *   The node whose uri is expected in the link header.
+   * @param string $url
+   *   The url expected in the link header.
    * @param string $title
    *   The expected title of the link header.
+   * @param string $type
+   *   The expected mimetype for the link header.
    *
    * @return int
    *   The number of times the correct header appears.
    */
-  protected function validateLinkHeader($rel, NodeInterface $node, $title = '') {
-    $node_url = $node->url('canonical', ['absolute' => TRUE]);
-
-    $regex = '/<(.*)>; rel="' . preg_quote($rel) . '"';
+  protected function validateLinkHeader($rel, $url, $title = '', $type = '') {
+    $regex = '/<(.*)>; rel="' . preg_quote($rel, '/') . '"';
     if (!empty($title)) {
-      $regex .= '; title="' . preg_quote($title) . '"';
+      $regex .= '; title="' . preg_quote($title, '/') . '"';
+    }
+    if (!empty($type)) {
+      $regex .= '; type="' . preg_quote($type, '/') . '"';
     }
     $regex .= '/';
-
     $count = 0;
 
     $headers = $this->getSession()->getResponseHeaders();
@@ -172,7 +211,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
       $split = explode(',', $link_headers);
       foreach ($split as $link_header) {
         $matches = [];
-        if (preg_match($regex, $link_header, $matches) && $matches[1] == $node_url) {
+        if (preg_match($regex, $link_header, $matches) && $matches[1] == $url) {
           $count++;
         }
       }

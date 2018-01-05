@@ -114,20 +114,23 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
     // Visit the referencer. It should return one rel="related" link header
     // pointing to the referenced node.
     $this->drupalGet('node/' . $this->referencer->id());
+    $url = $this->referenced->url('canonical', ['absolute' => TRUE]);
     $this->assertTrue(
-      $this->validateLinkHeader('related', $this->referenced, 'Referenced Entity') == 1,
+      $this->validateLinkHeader('related', $url, 'Referenced Entity') == 1,
       "Malformed related link header"
     );
 
     // Visit the node with two references.  It should return a rel="related"
     // link header for each referenced node.
     $this->drupalGet('node/' . $this->twoReferences->id());
+    $url = $this->referenced->url('canonical', ['absolute' => TRUE]);
     $this->assertTrue(
-      $this->validateLinkHeader('related', $this->referenced, 'Referenced Entity') == 1,
+      $this->validateLinkHeader('related', $url, 'Referenced Entity') == 1,
       "Malformed related link header"
     );
+    $url = $this->other->url('canonical', ['absolute' => TRUE]);
     $this->assertTrue(
-      $this->validateLinkHeader('related', $this->other, 'Referenced Entity') == 1,
+      $this->validateLinkHeader('related', $url, 'Referenced Entity') == 1,
       "Malformed related link header"
     );
   }

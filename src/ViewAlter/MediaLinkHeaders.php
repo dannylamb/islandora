@@ -68,11 +68,11 @@ class MediaLinkHeaders extends LinkHeaderAlter implements ViewAlterInterface {
     foreach ($entity->get($source_field)->referencedEntities() as $referencedEntity) {
       if ($entity->access('view')) {
         $file_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
-        $edit_media_url = \Drupal\Core\Url::fromRoute('rest.entity.file.GET.json', ['file' => $referencedEntity->id()])
+        $edit_media_url = Url::fromRoute('rest.entity.file.GET.json', ['file' => $referencedEntity->id()])
           ->setAbsolute()
           ->toString();
         $edit_media_url .= '?_format=json';
-        $links[] = "<$file_url>; rel=\"describes\"";
+        $links[] = "<$file_url>; rel=\"describes\"; type=\"{$referencedEntity->getMimeType()}\"";
         $links[] = "<$edit_media_url>; rel=\"edit-media\"; type=\"application/json\"";
       }
     }
