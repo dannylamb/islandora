@@ -44,6 +44,21 @@ class EventGenerator implements EventGeneratorInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function generateDerivativeEvent(EntityInterface $entity, UserInterface $user, array $config) {
+    $event = $this->generateEvent($entity, $user);
+    $event["type"] = "Activity";
+    $event["summary"] = "Generate a derivative";
+    $event["attachment"] = [
+      "type" => "Note",
+      "mediaType" => "application/json",
+      "content" => $config,
+    ];
+    return json_encode($event);
+  }
+
+  /**
    * Shared event generation function that does not impose a 'Type'.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity

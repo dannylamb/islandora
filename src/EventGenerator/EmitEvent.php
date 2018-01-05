@@ -5,10 +5,12 @@ namespace Drupal\islandora\EventGenerator;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Action\ConfigurableActionBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jwt\Authentication\Provider\JwtAuth;
+use Drupal\user\UserInterface;
 use Stomp\Exception\StompException;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Message;
@@ -128,16 +130,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
 
     // Generate the event message.
     $user = $this->userStorage->load($this->account->id());
-
-    if ($this->configuration['event'] == 'create') {
-      $message = $this->eventGenerator->generateCreateEvent($entity, $user);
-    }
-    elseif ($this->configuration['event'] == 'update') {
-      $message = $this->eventGenerator->generateUpdateEvent($entity, $user);
-    }
-    elseif ($this->configuration['event'] == 'delete') {
-      $message = $this->eventGenerator->generateDeleteEvent($entity, $user);
-    }
+    $message = $this->generateEvent($entity, $user);
 
     // Transform message from string into a proper message object.
     $message = new Message($message, ['Authorization' => "Bearer $token"]);
@@ -162,6 +155,29 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
         ),
         'error'
       );
+    }
+  }
+
+  /**
+   * Serializes the event to publish.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity acted upon.
+   * @param \Drupal\user\UserInterface $user
+   *   The user performing the action.
+   *
+   * @return string
+   *   Serialized event message
+   */
+  protected function generateEvent(EntityInterface $entity, UserInterface $user) {
+    if ($this->configuration['event'] == 'create') {
+      return $this->eventGenerator->generateCreateEvent($entity, $user);
+    }
+    elseif ($this->configuration['event'] == 'update') {
+      return $this->eventGenerator->generateUpdateEvent($entity, $user);
+    }
+    elseif ($this->configuration['event'] == 'delete') {
+      return $this->eventGenerator->generateDeleteEvent($entity, $user);
     }
   }
 
