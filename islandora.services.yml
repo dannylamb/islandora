@@ -37,3 +37,7 @@ services:
   islandora.view_alter.related_link_header:
     class: Drupal\islandora\ViewAlter\RelatedLinkHeader
     arguments: ['@entity_field.manager']
+  islandora.view_alter.media_link_headers:
+    class: Drupal\islandora\ViewAlter\MediaLinkHeaders
+    factory: ['Drupal\islandora\ViewAlter\MediaLinkHeaders', create]
+    arguments: ['@entity_type.manager']
