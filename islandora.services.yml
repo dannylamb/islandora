@@ -18,6 +18,11 @@ services:
     arguments: ['@entity_type.manager', '@current_user']
     tags:
       - { name: event_subscriber }
+  islandora.node_link_header_subscriber:
+    class: Drupal\islandora\EventSubscriber\NodeLinkHeaderSubscriber
+    arguments: ['@entity_field.manager', '@current_route_match']
+    tags:
+      - { name: event_subscriber }
   islandora.versioncounter:
     class: Drupal\islandora\VersionCounter\VersionCounter
     arguments: ['@database']
@@ -34,6 +39,3 @@ services:
     arguments: ['@current_route_match']
     tags:
       - { name: 'context_provider' }
-  islandora.view_alter.related_link_header:
-    class: Drupal\islandora\ViewAlter\RelatedLinkHeader
-    arguments: ['@entity_field.manager']

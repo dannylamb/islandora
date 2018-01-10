@@ -181,11 +181,3 @@ function islandora_entity_delete(EntityInterface $entity) {
     }
   }
 }
-
-/**
- * Implements hook_node_view_alter().
- */
-function islandora_entity_view_alter(&$build, EntityInterface $entity) {
-  \Drupal::service('islandora.view_alter.related_link_header')
-    ->alter($build, $entity);
-}
