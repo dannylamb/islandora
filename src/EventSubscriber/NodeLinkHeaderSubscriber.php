@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Class NodeLinkHeaderSubscriber
+ * Class NodeLinkHeaderSubscriber.
  *
  * @package Drupal\islandora\EventSubscriber
  */
@@ -49,16 +49,23 @@ class NodeLinkHeaderSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[KernelEvents::RESPONSE][] = ['onResponse', 129];
+    // Run this after REST requests have been fulfilled, in case it is one.
+    $events[KernelEvents::RESPONSE][] = ['onResponse', 127];
 
     return $events;
   }
 
+  /**
+   * Adds node-specific link headers to appropriate responses.
+   *
+   * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   *   Event containing the response.
+   */
   public function onResponse(FilterResponseEvent $event) {
     $response = $event->getResponse();
 
     if (!$response->isOk()) {
-        return;
+      return;
     }
 
     // Hack the node out of the route.
