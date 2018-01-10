@@ -86,7 +86,7 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
   }
 
   /**
-   * @covers \Drupal\islandora\ViewAlter\RelatedLinkHeader::alter
+   * @covers \Drupal\islandora\EventSubscriber\NodeLinkHeaderSubscriber::onResponse
    */
   public function testRelatedLinkHeader() {
     // Create a test user.
