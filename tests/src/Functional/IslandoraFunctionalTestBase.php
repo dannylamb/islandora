@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
-use Drupal\node\NodeInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
@@ -147,16 +147,16 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    *
    * @param string $rel
    *   The expected relation type of the link header.
-   * @param \Drupal\node\NodeInterface $node
-   *   The node whose uri is expected in the link header.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity whose uri is expected in the link header.
    * @param string $title
    *   The expected title of the link header.
    *
    * @return int
    *   The number of times the correct header appears.
    */
-  protected function validateLinkHeader($rel, NodeInterface $node, $title = '') {
-    $node_url = $node->url('canonical', ['absolute' => TRUE]);
+  protected function validateLinkHeader($rel, EntityInterface $entity, $title = '') {
+    $entity_url = $entity->url('canonical', ['absolute' => TRUE]);
 
     $regex = '/<(.*)>; rel="' . preg_quote($rel) . '"';
     if (!empty($title)) {
@@ -172,7 +172,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
       $split = explode(',', $link_headers);
       foreach ($split as $link_header) {
         $matches = [];
-        if (preg_match($regex, $link_header, $matches) && $matches[1] == $node_url) {
+        if (preg_match($regex, $link_header, $matches) && $matches[1] == $entity_url) {
           $count++;
         }
       }

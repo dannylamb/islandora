@@ -3,6 +3,7 @@
 namespace Drupal\Tests\islandora\Functional;
 
 use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\Tests\media_entity\Functional\MediaEntityFunctionalTestTrait;
 
 /**
  * Tests the RelatedLinkHeader view alter.
@@ -12,6 +13,7 @@ use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
 
   use EntityReferenceTestTrait;
+  use MediaEntityFunctionalTestTrait;
 
   /**
    * Node that has entity reference field.
@@ -28,18 +30,18 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
   protected $referenced;
 
   /**
+   * Media to be referenced (to check authZ).
+   *
+   * @var \Drupal\media\MediaInterface
+   */
+  protected $media;
+
+  /**
    * Node of a bundle that does _not_ have an entity reference field.
    *
    * @var \Drupal\node\NodeInterface
    */
   protected $other;
-
-  /**
-   * Node with two values for its entity reference field.
-   *
-   * @var \Drupal\node\NodeInterface
-   */
-  protected $twoReferences;
 
   /**
    * {@inheritdoc}
@@ -54,8 +56,10 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
     ]);
     $test_type_with_reference->save();
 
-    // Add an entity reference field to it.
+    // Add two entity reference fields.
+    // One for nodes and one for media.
     $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_reference', 'Referenced Entity', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_media', 'Media Entity', 'media', 'default', [], 2);
 
     $this->other = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type',
@@ -69,29 +73,29 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
     ]);
     $this->referenced->save();
 
+    $media_bundle = $this->drupalCreateMediaBundle();
+    $this->media = $this->container->get('entity_type.manager')->getStorage('media')->create([
+      'bundle' => $media_bundle->id(),
+      'name' => 'Media',
+    ]);
+    $this->media->save();
+
     $this->referencer = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type_with_reference',
       'title' => 'Referencer',
       'field_reference' => [$this->referenced->id()],
+      'field_media' => [$this->media->id()],
     ]);
     $this->referencer->save();
-
-    // Create a node that references two others.
-    $this->twoReferences = $this->container->get('entity_type.manager')->getStorage('node')->create([
-      'type' => 'test_type_with_reference',
-      'title' => 'Two References',
-      'field_reference' => [$this->referenced->id(), $this->other->id()],
-    ]);
-    $this->twoReferences->save();
   }
 
   /**
    * @covers \Drupal\islandora\EventSubscriber\NodeLinkHeaderSubscriber::onResponse
    */
   public function testRelatedLinkHeader() {
-    // Create a test user.
+    // Create a test user that can see media.
     $account = $this->drupalCreateUser([
-      'bypass node access',
+      'view media',
     ]);
     $this->drupalLogin($account);
 
@@ -111,24 +115,32 @@ class RelatedLinkHeaderTest extends IslandoraFunctionalTestBase {
       "Node that has empty entity reference field must not return link header."
     );
 
-    // Visit the referencer. It should return one rel="related" link header
-    // pointing to the referenced node.
+    // Visit the referencer. It should return a rel="related" link header
+    // for both the referenced node and media entity.
     $this->drupalGet('node/' . $this->referencer->id());
     $this->assertTrue(
       $this->validateLinkHeader('related', $this->referenced, 'Referenced Entity') == 1,
       "Malformed related link header"
     );
+    $this->assertTrue(
+      $this->validateLinkHeader('related', $this->media, 'Media Entity') == 1,
+      "Malformed related link header"
+    );
 
-    // Visit the node with two references.  It should return a rel="related"
-    // link header for each referenced node.
-    $this->drupalGet('node/' . $this->twoReferences->id());
+    // Log in as anonymous.
+    $account = $this->drupalCreateUser();
+    $this->drupalLogin($account);
+
+    // Visit the referencer. It should return a rel="related" link header
+    // for both the referenced node and media entity.
+    $this->drupalGet('node/' . $this->referencer->id());
     $this->assertTrue(
       $this->validateLinkHeader('related', $this->referenced, 'Referenced Entity') == 1,
       "Malformed related link header"
     );
     $this->assertTrue(
-      $this->validateLinkHeader('related', $this->other, 'Referenced Entity') == 1,
-      "Malformed related link header"
+      $this->validateLinkHeader('related', $this->media, 'Media Entity') == 0,
+      "Anonymous should not be able to see media link header"
     );
   }
 
