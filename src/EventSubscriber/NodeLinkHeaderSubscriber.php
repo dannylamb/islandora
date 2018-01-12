@@ -49,8 +49,8 @@ class NodeLinkHeaderSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    // Run this after REST requests have been fulfilled, in case it is one.
-    $events[KernelEvents::RESPONSE][] = ['onResponse', 127];
+    // Run this early so the headers get cached.
+    $events[KernelEvents::RESPONSE][] = ['onResponse', 129];
 
     return $events;
   }
@@ -63,6 +63,11 @@ class NodeLinkHeaderSubscriber implements EventSubscriberInterface {
    */
   public function onResponse(FilterResponseEvent $event) {
     $response = $event->getResponse();
+
+    // Exit early if the response is already cached.
+    if ($response->headers->get('X-Drupal-Dynamic-Cache') == 'HIT') {
+      return;
+    }
 
     if (!$response->isOk()) {
       return;
