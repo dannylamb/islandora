@@ -2,8 +2,13 @@
 
 namespace Drupal\islandora\EventSubscriber;
 
+use Drupal\Core\Access\AccessManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -15,6 +20,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @package Drupal\islandora\EventSubscriber
  */
 abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
 
   /**
    * The entity field manager.
@@ -33,17 +45,45 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   /**
    * Constructor.
    *
+   * The access manager.
+   *
+   * @var \Drupal\Core\Access\AccessManagerInterface
+   */
+  protected $accessManager;
+
+  /**
+   * Current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $account;
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
    *   The entity field manager.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match object.
+   * @param \Drupal\Core\Access\AccessManagerInterface $access_manager
+   *   The access manager.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The current user.
    */
   public function __construct(
+    EntityTypeManager $entity_type_manager,
     EntityFieldManager $entity_field_manager,
-    RouteMatchInterface $route_match
+    RouteMatchInterface $route_match,
+    AccessManagerInterface $access_manager,
+    AccountInterface $account
   ) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->routeMatch = $route_match;
+    $this->accessManager = $access_manager;
+    $this->account = $account;
   }
 
   /**
@@ -111,6 +151,109 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     }
 
     return $object;
+  }
+
+  /**
+   * Generates link headers for each referenced entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity that has reference fields.
+   *
+   * @return string[]
+   *   Array of link headers
+   */
+  protected function generateEntityReferenceLinks(EntityInterface $entity) {
+    // Use the node to add link headers for each entity reference.
+    $entity_type = $entity->getEntityType()->id();
+    $bundle = $entity->bundle();
+
+    // Get all fields for the entity.
+    $fields = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
+
+    // Strip out everything but entity references that are not base fields.
+    $entity_reference_fields = array_filter($fields, function ($field) {
+      return $field->getFieldStorageDefinition()->isBaseField() == FALSE && $field->getType() == "entity_reference";
+    });
+
+    // Collect links for referenced entities.
+    $links = [];
+    foreach ($entity_reference_fields as $field_name => $field_definition) {
+      foreach ($entity->get($field_name)->referencedEntities() as $referencedEntity) {
+        // Headers are subject to an access check.
+        if ($referencedEntity->access('view')) {
+          $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+          $field_label = $field_definition->label();
+          $links[] = "<$entity_url>; rel=\"related\"; title=\"$field_label\"";
+        }
+      }
+    }
+
+    return $links;
+  }
+
+  /**
+   * Generates link headers for REST endpoints.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity that has reference fields.
+   *
+   * @return string[]
+   *   Array of link headers
+   */
+  protected function generateRestLinks(EntityInterface $entity) {
+    $rest_resource_config_storage = $this->entityTypeManager->getStorage('rest_resource_config');
+    $entity_type = $entity->getEntityType()->id();
+    $rest_resource_config = $rest_resource_config_storage->load("entity.$entity_type");
+
+    $links = [];
+    $route_name = $this->routeMatch->getRouteName();
+
+    if ($rest_resource_config) {
+      $configuration = $rest_resource_config->get('configuration');
+
+      foreach ($configuration['GET']['supported_formats'] as $format) {
+        switch ($format) {
+          case 'json':
+            $mime = 'application/json';
+            break;
+
+          case 'jsonld':
+            $mime = 'application/ld+json';
+            break;
+
+          case 'hal_json':
+            $mime = 'application/hal+json';
+            break;
+
+          case 'xml':
+            $mime = 'application/xml';
+            break;
+
+          default:
+            continue;
+        }
+
+        $meta_route_name = "rest.entity.$entity_type.GET.$format";
+
+        if ($route_name == $meta_route_name) {
+          continue;
+        }
+
+        $route_params = [$entity_type => $entity->id()];
+
+        if (!$this->accessManager->checkNamedRoute($meta_route_name, $route_params, $this->account)) {
+          continue;
+        }
+
+        $meta_url = Url::fromRoute($meta_route_name, $route_params)
+          ->setAbsolute()
+          ->toString();
+
+        $links[] = "<$meta_url?_format=$format>; rel=\"alternate\"; type=\"$mime\"";
+      }
+    }
+
+    return $links;
   }
 
   /**

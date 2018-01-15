@@ -33,6 +33,21 @@ class MediaLinkHeaderTest extends IslandoraFunctionalTestBase {
       $this->validateLinkHeaderWithUrl('edit-media', $urls['file']['rest'], '', '') == 1,
       "Malformed 'edit-media' link header"
     );
+
+    // Check for links to REST endpoints for metadata.
+    $this->assertTrue(
+      $this->validateLinkHeaderWithUrl('alternate', $urls['media'] . "?_format=json", NULL, 'application/json') == 1,
+      "Media must have link header pointing to json REST endpoint."
+    );
+    $this->assertTrue(
+      $this->validateLinkHeaderWithUrl('alternate', $urls['media'] . "?_format=jsonld", NULL, 'application/ld+json') == 1,
+      "Media must have link header pointing to jsonld REST endpoint."
+    );
+    $this->assertTrue(
+      $this->validateLinkHeaderWithUrl('alternate', $urls['media'] . "?_format=xml", NULL, 'application/xml') == 0,
+      "Media must not have link header pointing to disabled xml REST endpoint."
+    );
+
   }
 
 }

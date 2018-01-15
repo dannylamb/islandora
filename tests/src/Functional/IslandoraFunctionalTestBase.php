@@ -4,6 +4,8 @@ namespace Drupal\Tests\islandora\Functional;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
+use Drupal\rest\Entity\RestResourceConfig;
+use Drupal\rest\RestResourceConfigInterface;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
@@ -37,6 +39,144 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     $this->container->get('entity_type.manager')->getStorage('context')->load('node')->delete();
     $this->container->get('entity_type.manager')->getStorage('context')->load('media')->delete();
     $this->container->get('entity_type.manager')->getStorage('context')->load('file')->delete();
+
+    // Set up basic REST config.
+    // Delete the node rest config that's bootstrapped with Drupal.
+    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->load('entity.node')->delete();
+
+    // Create our own for Nodes, Media, and Files.
+    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
+      'id' => 'entity.node',
+      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
+      'configuration' => [
+        'GET' => [
+          'supported_auth' => [
+            'cookie',
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+            'jsonld',
+          ],
+        ],
+        'POST' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'DELETE' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'PATCH' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+      ],
+    ])->save();
+    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
+      'id' => 'entity.media',
+      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
+      'configuration' => [
+        'GET' => [
+          'supported_auth' => [
+            'cookie',
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+            'jsonld',
+          ],
+        ],
+        'POST' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'DELETE' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'PATCH' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+      ],
+    ])->save();
+    RestResourceConfig::create([
+      'id' => 'entity.file',
+      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
+      'configuration' => [
+        'GET' => [
+          'supported_auth' => [
+            'cookie',
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+            'jsonld',
+          ],
+        ],
+        'POST' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'DELETE' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+        'PATCH' => [
+          'supported_auth' => [
+            'basic_auth',
+            'jwt_auth',
+          ],
+          'supported_formats' => [
+            'json',
+          ],
+        ],
+      ],
+    ])->save();
 
     // Create a test content type.
     $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
