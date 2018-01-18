@@ -18,6 +18,10 @@ services:
     arguments: ['@entity_type.manager', '@current_user']
     tags:
       - { name: event_subscriber }
+  islandora.utils:
+    class: Drupal\islandora\IslandoraUtils
+    factory: ['Drupal\islandora\IslandoraUtils', create]
+    arguments: ['@entity_field.manager', '@entity_type.manager', '@entity.query', '@context.manager']
   islandora.versioncounter:
     class: Drupal\islandora\VersionCounter\VersionCounter
     arguments: ['@database']

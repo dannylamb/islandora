@@ -15,6 +15,9 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
+use Drupal\media_entity\MediaInterface;
+use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
@@ -84,102 +87,156 @@ function islandora_rdf_namespaces() {
 }
 
 /**
- * Implements hook_entity_insert().
+ * Implements hook_node_insert().
  */
-function islandora_entity_insert(EntityInterface $entity) {
-  switch ($entity->getEntityType()->id()) {
-    case "node":
-      $provider = new NodeContextProvider($entity);
-      break;
+function islandora_node_insert(NodeInterface $node) {
+  $islandora_utils = \Drupal::service('islandora.utils');
 
-    case "media":
-      $provider = new MediaContextProvider($entity);
-      break;
+  // Execute index reactions
+  $islandora_utils->executeNodeReactions('index', $node);
 
-    case "file":
-      $provider = new FileContextProvider($entity);
-      break;
-
-    default:
-      $provider = NULL;
-      break;
-  }
-
-  if ($provider) {
-    $context_manager = \Drupal::service('context.manager');
-    $provided = $provider->getRuntimeContexts([]);
-    $context_manager->evaluateContexts($provided);
-
-    foreach ($context_manager->getActiveReactions('index') as $reaction) {
-      $reaction->execute($entity);
+  // Find referenced Media and execute derivative reactions.
+  $media_reference_fields = $islandora_utils->getMediaReferenceFields($node);
+  foreach (array_keys($media_reference_fields) as $field_name) {
+    foreach ($node->get($field_name)->referencedEntities() as $media) {
+      dsm("Derivatives for Media {$media->id()} triggered by Node {$node->id()} insert");
+      $islandora_utils->executeMediaReactions('derivative', $media);
     }
   }
 }
 
 /**
- * Implements hook_entity_update().
+ * Implements hook_node_update().
  */
-function islandora_entity_update(EntityInterface $entity) {
-  switch ($entity->getEntityType()->id()) {
-    case "node":
-      $provider = new NodeContextProvider($entity);
-      break;
+function islandora_node_update(NodeInterface $node) {
+  $islandora_utils = \Drupal::service('islandora.utils');
 
-    case "media":
-      $provider = new MediaContextProvider($entity);
-      break;
+  // Execute index reactions
+  $islandora_utils->executeNodeReactions('index', $node);
 
-    case "file":
-      $provider = new FileContextProvider($entity);
-      break;
-
-    default:
-      $provider = NULL;
-      break;
-  }
-
-  if ($provider) {
-    $context_manager = \Drupal::service('context.manager');
-    $provided = $provider->getRuntimeContexts([]);
-    $context_manager->evaluateContexts($provided);
-
-    foreach ($context_manager->getActiveReactions('index') as $reaction) {
-      $reaction->execute($entity);
-    }
+  // Fire off derivative reactions for media just addded to an entity
+  // reference field.
+  $referenced_media = $islandora_utils->getNewMediaReferences($node);
+  foreach ($referenced_media as $media) {
+    dsm("Derivatives for Media {$media->id()} triggered by Node {$node->id()} update");
+    $islandora_utils->executeMediaReactions('derivative', $media);
   }
 }
 
 /**
- * Implements hook_entity_delete().
+ * Implements hook_node_delete().
  */
-function islandora_entity_delete(EntityInterface $entity) {
-  switch ($entity->getEntityType()->id()) {
-    case "node":
-      $provider = new NodeContextProvider($entity);
-      break;
+function islandora_node_delete(NodeInterface $node) {
+  $islandora_utils = \Drupal::service('islandora.utils');
 
-    case "media":
-      $provider = new MediaContextProvider($entity);
-      break;
+  // Execute delete reactions
+  $islandora_utils->executeNodeReactions('delete', $node);
+}
 
-    case "file":
-      $provider = new FileContextProvider($entity);
-      break;
+/**
+ * Implements hook_media_insert().
+ */
+function islandora_media_insert(MediaInterface $media) {
+  $islandora_utils = \Drupal::service('islandora.utils');
 
-    default:
-      $provider = NULL;
-      break;
+  // Execute index reactions
+  $islandora_utils->executeMediaReactions('index', $media);
+}
+
+/**
+ * Implements hook_media_update().
+ */
+function islandora_media_update(MediaInterface $media) {
+  $islandora_utils = \Drupal::service('islandora.utils');
+
+  // Execute index reactions
+  $islandora_utils->executeMediaReactions('index', $media);
+
+  // Does it have a source field?
+  $source_field = $islandora_utils->getSourceField($media->bundle());
+  if (empty($source_field)) {
+    return;
   }
 
-  if ($provider) {
-    $context_manager = \Drupal::service('context.manager');
-    $provided = $provider->getRuntimeContexts([]);
-    $context_manager->evaluateContexts($provided);
-
-    foreach ($context_manager->getActiveReactions('delete') as $reaction) {
-      $reaction->execute($entity);
-    }
+  // Have the files changed?
+  if ($media->get($source_field)->equals($media->original->get($source_field))) {
+    return;
   }
+
+  // Is the Media reference by a node? 
+  if (!$islandora_utils->mediaIsReferenced($media->id())) {
+    return;
+  }
+
+  // Fire off derivative reactions for the Media.
+  dsm("Derivatives for Media {$media->id()} triggered by update");
+  $islandora_utils->executeMediaReactions('derivative', $media);
+}
+
+/**
+ * Implements hook_media_delete().
+ */
+function islandora_media_delete(MediaInterface $media) {
+  $islandora_utils = \Drupal::service('islandora.utils');
+
+  // Execute delete reactions
+  $islandora_utils->executeMediaReactions('delete', $media);
+}
+
+/**
+ * Implements hook_file_insert().
+ */
+function islandora_file_insert(FileInterface $file) {
+  $islandora_utils = \Drupal::service('islandora.utils');
+
+  // Execute index reactions
+  $islandora_utils->executeFileReactions('index', $file);
+}
+
+/**
+ * Implements hook_file_update().
+ */
+function islandora_file_update(FileInterface $file) {
+  if ($file->filehash['sha1'] == $file->original->filehash['sha1']) {
+    return;
+  }
+
+  $islandora_utils = \Drupal::service('islandora.utils');
+
+  // Execute index reactions
+  $islandora_utils->executeFileReactions('index', $file);
+
+  // Get Media that reference this File.
+  $mids = $islandora_utils->getReferencingMediaIds($file->id());
+
+  // Filter list to Media that are referenced by Nodes.
+  $filtered = array_filter(
+    $mids,
+    [$islandora_utils, 'mediaIsReferenced']
+  );
+
+  // Exit early if there's not referencing media that are also referenced by a
+  // node.
+  if (empty($filtered)) {
+    return;
+  }
+
+  // Execute derivative reactions
+  $media_entities = \Drupal::service('entity_type.manager')->getStorage('media')->loadMultiple($filtered);
+  foreach ($media_entities as $media) {
+    dsm("Derivatives for Media {$media->id()} triggered by File {$file->id()} update");
+    $islandora_utils->executeMediaReactions('derivative', $media);
+  }
+}
+
+/**
+ * Implements hook_file_delete().
+ */
+function islandora_file_delete(FileInterface $file) {
+  $islandora_utils = \Drupal::service('islandora.utils');
+
+  // Execute delete reactions
+  $islandora_utils->executeFileReactions('delete', $file);
 }
 
 /**
