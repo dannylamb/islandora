@@ -38,6 +38,13 @@ class IslandoraUtils {
   protected $mediaBundleStorage;
 
   /**
+   * Field config storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $fieldConfigStorage;
+
+  /**
    * Entity query.
    *
    * @var \Drupal\Core\Entity\Query\QueryFactory
@@ -60,6 +67,8 @@ class IslandoraUtils {
    *   Media storage.
    * @param \Drupal\Core\Entity\EntityStorageInterface $media_bundle_storage
    *   Media bundle storage.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $field_config_storage
+   *   Field config storage.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
    *   Entity query.
    * @param \Drupal\context\ContextManager
@@ -69,12 +78,14 @@ class IslandoraUtils {
     EntityFieldManager $entity_field_manager,
     EntityStorageInterface $media_storage,
     EntityStorageInterface $media_bundle_storage,
+    EntityStorageInterface $field_config_storage,
     QueryFactory $entity_query,
     ContextManager $context_manager
   ) {
     $this->entityFieldManager = $entity_field_manager;
     $this->mediaStorage = $media_storage;
     $this->mediaBundleStorage = $media_bundle_storage;
+    $this->fieldConfigStorage = $field_config_storage;
     $this->entityQuery = $entity_query;
     $this->contextManager = $context_manager;
   }
@@ -102,9 +113,25 @@ class IslandoraUtils {
       $entity_field_manager,
       $entity_type_manager->getStorage('media'),
       $entity_type_manager->getStorage('media_bundle'),
+      $entity_type_manager->getStorage('field_config'),
       $entity_query,
       $context_manager
     );
+  }
+
+  public function isMediaReferenceField($entity_type, $bundle, $field) {
+    $field_config = $this->fieldConfigStorage->load("$entity_type.$bundle.$field");
+    if (!$field_config) {
+      return FALSE;
+    }
+    return $this->isMediaReferenceFieldConfig($field_config);
+  }
+
+  public function isMediaReferenceFieldConfig(FieldConfig $field) {
+      $storage_def = $field->getFieldStorageDefinition();
+      return $storage_def->isBaseField() == FALSE &&
+        $field->getType() == "entity_reference" &&
+        $storage_def->getSetting('target_type') == 'media';
   }
 
   /**
@@ -120,10 +147,7 @@ class IslandoraUtils {
    */
   public function getMediaReferenceFields($entity_type, $bundle) {
     $fields = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
-    return array_filter($fields, function ($field) {
-      $storage_def = $field->getFieldStorageDefinition();
-      return $storage_def->isBaseField() == FALSE && $field->getType() == "entity_reference" && $storage_def->getSetting('target_type') == 'media';
-    });
+    return array_filter($fields, ['isMediaReferenceFieldConfig', $this]);
   }
 
   /**

@@ -28,7 +28,7 @@ class RelatedMediaController {
 
   public function put(
     NodeInterface $node,
-    $field_id,
+    $field,
     Request $request
   ) {
     try {
@@ -50,6 +50,24 @@ class RelatedMediaController {
       }
       $filename = $matches[1];
 
+      $entity_type = $node->getEntityTypeId();
+      $bundle = $node->bundle();
+
+      if (!$this->utils->isMediaReferenceField($entity_type, $bundle, $field)) {
+        throw new NotFoundHttpException();
+      } 
+
+      if ($node->get($field)->isEmpty()) {
+        $file = file_save_data($request->getContent()); 
+        $file->setFilename($filename);
+        $file->setMimeType($content_type);
+        $file->save();
+      } else {
+        $referenced_media = $node->get($field)->referencedEntities();
+
+
+      }
+/*
       $file = file_save_data($request->getContent(), $file->getFileUri(), FILE_EXISTS_REPLACE); 
       $file->setFilename($filename);
       $file->setMimeType($content_type);
@@ -58,6 +76,7 @@ class RelatedMediaController {
       $response = new Response("", 204);
 
       return $response;
+*/
     }
     catch (HttpException $e) {
       throw $e;
