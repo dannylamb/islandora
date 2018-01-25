@@ -96,7 +96,7 @@ function islandora_node_insert(NodeInterface $node) {
   $islandora_utils->executeNodeReactions('index', $node);
 
   // Find referenced Media and execute derivative reactions.
-  $media_reference_fields = $islandora_utils->getMediaReferenceFields($node);
+  $media_reference_fields = $islandora_utils->getMediaReferenceFields($node->getEntityTypeId(), $node->bundle());
   foreach (array_keys($media_reference_fields) as $field_name) {
     foreach ($node->get($field_name)->referencedEntities() as $media) {
       dsm("Derivatives for Media {$media->id()} triggered by Node {$node->id()} insert");
@@ -197,9 +197,13 @@ function islandora_file_insert(FileInterface $file) {
  * Implements hook_file_update().
  */
 function islandora_file_update(FileInterface $file) {
+  \Drupal::logger('islandora')->debug("In File {$file->id()} update");
+
   if ($file->filehash['sha1'] == $file->original->filehash['sha1']) {
     return;
   }
+
+  \Drupal::logger('islandora')->debug("File {$file->id()} has been updated");
 
   $islandora_utils = \Drupal::service('islandora.utils');
 
@@ -224,7 +228,7 @@ function islandora_file_update(FileInterface $file) {
   // Execute derivative reactions
   $media_entities = \Drupal::service('entity_type.manager')->getStorage('media')->loadMultiple($filtered);
   foreach ($media_entities as $media) {
-    dsm("Derivatives for Media {$media->id()} triggered by File {$file->id()} update");
+    \Drupal::logger('islandora')->debug("Derivatives for Media {$media->id()} triggered by File {$file->id()} update");
     $islandora_utils->executeMediaReactions('derivative', $media);
   }
 }

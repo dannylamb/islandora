@@ -23,3 +23,23 @@ islandora.jsonldcontext:
     _controller: '\Drupal\islandora\Controller\JsonLdContextController::content'
   requirements:
      _permission: 'access content'
+
+islandora.file.download:
+  path: '/islandora/file/{file}'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\FileController::get'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+  options:
+    _auth: ['basic_auth', 'cookie', 'jwt_auth']
+
+islandora.file.upload:
+  path: '/islandora/file'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\FileController::post'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    _auth: ['basic_auth', 'cookie', 'jwt_auth']
