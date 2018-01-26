@@ -3,6 +3,7 @@
 namespace Drupal\islandora\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Database\Connection;
 use Drupal\media_entity\MediaInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,22 +21,33 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class MediaSourceController extends ControllerBase {
 
   /**
-   * Islandora utility functions.
+   * Service for business logic.
    *
    * @var \Drupal\islandora\MediaSource\MediaSourceService
    */
   protected $service;
 
   /**
+   * Database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
    * MediaSourceController constructor.
    *
    * @param \Drupal\islandora\MediaSource\MediaSourceService $service
    *   Service for business logic.
+   * @param \Drupal\Core\Database\Connection $database
+   *   Database connection.
    */
   public function __construct(
-    MediaSourceService $service
+    MediaSourceService $service,
+    Connection $database
   ) {
     $this->service = $service;
+    $this->database = $database;
   }
 
   /**
@@ -49,11 +61,15 @@ class MediaSourceController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('islandora.media_source_service')
+      $container->get('islandora.media_source_service'),
+      $container->get('database')
     );
   }
 
   public function put(MediaInterface $media, Request $request) {
+    // Since we update both the Media and its File, do this in a transaction.
+    $transaction = $this->database->startTransaction();
+
     try {
       $content_type = $request->headers->get('Content-Type', "");
 
@@ -77,7 +93,6 @@ class MediaSourceController extends ControllerBase {
       if (!preg_match('/attachment; filename="(.*)"/', $content_disposition, $matches)) {
         throw new BadRequestHttpException("Malformed Content-Disposition header");
       }
-
       $filename = $matches[1];
 
       $this->service->updateSourceField(
@@ -89,12 +104,13 @@ class MediaSourceController extends ControllerBase {
       );
 
       return new Response("", 204);
-
     }
     catch (HttpException $e) {
+      $transaction->rollBack();
       throw $e;
     }
     catch (\Exception $e) {
+      $transaction->rollBack();
       throw new HttpException(500, $e->getMessage());
     }
   }
