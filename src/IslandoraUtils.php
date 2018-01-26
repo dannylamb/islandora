@@ -7,12 +7,16 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
 use Drupal\media_entity\MediaInterface;
 use Drupal\node\NodeInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 class IslandoraUtils {
 
@@ -59,6 +63,13 @@ class IslandoraUtils {
   protected $contextManager;
 
   /**
+   * Stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManager
+   */
+  protected $streamWrapperManager;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
@@ -80,7 +91,8 @@ class IslandoraUtils {
     EntityStorageInterface $media_bundle_storage,
     EntityStorageInterface $field_config_storage,
     QueryFactory $entity_query,
-    ContextManager $context_manager
+    ContextManager $context_manager,
+    StreamWrapperManager $stream_wrapper_manager
   ) {
     $this->entityFieldManager = $entity_field_manager;
     $this->mediaStorage = $media_storage;
@@ -88,6 +100,7 @@ class IslandoraUtils {
     $this->fieldConfigStorage = $field_config_storage;
     $this->entityQuery = $entity_query;
     $this->contextManager = $context_manager;
+    $this->streamWrapperManager = $stream_wrapper_manager;
   }
 
   /**
@@ -107,7 +120,8 @@ class IslandoraUtils {
     EntityFieldManager $entity_field_manager,
     EntityTypeManager $entity_type_manager,
     QueryFactory $entity_query,
-    ContextManager $context_manager
+    ContextManager $context_manager,
+    StreamWrapperManager $stream_wrapper_manager
   ) {
     return new static(
       $entity_field_manager,
@@ -115,7 +129,8 @@ class IslandoraUtils {
       $entity_type_manager->getStorage('media_bundle'),
       $entity_type_manager->getStorage('field_config'),
       $entity_query,
-      $context_manager
+      $context_manager,
+      $stream_wrapper_manager
     );
   }
 
@@ -229,26 +244,6 @@ class IslandoraUtils {
       $query->condition($condition, $mid);
     }
     return !empty($query->execute()); 
-  }
-
-  /**
-   * Gets the name of a source field for a Media.
-   *
-   * @param string $media_bundle
-   *   Media bundle whose source field you are searching for.
-   *
-   * @return string|NULL 
-   *   Field name if it exists in configuration, else NULL.
-   */
-  public function getSourceField($media_bundle) {
-    $bundle = $this->mediaBundleStorage->load($media_bundle);
-    $type_configuration = $bundle->getTypeConfiguration();
-
-    if (!isset($type_configuration['source_field'])) {
-      return NULL;
-    }
-
-    return $type_configuration['source_field'];
   }
 
   /**

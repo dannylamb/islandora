@@ -21,7 +21,11 @@ services:
   islandora.utils:
     class: Drupal\islandora\IslandoraUtils
     factory: ['Drupal\islandora\IslandoraUtils', create]
-    arguments: ['@entity_field.manager', '@entity_type.manager', '@entity.query', '@context.manager']
+    arguments: ['@entity_field.manager', '@entity_type.manager', '@entity.query', '@context.manager', '@stream_wrapper_manager']
+  islandora.media_source_service:
+    class: Drupal\islandora\MediaSource\MediaSourceService
+    factory: ['Drupal\islandora\MediaSource\MediaSourceService', create]
+    arguments: ['@entity_type.manager', '@stream_wrapper_manager']
   islandora.versioncounter:
     class: Drupal\islandora\VersionCounter\VersionCounter
     arguments: ['@database']

@@ -24,21 +24,11 @@ islandora.jsonldcontext:
   requirements:
      _permission: 'access content'
 
-islandora.file.download:
-  path: '/islandora/file/{file}'
+islandora.media_source_update:
+  path: '/media/{media}/source'
   defaults:
-    _controller: '\Drupal\islandora\Controller\FileController::get'
-  methods: [GET]
-  requirements:
-    _access: 'TRUE'
-  options:
-    _auth: ['basic_auth', 'cookie', 'jwt_auth']
-
-islandora.file.upload:
-  path: '/islandora/file'
-  defaults:
-    _controller: '\Drupal\islandora\Controller\FileController::post'
-  methods: [POST]
+    _controller: '\Drupal\islandora\Controller\MediaSourceController::put'
+  methods: [PUT]
   requirements:
     _access: 'TRUE'
   options:
