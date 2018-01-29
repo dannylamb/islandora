@@ -102,6 +102,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('edit-field-image-0-alt', 'alt text');
     $this->getSession()->getPage()->pressButton(t('Save and publish'));
     $this->assertResponse(200);
+    return $this->getUrl();
   }
 
   /**
