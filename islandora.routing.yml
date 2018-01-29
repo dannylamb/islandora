@@ -23,3 +23,13 @@ islandora.jsonldcontext:
     _controller: '\Drupal\islandora\Controller\JsonLdContextController::content'
   requirements:
      _permission: 'access content'
+
+islandora.media_source_update:
+  path: '/media/{media}/source'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\MediaSourceController::put'
+  methods: [PUT]
+  requirements:
+    _access: 'TRUE'
+  options:
+    _auth: ['basic_auth', 'cookie', 'jwt_auth']

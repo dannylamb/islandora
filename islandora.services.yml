@@ -34,3 +34,7 @@ services:
     arguments: ['@current_route_match']
     tags:
       - { name: 'context_provider' }
+  islandora.media_source_service:
+    class: Drupal\islandora\MediaSource\MediaSourceService
+    factory: ['Drupal\islandora\MediaSource\MediaSourceService', create]
+    arguments: ['@entity_type.manager', '@stream_wrapper_manager']
