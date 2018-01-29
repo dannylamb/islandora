@@ -30,6 +30,6 @@ islandora.media_source_update:
     _controller: '\Drupal\islandora\Controller\MediaSourceController::put'
   methods: [PUT]
   requirements:
-    _access: 'TRUE'
+    _permission: 'update media'
   options:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']
