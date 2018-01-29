@@ -10,8 +10,23 @@ CLAW's core Islandora module for Drupal 8.x
 ## Installation
 
 For a fully automated install, see [claw-playbook](https://github.com/Islandora-Devops/claw-playbook).  If you're installing
-manually, the REST configuration for both Nodes and Media need to be enabled.  `jwt_auth` and `jsonld` formats needs to be set
-for both, with Media additionally needing the `json` format. 
+manually, the REST configuration for both Nodes and Media need to be enabled with `jwt_auth` for authentication and both
+`json` and `jsonld` formats. 
+
+## REST API
+
+Islandora has a light, mostly RESTful HTTP API that relies heavily on Drupal's core Rest module.
+
+### /media/{media}/source
+
+You can PUT content to the `/media/{media}/source` endpoint to update the File associated with a Media.  The `Content-Type`
+header is expected, as well as a `Content-Disposition` header of the form `attachment; filename="your_filename"` to indicate
+the name to give the file.  Requests with empty bodies or no `Content-Length` header will be rejected.
+
+Example usage:
+```
+curl -u admin:islandora -v -X PUT -H 'Content-Type: image/png' -H 'Content-Disposition: attachment; filename="my_image.png"' --data-binary @my_image.png localhost:8000/media/1/source
+```
 
 ## Maintainers
 
