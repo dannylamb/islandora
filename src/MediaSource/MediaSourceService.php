@@ -186,6 +186,10 @@ class MediaSourceService {
         $media->set($destination, $value);
       }
     }
+
+    // Flush the image cache for the image so thumbnails get regenerated.
+    image_path_flush($uri);
+
     $media->save();
   }
 
