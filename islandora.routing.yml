@@ -33,3 +33,13 @@ islandora.media_source_update:
     _permission: 'update media'
   options:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']
+
+islandora.media_source_add_to_node:
+  path: '/node/{node}/media/{field}/add/{bundle}'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\MediaSourceController::addToNode'
+  methods: [POST]
+  requirements:
+    _permission: 'create media'
+  options:
+    _auth: ['basic_auth', 'cookie', 'jwt_auth']

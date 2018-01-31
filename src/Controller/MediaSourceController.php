@@ -5,6 +5,8 @@ namespace Drupal\islandora\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\media_entity\MediaInterface;
+use Drupal\media_entity\Entity\MediaBundle;
+use Drupal\node\NodeInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,33 +81,34 @@ class MediaSourceController extends ControllerBase {
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function put(MediaInterface $media, Request $request) {
+    $content_type = $request->headers->get('Content-Type', "");
+
+    if (empty($content_type)) {
+      throw new BadRequestHttpException("Missing Content-Type header");
+    }
+
+    $content_length = $request->headers->get('Content-Length', 0);
+
+    if ($content_length <= 0) {
+      throw new BadRequestHttpException("Missing Content-Length");
+    }
+
+    $content_disposition = $request->headers->get('Content-Disposition', "");
+
+    if (empty($content_disposition)) {
+      throw new BadRequestHttpException("Missing Content-Disposition header");
+    }
+
+    $matches = [];
+    if (!preg_match('/attachment; filename="(.*)"/', $content_disposition, $matches)) {
+      throw new BadRequestHttpException("Malformed Content-Disposition header");
+    }
+    $filename = $matches[1];
+
     // Since we update both the Media and its File, do this in a transaction.
     $transaction = $this->database->startTransaction();
 
     try {
-      $content_type = $request->headers->get('Content-Type', "");
-
-      if (empty($content_type)) {
-        throw new BadRequestHttpException("Missing Content-Type header");
-      }
-
-      $content_length = $request->headers->get('Content-Length', 0);
-
-      if ($content_length <= 0) {
-        throw new BadRequestHttpException("Missing Content-Length");
-      }
-
-      $content_disposition = $request->headers->get('Content-Disposition', "");
-
-      if (empty($content_disposition)) {
-        throw new BadRequestHttpException("Missing Content-Disposition header");
-      }
-
-      $matches = [];
-      if (!preg_match('/attachment; filename="(.*)"/', $content_disposition, $matches)) {
-        throw new BadRequestHttpException("Malformed Content-Disposition header");
-      }
-      $filename = $matches[1];
 
       $this->service->updateSourceField(
         $media,
@@ -127,4 +130,62 @@ class MediaSourceController extends ControllerBase {
     }
   }
 
+  public function addToNode(
+    NodeInterface $node,
+    $field,
+    $bundle,
+    Request $request
+  ) {
+    $content_type = $request->headers->get('Content-Type', "");
+
+    if (empty($content_type)) {
+      throw new BadRequestHttpException("Missing Content-Type header");
+    }
+
+    $content_length = $request->headers->get('Content-Length', 0);
+
+    if ($content_length <= 0) {
+      throw new BadRequestHttpException("Missing Content-Length");
+    }
+
+    $content_disposition = $request->headers->get('Content-Disposition', "");
+
+    if (empty($content_disposition)) {
+      throw new BadRequestHttpException("Missing Content-Disposition header");
+    }
+
+    $matches = [];
+    if (!preg_match('/attachment; filename="(.*)"/', $content_disposition, $matches)) {
+      throw new BadRequestHttpException("Malformed Content-Disposition header");
+    }
+    $filename = $matches[1];
+
+    // Since we create both a Media and its File, AND update a node,
+    // start a transaction.
+    $transaction = $this->database->startTransaction();
+
+    try {
+      $media = $this->service->addToNode(
+        $node,
+        $field,
+        $bundle,
+        $request->getContent(TRUE),
+        $content_type,
+        $content_length,
+        $filename
+      );
+
+      $response = new Response("", 201);
+      $response->headers->set("Location", $media->url('canonical', ['absolute' => TRUE]));
+      return $response;
+    }
+    catch (HttpException $e) {
+      $transaction->rollBack();
+      throw $e;
+    }
+    catch (\Exception $e) {
+      $transaction->rollBack();
+      throw new HttpException(500, $e->getMessage());
+    }
+  }
 }

@@ -2,11 +2,16 @@
 
 namespace Drupal\islandora\MediaSource;
 
+use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
+use Drupal\Core\Utility\Token;
 use Drupal\media_entity\MediaInterface;
+use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,18 +21,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class MediaSourceService {
 
   /**
-   * Media bundle storage.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManager
    */
-  protected $mediaBundleStorage;
+  protected $entityTypeManager;
 
   /**
-   * Field config storage.
+   * Current user.
    *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
+   * @var \Drupal\Core\Session\AccountInterface
    */
-  protected $fieldConfigStorage;
+  protected $account;
 
   /**
    * Stream wrapper manager.
@@ -37,45 +42,32 @@ class MediaSourceService {
   protected $streamWrapperManager;
 
   /**
-   * Constructor.
+   * Token service.
    *
-   * @param \Drupal\Core\Entity\EntityStorageInterface $media_bundle_storage
-   *   Media bundle storage.
-   * @param \Drupal\Core\Entity\EntityStorageInterface $field_config_storage
-   *   Field config storage.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
-   *   Stream wrapper manager.
+   * @var \Drupal\Core\Utility\Token
    */
-  public function __construct(
-    EntityStorageInterface $media_bundle_storage,
-    EntityStorageInterface $field_config_storage,
-    StreamWrapperManager $stream_wrapper_manager
-  ) {
-    $this->mediaBundleStorage = $media_bundle_storage;
-    $this->fieldConfigStorage = $field_config_storage;
-    $this->streamWrapperManager = $stream_wrapper_manager;
-  }
+  protected $token;
 
   /**
-   * Factory.
+   * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
    *   Stream wrapper manager.
-   *
-   * @return \Drupal\islandora\MediaSource\MediaSourceService
-   *   MediaSourceService instance.
+   * @param \Drupal\Core\Utility\Token $token
+   *   Token service.
    */
-  public static function create(
+  public function __construct(
     EntityTypeManager $entity_type_manager,
-    StreamWrapperManager $stream_wrapper_manager
+    AccountInterface $account,
+    StreamWrapperManager $stream_wrapper_manager,
+    Token $token
   ) {
-    return new static(
-      $entity_type_manager->getStorage('media_bundle'),
-      $entity_type_manager->getStorage('field_config'),
-      $stream_wrapper_manager
-    );
+    $this->entityTypeManager = $entity_type_manager;
+    $this->account = $account;
+    $this->streamWrapperManager = $stream_wrapper_manager;
+    $this->token = $token;
   }
 
   /**
@@ -88,7 +80,7 @@ class MediaSourceService {
    *   Field name if it exists in configuration, else NULL.
    */
   public function getSourceFieldName($media_bundle) {
-    $bundle = $this->mediaBundleStorage->load($media_bundle);
+    $bundle = $this->entityTypeManager->getStorage('media_bundle')->load($media_bundle);
     $type_configuration = $bundle->getTypeConfiguration();
 
     if (!isset($type_configuration['source_field'])) {
@@ -96,27 +88,6 @@ class MediaSourceService {
     }
 
     return $type_configuration['source_field'];
-  }
-
-  /**
-   * Gets a list of valid file extensions for a field.
-   *
-   * @param string $entity_type
-   *   Entity type (node, media, etc...).
-   * @param string $bundle
-   *   Bundle the field belongs to.
-   * @param string $field
-   *   The field whose valid extensions you're looking for.
-   *
-   * @return string
-   *   Space delimited string containing valid extensions.
-   */
-  public function getFileFieldExtensions($entity_type, $bundle, $field) {
-    $field_config = $this->fieldConfigStorage->load("$entity_type.$bundle.$field");
-    if (!$field_config) {
-      return "";
-    }
-    return $field_config->getSetting('file_extensions');
   }
 
   /**
@@ -157,18 +128,29 @@ class MediaSourceService {
     $file->setMimeType($mimetype);
     $file->setFilename($filename);
     $file->setSize($content_length);
+    $file->save();
 
     // Validate file extension.
-    $entity_type = $media->getEntityTypeId();
     $bundle = $media->bundle();
-    $valid_extensions = $this->getFileFieldExtensions($entity_type, $bundle, $source_field);
+    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
+    $valid_extensions = $source_field_config->getSetting('file_extensions');
     $errors = file_validate_extensions($file, $valid_extensions);
 
     if (!empty($errors)) {
       throw new BadRequestHttpException("Invalid file extension.  Valid types are :$valid_extensions");
     }
 
-    // Copy the contents over using streams.
+    // Set fields provided by type plugin and mapped in bundle configuration
+    // for the media.
+    foreach ($media->bundle->entity->field_map as $source => $destination) {
+      if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
+        $media->set($destination, $value);
+      }
+    }
+    $media->save();
+
+    // Copy the contents over using streams. Do this last since it's not
+    // covered under the transaction.
     $uri = $file->getFileUri();
     $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
     $path = "";
@@ -177,7 +159,78 @@ class MediaSourceService {
     if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
       throw new HttpException(500, "The file could not be copied into $uri");
     }
+
+    // Flush the image cache for the image so thumbnails get regenerated.
+    image_path_flush($uri);
+  }
+
+  public function addToNode(
+    NodeInterface $node,
+    $field,
+    $bundle,
+    $resource,
+    $mimetype,
+    $content_length,
+    $filename
+  ) {
+    if (!$node->hasField($field)) {
+      throw new NotFoundHttpException();
+    }
+
+    if (!$node->get($field)->isEmpty()) {
+      throw new ConflictHttpException();
+    }
+
+    // Get the source field for the media type.
+    $source_field = $this->getSourceFieldName($bundle);
+    if (empty($source_field)) {
+      throw new NotFoundHttpException("Source field not set for {$media->bundle()} media");
+    }
+
+    // Load its config to get file extensions and upload path.
+    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
+
+    // Construct the destination uri. 
+    $directory = $source_field_config->getSetting('file_directory');
+    $directory = trim($directory, '/');
+    $directory = PlainTextOutput::renderFromHtml($this->token->replace($directory, ['node' => $node]));
+    $scheme = file_default_scheme();
+    $destination = "$scheme://$directory/$filename";
+
+    // Construct the File.
+    $file = $this->entityTypeManager->getStorage('file')->create([
+      'uid' => $this->account->id(),
+      'uri' => $destination,
+      'filename' => $filename,
+      'filemime' => $mimetype,
+      'filesize' => $content_length,
+      'status' => FILE_STATUS_PERMANENT,
+    ]);
+
+    // Validate file extension.
+    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
+    $valid_extensions = $source_field_config->getSetting('file_extensions');
+    $errors = file_validate_extensions($file, $valid_extensions);
+
+    if (!empty($errors)) {
+      throw new BadRequestHttpException("Invalid file extension.  Valid types are $valid_extensions");
+    }
+
     $file->save();
+
+    // Construct the Media.
+    $media_struct = [
+      'bundle' => $bundle,
+      'uid' => $this->account->id(),
+      'name' => $filename,
+      "$source_field" => [
+        'target_id' => $file->id(),
+      ],
+    ];
+    if ($source_field_config->getSetting('alt_field') && $source_field_config->getSetting('alt_field_required')) {
+      $media_struct[$source_field]['alt'] = $filename;
+    }
+    $media = $this->entityTypeManager->getStorage('media')->create($media_struct);
 
     // Set fields provided by type plugin and mapped in bundle configuration
     // for the media.
@@ -191,6 +244,23 @@ class MediaSourceService {
     image_path_flush($uri);
 
     $media->save();
-  }
 
+    // Update the Node.
+    $node->get($field)->appendItem($media);
+    $node->save();
+
+    // Copy the contents over using streams. Do this last since it's not
+    // covered under the transaction.
+    $uri = $file->getFileUri();
+    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
+    $path = "";
+    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
+    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
+    if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
+      throw new HttpException(500, "The file could not be copied into $uri");
+    }
+
+    // Return the created media.
+    return $media;
+  }
 }

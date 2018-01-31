@@ -41,5 +41,4 @@ services:
       - { name: 'context_provider' }
   islandora.media_source_service:
     class: Drupal\islandora\MediaSource\MediaSourceService
-    factory: ['Drupal\islandora\MediaSource\MediaSourceService', create]
-    arguments: ['@entity_type.manager', '@stream_wrapper_manager']
+    arguments: ['@entity_type.manager', '@current_user', '@stream_wrapper_manager', '@token']

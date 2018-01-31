@@ -107,7 +107,6 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update without body should fail with 400.
-    $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
@@ -145,14 +144,13 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
     $updated_image = file_get_contents($updated['field_image'][0]['url']);
 
     $this->assertTrue($original_mimetype != $updated_mimetype, "Mimetypes should be updated with media source update");
-    $this->assertTrue($original_width != $updated_width, "Height should be updated with media source update");
-    $this->assertTrue($original_height != $updated_height, "Width should be updated with media source update");
-    $this->assertTrue($original_image != $updated_image, "Width should be updated with media source update");
+    $this->assertTrue($original_width != $updated_width, "Width should be updated with media source update");
+    $this->assertTrue($original_height != $updated_height, "Height should be updated with media source update");
+    $this->assertTrue($original_image != $updated_image, "Image should be updated with media source update");
 
     $this->assertTrue($updated_mimetype == "image/jpeg", "Invalid mimetype.  Expected image/jpeg, received $updated_mimetype");
     $this->assertTrue($updated_width == 295, "Invalid width.  Expected 295, received $updated_width");
     $this->assertTrue($updated_height == 70, "Invalid height.  Expected 70, received $updated_height");
     $this->assertTrue($updated_image == file_get_contents(__DIR__ . '/../../static/test.jpeg'), "Updated image not the same as PUT body.");
   }
-
 }
