@@ -67,27 +67,67 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
       ->setAbsolute()
       ->toString();
 
+    $image = file_get_contents(__DIR__ . '/../../static/test.jpeg');
+
     // Update without Content-Type header should fail with 400.
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Disposition' => 'attachment; filename="test.jpeg"',
+      ],
+      'body' => $image,
+    ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update without Content-Disposition header should fail with 400.
-    $options['headers'] = ['Content-Type' => 'image/jpeg'];
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+      ],
+      'body' => $image,
+    ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update with malformed Content-Disposition header should fail with 400.
-    $options['headers']['Content-Disposition'] = 'attachment; garbage="test.jpeg"';
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+        'Content-Disposition' => 'attachment; garbage="test.jpeg"',
+      ],
+      'body' => $image,
+    ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update without body should fail with 400.
-    $options['headers']['Content-Disposition'] = 'attachment; filename="test.jpeg"';
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+        'Content-Disposition' => 'attachment; filename="test.jpeg"',
+      ],
+    ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Should be successful.
-    $options['body'] = file_get_contents(__DIR__ . '/../../static/test.jpeg');
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+        'Content-Disposition' => 'attachment; filename="test.jpeg"',
+      ],
+      'body' => $image,
+    ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 204, "Expected 204, received {$response->getStatusCode()}");
 
