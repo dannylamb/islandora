@@ -8,8 +8,6 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\media_entity\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class IsReferencedMedia extends ConditionPluginBase implements ContainerFactoryPluginInterface{
+class IsReferencedMedia extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * Content type storage.
@@ -104,7 +102,7 @@ class IsReferencedMedia extends ConditionPluginBase implements ContainerFactoryP
       ->condition('settings.target_type', 'media')
       ->execute();
 
-    // Trim off the preceding 'node.'
+    // Trim off the preceding 'node.'.
     $media_reference_fields = array_map(
       function ($field) {
         return ltrim($field, 'node.');
