@@ -53,6 +53,13 @@ condition.plugin.is_media:
   type: condition.plugin
   mapping:
 
+condition.plugin.is_referenced_media:
+  type: condition.plugin
+  mapping:
+    field:
+      type: text
+      label: 'Reference Field'
+
 condition.plugin.is_file:
   type: condition.plugin
   mapping:
