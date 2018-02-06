@@ -23,11 +23,18 @@ class IsReferencedMediaTest extends IslandoraFunctionalTestBase {
   protected $referenced;
 
   /**
-   * An unreferenced media to use as a control.
+   * An unreferenced Media to use as a control.
    *
    * @var \Drupal\media\MediaInterface
    */
   protected $notReferenced;
+
+  /**
+   * A Media referenced by another type the Condition is not set to expect.
+   *
+   * @var \Drupal\media\MediaInterface
+   */
+  protected $referencedByAnother;
 
   /**
    * {@inheritdoc}
@@ -43,7 +50,14 @@ class IsReferencedMediaTest extends IslandoraFunctionalTestBase {
     $test_type_with_reference->save();
     $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_media', 'Media Entity', 'media', 'default', [], 2);
 
-    // Create two media.
+    $another_test_type_with_reference = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
+      'type' => 'another_test_type_with_reference',
+      'label' => 'Another Test Type With Reference',
+    ]);
+    $another_test_type_with_reference->save();
+    $this->createEntityReferenceField('node', 'another_test_type_with_reference', 'field_media', 'Media Entity', 'media', 'default', [], 2);
+
+    // Create the media.
     $media_bundle = $this->drupalCreateMediaBundle();
     $this->referenced = $this->container->get('entity_type.manager')->getStorage('media')->create([
       'bundle' => $media_bundle->id(),
@@ -57,11 +71,25 @@ class IsReferencedMediaTest extends IslandoraFunctionalTestBase {
     ]);
     $this->notReferenced->save();
 
-    // Reference one in a node.
+    $this->referencedByAnother = $this->container->get('entity_type.manager')->getStorage('media')->create([
+      'bundle' => $media_bundle->id(),
+      'name' => 'Referenced By Another',
+    ]);
+    $this->referencedByAnother->save();
+
+    // Reference one by a node of the type we're expecting.
     $node = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type_with_reference',
       'title' => 'Referencer',
       'field_media' => [$this->referenced->id()],
+    ]);
+    $node->save();
+
+    // Reference one by a node of the type we're not expecting.
+    $another_node = $this->container->get('entity_type.manager')->getStorage('node')->create([
+      'type' => 'another_test_type_with_reference',
+      'title' => 'Another Referencer',
+      'field_media' => [$this->referencedByAnother->id()],
     ]);
     $node->save();
   }
@@ -71,7 +99,6 @@ class IsReferencedMediaTest extends IslandoraFunctionalTestBase {
    * @covers \Drupal\islandora\ContextProvider\MediaContextProvider::getRuntimeContexts
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
-   * @covers \Drupal\islandora\Plugin\Condition\IsReferencedMedia::evaluate
    * @covers \Drupal\islandora\Plugin\Condition\IsReferencedMedia::buildConfigurationForm
    * @covers \Drupal\islandora\Plugin\Condition\IsReferencedMedia::submitConfigurationForm
    * @covers \Drupal\islandora\Plugin\Condition\IsReferencedMedia::evaluate
@@ -106,6 +133,11 @@ class IsReferencedMediaTest extends IslandoraFunctionalTestBase {
     // Edit the unreferenced node.  "Hello World!" should not be output to the
     // screen.
     $this->postEntityEditForm("media/{$this->notReferenced->id()}", ['name[0][value]' => 'Unreferenced Media Changed'], 'Save and keep published');
+    $this->assertSession()->pageTextNotContains("Hello World!");
+
+    // Edit the node referenced by a different type.  "Hello World!" should not
+    // be output to the screen.
+    $this->postEntityEditForm("media/{$this->referencedByAnother->id()}", ['name[0][value]' => 'Referenced By Another Changed'], 'Save and keep published');
     $this->assertSession()->pageTextNotContains("Hello World!");
   }
 

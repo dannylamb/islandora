@@ -175,12 +175,13 @@ class IsReferencedMedia extends ConditionPluginBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public function evaluate() {
-    // Check to see that the media is referenced by a node using the specified
-    // field.
+    // Check to see that the media is referenced by a node of the specified
+    // type using the specified field.
     $media = $this->getContextValue('media');
     $field_key = $this->configuration['field'];
-    list($bundle, $field) = explode('|', $field_key);
+    list($content_type, $field) = explode('|', $field_key);
     return $this->entityQuery->get('node')
+      ->condition('type', $content_type)
       ->condition("$field.target_id", $media->id())
       ->execute();
   }
