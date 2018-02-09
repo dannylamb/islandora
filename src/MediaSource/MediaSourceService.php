@@ -3,7 +3,6 @@
 namespace Drupal\islandora\MediaSource;
 
 use Drupal\Component\Render\PlainTextOutput;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
@@ -53,6 +52,8 @@ class MediaSourceService {
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The current user.
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
    *   Stream wrapper manager.
    * @param \Drupal\Core\Utility\Token $token
@@ -81,8 +82,11 @@ class MediaSourceService {
    */
   public function getSourceFieldName($media_bundle) {
     $bundle = $this->entityTypeManager->getStorage('media_bundle')->load($media_bundle);
-    $type_configuration = $bundle->getTypeConfiguration();
+    if (!$bundle) {
+      throw new NotFoundHttpException("Bundle $media_bundle does not exist");
+    }
 
+    $type_configuration = $bundle->getTypeConfiguration();
     if (!isset($type_configuration['source_field'])) {
       return NULL;
     }
@@ -128,7 +132,6 @@ class MediaSourceService {
     $file->setMimeType($mimetype);
     $file->setFilename($filename);
     $file->setSize($content_length);
-    $file->save();
 
     // Validate file extension.
     $bundle = $media->bundle();
@@ -140,17 +143,7 @@ class MediaSourceService {
       throw new BadRequestHttpException("Invalid file extension.  Valid types are :$valid_extensions");
     }
 
-    // Set fields provided by type plugin and mapped in bundle configuration
-    // for the media.
-    foreach ($media->bundle->entity->field_map as $source => $destination) {
-      if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
-        $media->set($destination, $value);
-      }
-    }
-    $media->save();
-
-    // Copy the contents over using streams. Do this last since it's not
-    // covered under the transaction.
+    // Copy the contents over using streams.
     $uri = $file->getFileUri();
     $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
     $path = "";
@@ -159,11 +152,42 @@ class MediaSourceService {
     if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
       throw new HttpException(500, "The file could not be copied into $uri");
     }
+    $file->save();
+
+    // Set fields provided by type plugin and mapped in bundle configuration
+    // for the media.
+    foreach ($media->bundle->entity->field_map as $source => $destination) {
+      if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
+        $media->set($destination, $value);
+      }
+    }
 
     // Flush the image cache for the image so thumbnails get regenerated.
     image_path_flush($uri);
+
+    $media->save();
   }
 
+  /**
+   * Creates a new Media using the provided resource, adding it to a Node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node to reference the newly created Media.
+   * @param string $field
+   *   Name of field on the Node to reference the Media.
+   * @param string $bundle
+   *   Bundle of Media to create.
+   * @param resource $resource
+   *   New file contents as a resource.
+   * @param string $mimetype
+   *   New mimetype of contents.
+   * @param string $content_length
+   *   New size of contents.
+   * @param string $filename
+   *   New filename for contents.
+   *
+   * @throws HttpException
+   */
   public function addToNode(
     NodeInterface $node,
     $field,
@@ -190,12 +214,13 @@ class MediaSourceService {
     // Load its config to get file extensions and upload path.
     $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
 
-    // Construct the destination uri. 
+    // Construct the destination uri.
     $directory = $source_field_config->getSetting('file_directory');
     $directory = trim($directory, '/');
     $directory = PlainTextOutput::renderFromHtml($this->token->replace($directory, ['node' => $node]));
     $scheme = file_default_scheme();
-    $destination = "$scheme://$directory/$filename";
+    $destination_directory = "$scheme://$directory";
+    $destination = "$destination_directory/$filename";
 
     // Construct the File.
     $file = $this->entityTypeManager->getStorage('file')->create([
@@ -214,6 +239,20 @@ class MediaSourceService {
 
     if (!empty($errors)) {
       throw new BadRequestHttpException("Invalid file extension.  Valid types are $valid_extensions");
+    }
+
+    if (!file_prepare_directory($destination_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      throw new HttpException(500, "The destination directory does not exist, could not be created, or is not writable");
+    }
+
+    // Copy the contents over using streams.
+    $uri = $file->getFileUri();
+    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
+    $path = "";
+    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
+    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
+    if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
+      throw new HttpException(500, "The file could not be copied into $uri");
     }
 
     $file->save();
@@ -249,18 +288,8 @@ class MediaSourceService {
     $node->get($field)->appendItem($media);
     $node->save();
 
-    // Copy the contents over using streams. Do this last since it's not
-    // covered under the transaction.
-    $uri = $file->getFileUri();
-    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
-    $path = "";
-    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
-    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
-      throw new HttpException(500, "The file could not be copied into $uri");
-    }
-
     // Return the created media.
     return $media;
   }
+
 }

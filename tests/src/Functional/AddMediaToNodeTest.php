@@ -4,7 +4,6 @@ namespace Drupal\Tests\islandora\Functional;
 
 use Drupal\Core\Url;
 use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
-use Drupal\Tests\media_entity\Functional\MediaEntityFunctionalTestTrait;
 
 /**
  * Tests the RelatedLinkHeader view alter.
@@ -46,27 +45,82 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
     $this->referencer->save();
   }
 
+  /**
+   * @covers \Drupal\islandora\Controller\MediaSourceController::addToNode
+   */
   public function testAddMediaToNode() {
     $account = $this->drupalCreateUser([
       'bypass node access',
-      'view media',
       'create media',
-      'update media',
     ]);
     $this->drupalLogin($account);
-    
+
     // Hack out the guzzle client.
     $client = $this->getSession()->getDriver()->getClient()->getClient();
 
     $add_to_node_url = Url::fromRoute(
       'islandora.media_source_add_to_node',
-      ['node' => $this->referencer->id(), 'field' => 'field_media', 'bundle' => 'tn']
+      [
+        'node' => $this->referencer->id(),
+        'field' => 'field_media',
+        'bundle' => 'tn',
+      ]
     )
-    ->setAbsolute()
-    ->toString();
+      ->setAbsolute()
+      ->toString();
 
     $image = file_get_contents(__DIR__ . '/../../static/test.jpeg');
 
+    // Update without Content-Type header should fail with 400.
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Disposition' => 'attachment; filename="test.jpeg"',
+      ],
+      'body' => $image,
+    ];
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
+
+    // Update without Content-Disposition header should fail with 400.
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+      ],
+      'body' => $image,
+    ];
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
+
+    // Update with malformed Content-Disposition header should fail with 400.
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+        'Content-Disposition' => 'garbage; filename="test.jpeg"',
+      ],
+      'body' => $image,
+    ];
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
+
+    // Update without body should fail with 400.
+    $options = [
+      'auth' => [$account->getUsername(), $account->pass_raw],
+      'http_errors' => FALSE,
+      'headers' => [
+        'Content-Type' => 'image/jpeg',
+        'Content-Disposition' => 'attachment; filename="test.jpeg"',
+      ],
+    ];
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
+
+    // Proper options array.
     $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
@@ -76,8 +130,44 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       ],
       'body' => $image,
     ];
-    $response = $client->request('POST', $add_to_node_url, $options);
-    $this->assertTrue($response->getStatusCode() == 201, "Unsuccessful");
-  }
-}
 
+    // Bad field name in url should return 404.
+    $bad_field_url = Url::fromRoute(
+      'islandora.media_source_add_to_node',
+      [
+        'node' => $this->referencer->id(),
+        'field' => 'field_garbage',
+        'bundle' => 'tn',
+      ]
+    )
+      ->setAbsolute()
+      ->toString();
+    $response = $client->request('POST', $bad_field_url, $options);
+    $this->assertTrue($response->getStatusCode() == 404, "Expected 404, received {$response->getStatusCode()}");
+
+    // Bad bundle name in url should return 404.
+    $bad_bundle_url = Url::fromRoute(
+      'islandora.media_source_add_to_node',
+      [
+        'node' => $this->referencer->id(),
+        'field' => 'field_media',
+        'bundle' => 'garbage',
+      ]
+    )
+      ->setAbsolute()
+      ->toString();
+    $response = $client->request('POST', $bad_bundle_url, $options);
+    $this->assertTrue($response->getStatusCode() == 404, "Expected 404, received {$response->getStatusCode()}");
+
+    // Should be successful with proper url and options.
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 201, "Expected 201, received {$response->getStatusCode()}");
+    $this->assertTrue(!empty($response->getHeader("Location")), "Response must include Location header");
+
+    // Should fail with 409 if Node already references a media using the field
+    // (i.e. the previous call was successful).
+    $response = $client->request('POST', $add_to_node_url, $options);
+    $this->assertTrue($response->getStatusCode() == 409, "Expected 409, received {$response->getStatusCode()}");
+  }
+
+}

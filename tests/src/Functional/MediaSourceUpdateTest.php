@@ -9,7 +9,7 @@ use Drupal\Core\Url;
  *
  * @group islandora
  */
-class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
+class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
 
   /**
    * {@inheritdoc}
@@ -99,7 +99,7 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'image/jpeg',
-        'Content-Disposition' => 'attachment; garbage="test.jpeg"',
+        'Content-Disposition' => 'garbage; filename="test.jpeg"',
       ],
       'body' => $image,
     ];
@@ -107,6 +107,7 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update without body should fail with 400.
+    $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
@@ -153,4 +154,5 @@ class MediaSourceControllerTest extends IslandoraFunctionalTestBase {
     $this->assertTrue($updated_height == 70, "Invalid height.  Expected 70, received $updated_height");
     $this->assertTrue($updated_image == file_get_contents(__DIR__ . '/../../static/test.jpeg'), "Updated image not the same as PUT body.");
   }
+
 }

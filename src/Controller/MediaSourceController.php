@@ -5,7 +5,6 @@ namespace Drupal\islandora\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\media_entity\MediaInterface;
-use Drupal\media_entity\Entity\MediaBundle;
 use Drupal\node\NodeInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -130,6 +129,23 @@ class MediaSourceController extends ControllerBase {
     }
   }
 
+  /**
+   * Adds a Media to a Node using the specified field.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The Node to which you want to add a Media.
+   * @param string $field
+   *   Name of field on Node to reference Media.
+   * @param string $bundle
+   *   Name of bundle for Media to create.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   201 on success with a Location link header.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
   public function addToNode(
     NodeInterface $node,
     $field,
@@ -188,4 +204,5 @@ class MediaSourceController extends ControllerBase {
       throw new HttpException(500, $e->getMessage());
     }
   }
+
 }
