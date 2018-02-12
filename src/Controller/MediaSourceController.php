@@ -2,8 +2,11 @@
 
 namespace Drupal\islandora\Controller;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Routing\RouteMatch;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\media_entity\MediaInterface;
 use Drupal\node\NodeInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
@@ -203,6 +206,24 @@ class MediaSourceController extends ControllerBase {
       $transaction->rollBack();
       throw new HttpException(500, $e->getMessage());
     }
+  }
+
+  /**
+   * Checks for permissions to update a node and create media.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Account for user making the request.
+   * @param \Drupal\Core\Routing\RouteMatch $route_match
+   *   Route match to get Node from url params.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   Access result.
+   */
+  public function addToNodeAccess(AccountInterface $account, RouteMatch $route_match) {
+    // We'd have 404'd already if node didn't exist, so no need to check.
+    // Just hack it out of the route match.
+    $node = $route_match->getParameter('node');
+    return AccessResult::allowedIf($node->access('update', $account) && $account->hasPermission('create media'));
   }
 
 }

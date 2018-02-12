@@ -40,6 +40,6 @@ islandora.media_source_add_to_node:
     _controller: '\Drupal\islandora\Controller\MediaSourceController::addToNode'
   methods: [POST]
   requirements:
-    _permission: 'create media'
+    _custom_access: '\Drupal\islandora\Controller\MediaSourceController::addToNodeAccess'
   options:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']
