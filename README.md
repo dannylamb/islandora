@@ -28,6 +28,18 @@ Example usage:
 curl -u admin:islandora -v -X PUT -H 'Content-Type: image/png' -H 'Content-Disposition: attachment; filename="my_image.png"' --data-binary @my_image.png localhost:8000/media/1/source
 ```
 
+### /node/{node}/media/{field}/add/{bundle}
+
+You can POST content to the `/node/{node}/media/{field}/add/{bundle}` endpoint to create a new Media of the specified bundle
+using the POST body.  It will be associated with the specified Node using the field from the route. The `Content-Type`
+header is expected, as well as a `Content-Disposition` header of the form `attachment; filename="your_filename"` to indicate
+the name to give the file.  Requests with empty bodies or no `Content-Length` header will be rejected.
+
+Example usage:
+```
+curl -v -u admin:islandora -H "Content-Type: image/jpeg" -H "Content-Disposition: attachment; filename=\"test.jpeg\"" --data-binary @test.jpeg http://localhost:8000/node/1/media/my_media_field/add/my_media_bundle
+```
+
 ## Maintainers
 
 Current maintainers:
