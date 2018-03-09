@@ -18,6 +18,8 @@ This can be done using the Rest UI module by setting granularity to 'Method'.  I
 you'll want to enable `cookie` authentication. And if you want to use a username/password with cURL, you'll want to enable `basic
 authentication`.
 
+![screenshot from 2018-03-09 10-09-57](https://user-images.githubusercontent.com/20773151/37212586-caf31dc8-2385-11e8-8122-1608dacbfb5f.png)
+
 If you want to import the configuration through Drupal's configuration synchronization tools, you can use these yaml files
 from claw-playbook for [Nodes](https://github.com/Islandora-Devops/claw-playbook/blob/master/roles/internal/webserver-app/files/rest.resource.entity.node.yml),
 [Media](https://github.com/Islandora-Devops/claw-playbook/blob/master/roles/internal/webserver-app/files/rest.resource.entity.media.yml),
