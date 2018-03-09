@@ -10,8 +10,18 @@ CLAW's core Islandora module for Drupal 8.x
 ## Installation
 
 For a fully automated install, see [claw-playbook](https://github.com/Islandora-Devops/claw-playbook).  If you're installing
-manually, the REST configuration for both Nodes and Media need to be enabled with `jwt_auth` for authentication and both
-`json` and `jsonld` formats. 
+manually, then _at a minimum_, the REST configuration for Nodes, Media, and Files need to be enabled with `jwt_auth` for
+authentication on all methods.  The `json` and `jsonld` formats need to be enabled for for GET requests.  Only the `json` fomat
+is required for POST, PATCH, and DELETE requests.
+
+This can be done using the Rest UI module by setting granularity to 'Method'.  If you want to use GET requests through a browser,
+you'll want to enable `cookie` authentication. And if you want to use a username/password with cURL, you'll want to enable `basic
+authentication`.
+
+If you want to import the configuration through Drupal's configuration synchronization tools, you can use these yaml files
+from claw-playbook for [Nodes](https://github.com/Islandora-Devops/claw-playbook/blob/master/roles/internal/webserver-app/files/rest.resource.entity.node.yml),
+[Media](https://github.com/Islandora-Devops/claw-playbook/blob/master/roles/internal/webserver-app/files/rest.resource.entity.media.yml),
+and [Files](https://github.com/Islandora-Devops/claw-playbook/blob/master/roles/internal/webserver-app/files/rest.resource.entity.file.yml).
 
 ## REST API
 
