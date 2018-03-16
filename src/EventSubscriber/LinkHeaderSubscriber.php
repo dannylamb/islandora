@@ -114,6 +114,109 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Generates link headers for each referenced entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity that has reference fields.
+   *
+   * @return string[]
+   *   Array of link headers
+   */
+  protected function generateEntityReferenceLinks(EntityInterface $entity) {
+    // Use the node to add link headers for each entity reference.
+    $entity_type = $entity->getEntityType()->id();
+    $bundle = $entity->bundle();
+
+    // Get all fields for the entity.
+    $fields = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
+
+    // Strip out everything but entity references that are not base fields.
+    $entity_reference_fields = array_filter($fields, function ($field) {
+      return $field->getFieldStorageDefinition()->isBaseField() == FALSE && $field->getType() == "entity_reference";
+    });
+
+    // Collect links for referenced entities.
+    $links = [];
+    foreach ($entity_reference_fields as $field_name => $field_definition) {
+      foreach ($entity->get($field_name)->referencedEntities() as $referencedEntity) {
+        // Headers are subject to an access check.
+        if ($referencedEntity->access('view')) {
+          $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+          $field_label = $field_definition->label();
+          $links[] = "<$entity_url>; rel=\"related\"; title=\"$field_label\"; field=\"{$field_name}\"";
+        }
+      }
+    }
+
+    return $links;
+  }
+
+  /**
+   * Generates link headers for REST endpoints.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity that has reference fields.
+   *
+   * @return string[]
+   *   Array of link headers
+   */
+  protected function generateRestLinks(EntityInterface $entity) {
+    $rest_resource_config_storage = $this->entityTypeManager->getStorage('rest_resource_config');
+    $entity_type = $entity->getEntityType()->id();
+    $rest_resource_config = $rest_resource_config_storage->load("entity.$entity_type");
+
+    $links = [];
+    $route_name = $this->routeMatch->getRouteName();
+
+    if ($rest_resource_config) {
+      $configuration = $rest_resource_config->get('configuration');
+
+      foreach ($configuration['GET']['supported_formats'] as $format) {
+        switch ($format) {
+          case 'json':
+            $mime = 'application/json';
+            break;
+
+          case 'jsonld':
+            $mime = 'application/ld+json';
+            break;
+
+          case 'hal_json':
+            $mime = 'application/hal+json';
+            break;
+
+          case 'xml':
+            $mime = 'application/xml';
+            break;
+
+          default:
+            continue;
+        }
+
+        $meta_route_name = "rest.entity.$entity_type.GET.$format";
+
+        if ($route_name == $meta_route_name) {
+          continue;
+        }
+
+        $route_params = [$entity_type => $entity->id()];
+
+        if (!$this->accessManager->checkNamedRoute($meta_route_name, $route_params, $this->account)) {
+          continue;
+        }
+
+        $meta_url = Url::fromRoute($meta_route_name, $route_params)
+          ->setAbsolute()
+          ->toString();
+
+        $links[] = "<$meta_url?_format=$format>; rel=\"alternate\"; type=\"$mime\"";
+      }
+    }
+
+    return $links;
+  }
+
+  /**
    * Adds resource-specific link headers to appropriate responses.
    *
    * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event

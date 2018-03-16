@@ -113,9 +113,7 @@ class MediaSourceService {
   public function updateSourceField(
     MediaInterface $media,
     $resource,
-    $mimetype,
-    $content_length,
-    $filename
+    $mimetype
   ) {
     // Get the source field for the media type.
     $source_field = $this->getSourceFieldName($media->bundle());
@@ -128,30 +126,20 @@ class MediaSourceService {
     $files = $media->get($source_field)->referencedEntities();
     $file = reset($files);
 
-    // Set relevant fields on file.
-    $file->setMimeType($mimetype);
-    $file->setFilename($filename);
-    $file->setSize($content_length);
-
-    // Validate file extension.
-    $bundle = $media->bundle();
-    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
-    $valid_extensions = $source_field_config->getSetting('file_extensions');
-    $errors = file_validate_extensions($file, $valid_extensions);
-
-    if (!empty($errors)) {
-      throw new BadRequestHttpException("Invalid file extension.  Valid types are :$valid_extensions");
-    }
-
     // Copy the contents over using streams.
     $uri = $file->getFileUri();
     $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
     $path = "";
     $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
     $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
+    $content_length = stream_copy_to_stream($resource, $file_stream);
+    if ($content_length === FALSE) {
       throw new HttpException(500, "The file could not be copied into $uri");
     }
+
+    // Set relevant fields on file.
+    $file->setMimeType($mimetype);
+    $file->setSize($content_length);
     $file->save();
 
     // Set fields provided by type plugin and mapped in bundle configuration
@@ -194,14 +182,20 @@ class MediaSourceService {
     $bundle,
     $resource,
     $mimetype,
-    $content_length,
     $filename
   ) {
     if (!$node->hasField($field)) {
       throw new NotFoundHttpException();
     }
 
-    if (!$node->get($field)->isEmpty()) {
+    // Filter out any bad references before confirming it is empty.
+    $node->get($field)->filter(function ($elem) {
+      $value = $elem->getValue();
+      $mid = $value['target_id'];
+      return $this->entityTypeManager->getStorage('media')->load($mid);
+    });
+
+    if ($node->get($field)->count()) {
       throw new ConflictHttpException();
     }
 
@@ -228,7 +222,6 @@ class MediaSourceService {
       'uri' => $destination,
       'filename' => $filename,
       'filemime' => $mimetype,
-      'filesize' => $content_length,
       'status' => FILE_STATUS_PERMANENT,
     ]);
 
@@ -251,10 +244,12 @@ class MediaSourceService {
     $path = "";
     $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
     $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    if (stream_copy_to_stream($resource, $file_stream) === FALSE) {
+    $content_length = stream_copy_to_stream($resource, $file_stream);
+    if ($content_length === FALSE) {
       throw new HttpException(500, "The file could not be copied into $uri");
     }
 
+    $file->setSize($content_length);
     $file->save();
 
     // Construct the Media.
@@ -285,7 +280,7 @@ class MediaSourceService {
     $media->save();
 
     // Update the Node.
-    $node->get($field)->appendItem($media);
+    $node->set($field, $media);
     $node->save();
 
     // Return the created media.
