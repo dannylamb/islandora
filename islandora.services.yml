@@ -20,12 +20,12 @@ services:
       - { name: event_subscriber }
   islandora.media_link_header_subscriber:
     class: Drupal\islandora\EventSubscriber\MediaLinkHeaderSubscriber
-    arguments: ['@entity_field.manager', '@current_route_match', '@entity_type.manager']
+    arguments: ['@entity_type.manager', '@entity_field.manager', '@access_manager', '@current_user', '@current_route_match']
     tags:
       - { name: event_subscriber }
   islandora.node_link_header_subscriber:
     class: Drupal\islandora\EventSubscriber\NodeLinkHeaderSubscriber
-    arguments: ['@entity_field.manager', '@current_route_match']
+    arguments: ['@entity_type.manager', '@entity_field.manager', '@access_manager', '@current_user', '@current_route_match']
     tags:
       - { name: event_subscriber }
   islandora.versioncounter:

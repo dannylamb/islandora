@@ -2,8 +2,13 @@
 
 namespace Drupal\islandora\EventSubscriber;
 
+use Drupal\Core\Access\AccessManager;
 use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -17,11 +22,32 @@ use Symfony\Component\HttpKernel\KernelEvents;
 abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
+
+  /**
    * The entity field manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
   protected $entityFieldManager;
+
+  /**
+   * The access manager.
+   *
+   * @var \Drupal\Core\Access\AccessManager
+   */
+  protected $accessManager;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $account;
 
   /**
    * The route match object.
@@ -33,16 +59,28 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   /**
    * Constructor.
    *
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
    *   The entity field manager.
+   * @param \Drupal\Core\Access\AccessManager
+   *   The access manager.
+   * @param \Drupal\Core\Session\AccountInterface
+   *   The current user.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match object.
    */
   public function __construct(
+    EntityTypeManager $entity_type_manager,
     EntityFieldManager $entity_field_manager,
+    AccessManager $access_manager,
+    AccountInterface $account,
     RouteMatchInterface $route_match
   ) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->accessManager = $access_manager;
+    $this->account = $account;
     $this->routeMatch = $route_match;
   }
 

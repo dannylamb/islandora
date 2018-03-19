@@ -21,43 +21,24 @@ class NodeLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubs
   public function onResponse(FilterResponseEvent $event) {
     $response = $event->getResponse();
 
-    $entity = $this->getObject($response, 'node');
+    $node = $this->getObject($response, 'node');
 
-    if ($entity === FALSE) {
+    if ($node === FALSE) {
       return;
     }
 
-    // Use the node to add link headers for each entity reference.
-    $bundle = $entity->bundle();
+    $links = array_merge(
+      $this->generateEntityReferenceLinks($node),
+      $this->generateRestLinks($node)
+    );
 
-    // Get all fields for the entity.
-    $fields = $this->entityFieldManager->getFieldDefinitions('node', $bundle);
-
-    // Strip out everything but entity references that are not base fields.
-    $entity_reference_fields = array_filter($fields, function ($field) {
-      return $field->getFieldStorageDefinition()->isBaseField() == FALSE && $field->getType() == "entity_reference";
-    });
-
-    // Collect links for referenced entities.
-    $links = [];
-    foreach ($entity_reference_fields as $field_name => $field_definition) {
-      foreach ($entity->get($field_name)->referencedEntities() as $referencedEntity) {
-        // Headers are subject to an access check.
-        if ($referencedEntity->access('view')) {
-          $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
-          $field_label = $field_definition->label();
-          $links[] = "<$entity_url>; rel=\"related\"; title=\"$field_label\"";
-        }
-      }
-    }
-
-    // Exit early if there aren't any.
+    // Add the link headers to the response.
     if (empty($links)) {
       return;
     }
 
-    // Add the link headers to the response.
     $response->headers->set('Link', $links, FALSE);
   }
 
 }
+

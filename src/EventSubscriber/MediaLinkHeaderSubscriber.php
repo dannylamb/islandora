@@ -2,11 +2,8 @@
 
 namespace Drupal\islandora\EventSubscriber;
 
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\media_entity\MediaInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
@@ -18,79 +15,76 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 class MediaLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubscriberInterface {
 
   /**
-   * Media storage interface.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected $mediaBundleStorage;
-
-  /**
-   * MediaLinkHeaderSubscriber constructor.
-   *
-   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
-   *   The entity field manager.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
-   *   The route match object.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
-   */
-  public function __construct(
-    EntityFieldManager $entity_field_manager,
-    RouteMatchInterface $route_match,
-    EntityTypeManagerInterface $entity_type_manager) {
-    $this->mediaBundleStorage = $entity_type_manager->getStorage('media_bundle');
-    parent::__construct($entity_field_manager, $route_match);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function onResponse(FilterResponseEvent $event) {
     $response = $event->getResponse();
 
-    $entity = $this->getObject($response, 'media');
+    $media = $this->getObject($response, 'media');
 
-    if ($entity === FALSE) {
+    if ($media === FALSE) {
       return;
     }
 
-    $media_bundle = $this->mediaBundleStorage->load($entity->bundle());
+    $links = array_merge(
+      $this->generateEntityReferenceLinks($media),
+      $this->generateRestLinks($media),
+      $this->generateMediaLinks($media)
+    );
 
-    $type_configuration = $media_bundle->getTypeConfiguration();
-
-    if (!isset($type_configuration['source_field'])) {
-      return;
-    }
-    $source_field = $type_configuration['source_field'];
-
-    if (empty($source_field) ||
-      !$entity instanceof FieldableEntityInterface ||
-      !$entity->hasField($source_field)
-    ) {
-      return;
-    }
-
-    // Collect file links for the media.
-    $links = [];
-    foreach ($entity->get($source_field)->referencedEntities() as $referencedEntity) {
-      if ($entity->access('view')) {
-        $file_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
-        $edit_media_url = Url::fromRoute('islandora.media_source_update', ['media' => $referencedEntity->id()])
-          ->setAbsolute()
-          ->toString();
-        $links[] = "<$file_url>; rel=\"describes\"; type=\"{$referencedEntity->getMimeType()}\"";
-        $links[] = "<$edit_media_url>; rel=\"edit-media\"";
-      }
-    }
-
-    // Exit early if there aren't any.
+    // Add the link headers to the response.
     if (empty($links)) {
       return;
     }
 
-    // Add the link headers to the response.
     $response->headers->set('Link', $links, FALSE);
+  }
 
+  /**
+   * Generates link headers for the described file and source update routes.
+   *
+   * @param \Drupal\media_entity\MediaInterface $media
+   *   Media to generate link headers.
+   *
+   * @return string[]
+   *   Array of link headers
+   */
+  protected function generateMediaLinks(MediaInterface $media) {
+    $media_bundle = $this->entityTypeManager->getStorage('media_bundle')->load($media->bundle());
+
+    $type_configuration = $media_bundle->getTypeConfiguration();
+
+    $links = [];
+
+    $update_route_name = 'islandora.media_source_update';
+    $update_route_params = ['media' => $media->id()];
+    if ($this->accessManager->checkNamedRoute($update_route_name, $update_route_params, $this->account)) {
+      $edit_media_url = Url::fromRoute($update_route_name, $update_route_params)
+        ->setAbsolute()
+        ->toString();
+      $links[] = "<$edit_media_url>; rel=\"edit-media\"";
+    }
+
+    if (!isset($type_configuration['source_field'])) {
+      return $links;
+    }
+    $source_field = $type_configuration['source_field'];
+
+    if (empty($source_field) ||
+        !$media->hasField($source_field)
+    ) {
+      return $links;
+    }
+
+    // Collect file links for the media.
+    foreach ($media->get($source_field)->referencedEntities() as $referencedEntity) {
+      if ($referencedEntity->access('view')) {
+        $file_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+        $links[] = "<$file_url>; rel=\"describes\"; type=\"{$referencedEntity->getMimeType()}\"";
+      }
+    }
+
+    return $links;
   }
 
 }

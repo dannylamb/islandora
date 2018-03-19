@@ -3,6 +3,7 @@
 namespace Drupal\islandora;
 
 use Drupal\context\ContextManager;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
@@ -336,6 +337,43 @@ class DerivativeUtils {
     foreach ($this->contextManager->getActiveReactions($reaction_type) as $reaction) {
       $reaction->execute($node);
     }
+  }
+
+  public function haveFieldsChanged(ContentEntityInterface $entity, ContentEntityInterface $original) {
+
+    $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
+
+    $ignore_list = ['vid', 'changed', 'path'];
+    foreach ($field_definitions as $field_name => $field_definition) {
+      if (in_array($field_name, $ignore_list)) {
+        continue;
+      }
+
+      $langcodes = array_keys($entity->getTranslationLanguages());
+
+      if ($langcodes !== array_keys($original->getTranslationLanguages())) {
+        // If the list of langcodes has changed, we need to save.
+        return TRUE;
+      }
+
+      foreach ($langcodes as $langcode) {
+        $items = $entity
+          ->getTranslation($langcode)
+          ->get($field_name)
+          ->filterEmptyItems();
+        $original_items = $original
+          ->getTranslation($langcode)
+          ->get($field_name)
+          ->filterEmptyItems();
+
+        // If the field items are not equal, we need to save.
+        if (!$items->equals($original_items)) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
   }
 
 }

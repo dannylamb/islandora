@@ -128,7 +128,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
 
     // Generate event as stomp message.
     $user = $this->entityTypeManager->getStorage('user')->load($this->account->id());
-dsm($this->eventGenerator->generateEvent($entity, $user, $this->configuration));
+dsm("Sending message to {$this->configuration['queue']}: {$this->eventGenerator->generateEvent($entity, $user, $this->configuration)}");
     $message = new Message(
       $this->eventGenerator->generateEvent($entity, $user, $this->configuration),
       ['Authorization' => "Bearer $token"]

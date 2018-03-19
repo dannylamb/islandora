@@ -4,6 +4,7 @@ namespace Drupal\islandora\MediaSource;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Utility\Token;
@@ -147,6 +148,10 @@ class MediaSourceService {
     foreach ($media->bundle->entity->field_map as $source => $destination) {
       if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
         $media->set($destination, $value);
+        // Ensure width and height are updated on File reference when it's an image.
+        if ($source == 'width' || $source == 'height') {
+          $media->get($source_field)->first()->set($source, $value);
+        }
       }
     }
 

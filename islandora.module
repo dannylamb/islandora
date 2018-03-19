@@ -108,7 +108,11 @@ function islandora_node_insert(NodeInterface $node) {
  * Implements hook_node_update().
  */
 function islandora_node_update(NodeInterface $node) {
+  
   $utils = \Drupal::service('islandora.derivative_utils');
+  if (!$utils->haveFieldsChanged($node, $node->original)) {
+    return;
+  };
 
   // Execute index reactions
   $utils->executeNodeReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $node);
@@ -148,6 +152,9 @@ function islandora_media_update(MediaInterface $media) {
   $media_source_service = \Drupal::service('islandora.media_source_service');
 
   $utils = \Drupal::service('islandora.derivative_utils');
+  if (!$utils->haveFieldsChanged($media, $media->original)) {
+    return;
+  };
 
   // Execute index reactions
   $utils->executeMediaReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $media);
