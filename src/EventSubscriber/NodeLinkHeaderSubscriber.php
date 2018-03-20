@@ -41,4 +41,3 @@ class NodeLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubs
   }
 
 }
-

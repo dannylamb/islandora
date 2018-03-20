@@ -63,9 +63,9 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
    *   The entity field manager.
-   * @param \Drupal\Core\Access\AccessManager
+   * @param \Drupal\Core\Access\AccessManager $access_manager
    *   The access manager.
-   * @param \Drupal\Core\Session\AccountInterface
+   * @param \Drupal\Core\Session\AccountInterface $account
    *   The current user.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match object.

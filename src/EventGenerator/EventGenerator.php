@@ -64,7 +64,7 @@ class EventGenerator implements EventGeneratorInterface {
       ];
     }
 
-    return json_encode($event); 
+    return json_encode($event);
   }
 
   /**

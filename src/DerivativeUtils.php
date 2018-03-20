@@ -9,15 +9,16 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
-use Drupal\field\Entity\FieldConfig;
 use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
 use Drupal\media_entity\MediaInterface;
 use Drupal\node\NodeInterface;
-use Drupal\node\Entity\NodeType;
 
+/**
+ * Utility functions for figuring out when to fire derivative reactions.
+ */
 class DerivativeUtils {
 
   /**
@@ -58,12 +59,16 @@ class DerivativeUtils {
   /**
    * Constructor.
    *
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
    *   The entity field manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
    *   Entity query.
-   * @param \Drupal\context\ContextManager
+   * @param \Drupal\context\ContextManager $context_manager
    *   Context manager.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
+   *   Stream wrapper manager.
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
@@ -147,11 +152,11 @@ class DerivativeUtils {
       // original values before the update occurred.  If it's found, the media
       // is not newly referenced.
       foreach ($field_item_list as $field_item) {
-        // grab the mid and search the original list.
+        // Grab the mid and search the original list.
         $value = $field_item->getvalue();
         $mid = $value['target_id'];
 
-        $is_found = false;
+        $is_found = FALSE;
         foreach ($original_field_item_list as $item) {
           $orig_value = $item->getvalue();
           $orig_mid = $orig_value['target_id'];
@@ -163,7 +168,7 @@ class DerivativeUtils {
         if ($is_found) {
           continue;
         }
- 
+
         $mids[] = $mid;
       }
     }
@@ -181,7 +186,7 @@ class DerivativeUtils {
    *   TRUE if Media is referenced by any Node.
    */
   public function mediaIsReferenced($mid) {
-    return !empty($this->getReferencingNodeIds($mid)); 
+    return !empty($this->getReferencingNodeIds($mid));
   }
 
   /**
@@ -190,7 +195,7 @@ class DerivativeUtils {
    * @param int $mid
    *   Id of Media whose referencing Nodes you are searching for.
    *
-   * @return \Drupal\node\NodeInterface[] 
+   * @return \Drupal\node\NodeInterface[]
    *   Array of nodes.
    */
   public function getReferencingNodes($mid) {
@@ -205,7 +210,7 @@ class DerivativeUtils {
    * @param int $mid
    *   Id of Media whose referencing Nodes you are searching for.
    *
-   * @return int[] 
+   * @return int[]
    *   Array of node ids.
    */
   public function getReferencingNodeIds($mid) {
@@ -216,13 +221,15 @@ class DerivativeUtils {
       ->condition('settings.target_type', 'media')
       ->execute();
 
-    // Process field names, stripping off 'node.' and appending 'target_id'
+    // Process field names, stripping off 'node.' and appending 'target_id'.
     $conditions = array_map(
-      function($field) { return ltrim($field, 'node.') . '.target_id'; },
+      function ($field) {
+        return ltrim($field, 'node.') . '.target_id';
+      },
       $fields
-    ); 
+    );
 
-    // Query for nodes that reference this media
+    // Query for nodes that reference this media.
     $query = $this->entityQuery->get('node', 'OR');
     foreach ($conditions as $condition) {
       $query->condition($condition, $mid);
@@ -234,7 +241,7 @@ class DerivativeUtils {
    * Gets ids for Media that reference a File.
    *
    * @param int $fid
-   *   File id
+   *   File id.
    *
    * @return array
    *   Array of media ids
@@ -246,13 +253,15 @@ class DerivativeUtils {
       ->condition('settings.target_type', 'file')
       ->execute();
 
-    // Process field names, stripping off 'media.' and appending 'target_id'
+    // Process field names, stripping off 'media.' and appending 'target_id'.
     $conditions = array_map(
-      function($field) { return ltrim($field, 'media.') . '.target_id'; },
+      function ($field) {
+        return ltrim($field, 'media.') . '.target_id';
+      },
       $fields
     );
 
-    // Query for media that reference this file 
+    // Query for media that reference this file.
     $query = $this->entityQuery->get('media', 'OR');
     foreach ($conditions as $condition) {
       $query->condition($condition, $fid);
@@ -265,9 +274,9 @@ class DerivativeUtils {
    * Executes context reactions for a Node.
    *
    * @param string $reaction_type
-   *   Reaction type
+   *   Reaction type.
    * @param \Drupal\node\NodeInterface $node
-   *   Node to evaluate contexts and pass to reaction
+   *   Node to evaluate contexts and pass to reaction.
    */
   public function executeNodeReactions($reaction_type, NodeInterface $node) {
     $provider = new NodeContextProvider($node);
@@ -284,9 +293,9 @@ class DerivativeUtils {
    * Executes context reactions for a Media.
    *
    * @param string $reaction_type
-   *   Reaction type
+   *   Reaction type.
    * @param \Drupal\media_entity\MediaInterface $media
-   *   Media to evaluate contexts and pass to reaction
+   *   Media to evaluate contexts and pass to reaction.
    */
   public function executeMediaReactions($reaction_type, MediaInterface $media) {
     $provider = new MediaContextProvider($media);
@@ -303,9 +312,9 @@ class DerivativeUtils {
    * Executes context reactions for a File.
    *
    * @param string $reaction_type
-   *   Reaction type
+   *   Reaction type.
    * @param \Drupal\file\FileInterface $file
-   *   File to evaluate contexts and pass to reaction
+   *   File to evaluate contexts and pass to reaction.
    */
   public function executeFileReactions($reaction_type, FileInterface $file) {
     $provider = new FileContextProvider($file);
@@ -322,11 +331,11 @@ class DerivativeUtils {
    * Executes derivative reactions for a Media and Node.
    *
    * @param string $reaction_type
-   *   Reaction type
-   * @param \Drupal\media_entity\MediaInterface $media
-   *   Media to evaluate contexts
+   *   Reaction type.
    * @param \Drupal\node\NodeInterface $node
-   *   Node to pass to reaction
+   *   Node to pass to reaction.
+   * @param \Drupal\media_entity\MediaInterface $media
+   *   Media to evaluate contexts.
    */
   public function executeDerivativeReactions($reaction_type, NodeInterface $node, MediaInterface $media) {
     $provider = new MediaContextProvider($media);
@@ -339,16 +348,22 @@ class DerivativeUtils {
     }
   }
 
+  /**
+   * Evaluates if fields have changed between two instances of a ContentEntity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The updated entity.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $original
+   *   The original entity.
+   */
   public function haveFieldsChanged(ContentEntityInterface $entity, ContentEntityInterface $original) {
 
     $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
 
-    $ignore_list = ['vid', 'changed', 'path'];
-    foreach ($field_definitions as $field_name => $field_definition) {
-      if (in_array($field_name, $ignore_list)) {
-        continue;
-      }
+    $ignore_list = ['vid' => 1, 'changed' => 1, 'path' => 1];
+    $field_definitions = array_diff_keys($field_definitions, $ignore_list);
 
+    foreach ($field_definitions as $field_name => $field_definition) {
       $langcodes = array_keys($entity->getTranslationLanguages());
 
       if ($langcodes !== array_keys($original->getTranslationLanguages())) {
