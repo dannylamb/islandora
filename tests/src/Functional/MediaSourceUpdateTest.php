@@ -12,27 +12,6 @@ use Drupal\Core\Url;
 class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
 
   /**
-   * {@inheritdoc}
-   */
-  public function setUp() {
-    parent::setUp();
-
-    $media_rest_resource = $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
-      'id' => 'entity.media',
-      'granularity' => 'resource',
-      'configuration' => [
-        'methods' => ['GET'],
-        'authentication' => ['basic_auth'],
-        'formats' => ['json'],
-      ],
-      'status' => TRUE,
-    ]);
-    $media_rest_resource->save(TRUE);
-
-    $this->container->get('router.builder')->rebuildIfNeeded();
-  }
-
-  /**
    * @covers \Drupal\islandora\Controller\MediaSourceController::put
    */
   public function testMediaSourceUpdate() {

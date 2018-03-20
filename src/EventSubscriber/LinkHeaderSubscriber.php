@@ -2,7 +2,7 @@
 
 namespace Drupal\islandora\EventSubscriber;
 
-use Drupal\Core\Access\AccessManager;
+use Drupal\Core\Access\AccessManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
@@ -38,12 +38,12 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   /**
    * The access manager.
    *
-   * @var \Drupal\Core\Access\AccessManager
+   * @var \Drupal\Core\Access\AccessManagerInterface
    */
   protected $accessManager;
 
   /**
-   * The current user.
+   * Current user.
    *
    * @var \Drupal\Core\Session\AccountInterface
    */
@@ -82,6 +82,8 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     $this->accessManager = $access_manager;
     $this->account = $account;
     $this->routeMatch = $route_match;
+    $this->accessManager = $access_manager;
+    $this->account = $account;
   }
 
   /**
