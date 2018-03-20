@@ -361,7 +361,7 @@ class DerivativeUtils {
     $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
 
     $ignore_list = ['vid' => 1, 'changed' => 1, 'path' => 1];
-    $field_definitions = array_diff_keys($field_definitions, $ignore_list);
+    $field_definitions = array_diff_key($field_definitions, $ignore_list);
 
     foreach ($field_definitions as $field_name => $field_definition) {
       $langcodes = array_keys($entity->getTranslationLanguages());

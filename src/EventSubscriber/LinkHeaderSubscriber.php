@@ -207,9 +207,9 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     $route_name = $this->routeMatch->getRouteName();
 
     if ($rest_resource_config) {
-      $configuration = $rest_resource_config->get('configuration');
+      $formats = $rest_resource_config->getFormats("GET");
 
-      foreach ($configuration['GET']['supported_formats'] as $format) {
+      foreach ($formats as $format) {
         switch ($format) {
           case 'json':
             $mime = 'application/json';

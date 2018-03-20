@@ -247,6 +247,11 @@ class MediaSourceService {
     if ($content_length === FALSE) {
       throw new HttpException(500, "The file could not be copied into $uri");
     }
+    if ($content_length === 0) {
+      // Clean up the newly created, empty file.
+      $file_stream_wrapper->unlink($uri);
+      throw new BadRequestHttpException("The request contents are empty.");
+    }
 
     $file->setSize($content_length);
     $file->save();

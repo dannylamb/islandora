@@ -72,7 +72,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateCreateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsNode::evaluate
@@ -91,7 +91,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a node event.
-    $action_id = $this->createEmitAction('node', 'create');
+    $action_id = $this->createEmitAction('node', 'Create');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -113,7 +113,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateCreateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsMedia::evaluate
@@ -133,7 +133,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('media', 'create');
+    $action_id = $this->createEmitAction('media', 'Create');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -155,7 +155,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateCreateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsFile::evaluate
@@ -175,7 +175,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('file', 'create');
+    $action_id = $this->createEmitAction('file', 'Create');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -197,7 +197,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateUpdateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsNode::evaluate
@@ -216,7 +216,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a node event.
-    $action_id = $this->createEmitAction('node', 'update');
+    $action_id = $this->createEmitAction('node', 'Update');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -237,7 +237,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateUpdateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsMedia::evaluate
@@ -257,7 +257,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('media', 'update');
+    $action_id = $this->createEmitAction('media', 'Update');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -279,7 +279,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateUpdateEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsFile::evaluate
@@ -299,7 +299,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('file', 'update');
+    $action_id = $this->createEmitAction('file', 'Update');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -321,7 +321,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateDeleteEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsNode::evaluate
@@ -340,7 +340,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a node event.
-    $action_id = $this->createEmitAction('node', 'delete');
+    $action_id = $this->createEmitAction('node', 'Delete');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -361,7 +361,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateDeleteEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsMedia::evaluate
@@ -381,7 +381,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('media', 'delete');
+    $action_id = $this->createEmitAction('media', 'Delete');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -403,7 +403,7 @@ EOD;
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::buildConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::submitConfigurationForm
    * @covers \Drupal\islandora\EventGenerator\EmitEvent::execute
-   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateDeleteEvent
+   * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
    * @covers \Drupal\islandora\Plugin\Condition\IsFile::evaluate
@@ -423,7 +423,7 @@ EOD;
     $this->drupalLogin($account);
 
     // Create an action to emit a media event.
-    $action_id = $this->createEmitAction('file', 'delete');
+    $action_id = $this->createEmitAction('file', 'Delete');
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
@@ -453,10 +453,10 @@ EOD;
     $this->getSession()->getPage()->pressButton(t('Create'));
     $this->assertSession()->statusCodeEquals(200);
 
-    $action_id = "emit_" . $entity_type . "_" . $event_type;
-    $this->getSession()->getPage()->fillField('edit-label', "Emit $entity_type $event_type");
+    $action_id = "emit_" . $entity_type . "_" . lcfirst($event_type);
+    $this->getSession()->getPage()->fillField('edit-label', "Emit $entity_type " . lcfirst($event_type));
     $this->getSession()->getPage()->fillField('edit-id', $action_id);
-    $this->getSession()->getPage()->fillField('edit-queue', "emit-$entity_type-$event_type");
+    $this->getSession()->getPage()->fillField('edit-queue', "emit-$entity_type-" . lcfirst($event_type));
     $this->getSession()->getPage()->findById("edit-event")->selectOption($event_type);
     $this->getSession()->getPage()->pressButton(t('Save'));
     $this->assertSession()->statusCodeEquals(200);
