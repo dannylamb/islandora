@@ -11,17 +11,17 @@ use Drupal\user\UserInterface;
 interface EventGeneratorInterface {
 
   /**
-   * Generates a serialized event.
+   * Generates an event as an associative array.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity in the action.
    * @param \Drupal\user\UserInterface $user
    *   The user performing the action.
    * @param array $data
-   *   Arbitrary data to serialize within the event.
+   *   Arbitrary data to include as a json encoded note.
    *
    * @return string
-   *   Serialized event message
+   *   Serialized event message.
    */
   public function generateEvent(EntityInterface $entity, UserInterface $user, array $data);
 

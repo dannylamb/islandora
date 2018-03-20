@@ -41,9 +41,14 @@ class IsNodeTest extends IslandoraFunctionalTestBase {
     $this->postNodeAddForm('test_type', ['title[0][value]' => 'Test Node'], 'Save');
     $this->assertSession()->pageTextContains("Hello World!");
 
-    // Add a new Thumbnail media and confirm Hello World! is not printed to the
+    // Add a new media and confirm Hello World! is not printed to the
     // screen.
-    $this->createThumbnailWithFile();
+    $file = current($this->getTestFiles('file'));
+    $values = [
+      'name[0][value]' => 'Test Media',
+      'files[field_media_file_0]' => __DIR__ . '/../../fixtures/test_file.txt',
+    ];
+    $this->drupalPostForm('media/add/' . $this->testMediaType->id(), $values, t('Save'));
     $this->assertSession()->pageTextNotContains("Hello World!");
   }
 

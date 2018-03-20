@@ -7,7 +7,7 @@ use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\ContextProviderInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\media_entity\Entity\Media;
+use Drupal\media\Entity\Media;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -53,8 +53,8 @@ class MediaRouteContextProvider implements ContextProviderInterface {
         }
       }
       elseif ($this->routeMatch->getRouteName() == 'entity.media.add_form') {
-        $media_bundle = $this->routeMatch->getParameter('media_bundle');
-        $value = Media::create(['bundle' => $media_bundle->id()]);
+        $media_type = $this->routeMatch->getParameter('media_type');
+        $value = Media::create(['bundle' => $media_type->id()]);
       }
     }
 

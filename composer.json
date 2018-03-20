@@ -15,14 +15,19 @@
     }
   ],
   "require": {
-    "drupal/inline_entity_form": "^1.0@beta",
     "drupal/context": "^4.0",
-    "drupal/search_api": "^1.0@beta",
+    "drupal/search_api": "1.x-dev",
     "islandora/jsonld": "dev-8.x-1.x",
     "stomp-php/stomp-php": "4.*",
     "drupal/jwt": "1.0.0-alpha6",
-    "drupal/media_entity_image": "^1.2",
-    "drupal/filehash": "^1.1"
+    "drupal/filehash": "^1.1",
+    "drupal/prepopulate" : "^2.0@alpha",
+    "drupal/eva" : "^1.3",
+    "drupal/features" : "^3.7",
+    "drupal/migrate_plus" : "4.0-beta3",
+    "drupal/migrate_tools" : "4.0-beta3",
+    "drupal/migrate_source_csv" : "^2.1",
+    "drupal/permissions_by_term" : "^1.51"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",

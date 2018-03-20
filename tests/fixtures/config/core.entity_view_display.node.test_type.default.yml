@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.test_type.field_member_of
+    - node.type.test_type
+  module:
+    - text
+    - user
+id: node.test_type.default
+targetEntityType: node
+bundle: test_type
+mode: default
+content:
+  field_member_of:
+    weight: 102
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+  links:
+    weight: 100
+    region: content
+hidden:
+  langcode: true

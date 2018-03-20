@@ -102,7 +102,7 @@ class EventGenerator implements EventGeneratorInterface {
    * Generates REST urls.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The media.
+   *   The entity.
    *
    * @return array
    *   AS2 Links.

@@ -2,7 +2,7 @@
 
 namespace Drupal\islandora\ContextProvider;
 
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\ContextProviderInterface;
@@ -18,14 +18,14 @@ class MediaContextProvider implements ContextProviderInterface {
   /**
    * Media to provide in a context.
    *
-   * @var \Drupal\media_entity\MediaInterface
+   * @var \Drupal\media\MediaInterface
    */
   protected $media;
 
   /**
    * Constructs a new MediaRouteContext.
    *
-   * @var \Drupal\media_entity\MediaInterface $media
+   * @var \Drupal\media\MediaInterface $media
    *   The media to provide in a context.
    */
   public function __construct(MediaInterface $media) {

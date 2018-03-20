@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - islandora
+  module:
+    - media 
+id: delete_media
+label: 'Delete media'
+type: media 
+plugin: delete_media 
+configuration: {  }

@@ -41,7 +41,7 @@ class IslandoraSettingsForm extends ConfigFormBase {
     $form[self::BROKER_URL] = [
       '#type' => 'textfield',
       '#title' => $this->t('Broker URL'),
-      '#default_value' => $config->get(self::BROKER_URL),
+      '#default_value' => $config->get(self::BROKER_URL) ? $config->get(self::BROKER_URL) : 'tcp://localhost:61613',
     ];
 
     return parent::buildForm($form, $form_state);

@@ -1,0 +1,32 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.test_type.field_member_of
+    - node.type.test_type
+  module:
+    - path
+    - text
+id: node.test_type.secondary
+targetEntityType: node
+bundle: test_type
+mode: secondary
+content:
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_media: true
+  field_node: true
+  langcode: true
+  path: true
+  promote: true
+  status: true
+  sticky: true
+  uid: true

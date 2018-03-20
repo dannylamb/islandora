@@ -1,0 +1,26 @@
+name: 'Islandora Core Feature'
+description: 'Minimum configuration required for Islandora.'
+type: module
+core: 8.x
+dependencies:
+  - basic_auth
+  - eva
+  - features
+  - field
+  - file
+  - image
+  - islandora
+  - jsonld
+  - jwt
+  - link
+  - media
+  - migrate_plus
+  - node
+  - rdf
+  - rest
+  - serialization
+  - system
+  - taxonomy
+  - user
+  - views
+package: Islandora

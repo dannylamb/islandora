@@ -3,7 +3,7 @@
 namespace Drupal\islandora\EventSubscriber;
 
 use Drupal\Core\Url;
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
@@ -43,16 +43,16 @@ class MediaLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSub
   /**
    * Generates link headers for the described file and source update routes.
    *
-   * @param \Drupal\media_entity\MediaInterface $media
+   * @param \Drupal\media\MediaInterface $media
    *   Media to generate link headers.
    *
    * @return string[]
    *   Array of link headers
    */
   protected function generateMediaLinks(MediaInterface $media) {
-    $media_bundle = $this->entityTypeManager->getStorage('media_bundle')->load($media->bundle());
+    $media_type = $this->entityTypeManager->getStorage('media_type')->load($media->bundle());
 
-    $type_configuration = $media_bundle->getTypeConfiguration();
+    $type_configuration = $media_type->get('source_configuration');
 
     $links = [];
 

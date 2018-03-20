@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+  enforced:
+    module:
+      - islandora_core_feature
+id: index_media_in_triplestore
+label: 'Index Media in Triplestore'
+type: media
+plugin: emit_media_event
+configuration:
+  queue: islandora-indexing-triplestore-index
+  event: update

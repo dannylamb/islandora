@@ -11,13 +11,20 @@ dependencies:
   - path
   - text
   - options
-  - inline_entity_form
+  - link
   - jsonld
   - search_api
   - jwt
-  - media_entity_image
-  - rest 
+  - rest
   - filehash
   - basic_auth
-  - context
+  - context_ui
   - action
+  - eva
+  - taxonomy
+  - views_ui
+  - media
+  - prepopulate
+  - features_ui
+  - migrate_tools
+  - migrate_source_csv

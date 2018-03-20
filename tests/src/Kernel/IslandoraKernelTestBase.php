@@ -22,7 +22,6 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'path',
     'text',
     'options',
-    'inline_entity_form',
     'serialization',
     'rest',
     'basic_auth',
@@ -35,10 +34,8 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'key',
     'jwt',
     'file',
-    'entity',
     'image',
-    'media_entity',
-    'media_entity_image',
+    'media',
     'islandora',
   ];
 
@@ -54,6 +51,7 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installEntitySchema('context');
+    $this->installEntitySchema('file');
     $this->installConfig('filter');
   }
 

@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+  enforced:
+    module:
+      - islandora_core_feature
+id: delete_media_from_triplestore
+label: 'Delete Media from Triplestore'
+type: media
+plugin: emit_media_event
+configuration:
+  queue: islandora-indexing-triplestore-delete
+  event: delete

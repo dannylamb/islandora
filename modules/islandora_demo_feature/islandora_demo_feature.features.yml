@@ -1,0 +1,15 @@
+bundle: islandora
+excluded:
+  - field.storage.node.field_image
+  - field.storage.node.field_tags
+  - field.field.node.article.field_image
+  - core.entity_view_display.node.article.default
+  - core.entity_view_display.node.article.rss
+  - core.entity_view_display.node.article.search_index
+  - core.entity_view_display.node.article.search_result
+  - core.entity_view_display.node.article.teaser
+  - core.entity_view_display.node.page.teaser
+  - views.view.archive
+  - views.view.frontpage
+  - views.view.taxonomy_term
+required: true

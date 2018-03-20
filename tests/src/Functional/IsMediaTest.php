@@ -37,9 +37,13 @@ class IsMediaTest extends IslandoraFunctionalTestBase {
     $this->addCondition('test', 'is_media');
     $this->addPresetReaction('test', 'index', 'hello_world');
 
-    // Add a new Thumbnail media and confirm Hello World! is printed to the
+    // Add a new media and confirm Hello World! is printed to the
     // screen.
-    $this->createThumbnailWithFile();
+    $values = [
+      'name[0][value]' => 'Test Media',
+      'files[field_media_file_0]' => __DIR__ . '/../../fixtures/test_file.txt',
+    ];
+    $this->drupalPostForm('media/add/' . $this->testMediaType->id(), $values, t('Save'));
     $this->assertSession()->pageTextContains("Hello World!");
 
     // Create a new node.

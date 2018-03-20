@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+  enforced:
+    module:
+      - islandora_core_feature
+id: index_node_in_triplestore
+label: 'Index Node in Triplestore'
+type: node
+plugin: emit_node_event
+configuration:
+  queue: islandora-indexing-triplestore-index
+  event: update

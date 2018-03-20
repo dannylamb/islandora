@@ -33,25 +33,6 @@ class MappingUriPredicateReactionTest extends IslandoraFunctionalTestBase {
       ])
       ->save();
 
-    $resourceConfigStorage = $this->container
-      ->get('entity_type.manager')
-      ->getStorage('rest_resource_config');
-    // There is already a setting for entity.node, so delete it.
-    $resourceConfigStorage
-      ->delete($resourceConfigStorage
-        ->loadMultiple(['entity.node']));
-    // Create it new.
-    $resourceConfigStorage->create([
-      'id' => 'entity.node',
-      'granularity' => 'resource',
-      'configuration' => [
-        'methods' => ['GET'],
-        'authentication' => ['basic_auth', 'cookie'],
-        'formats' => ['jsonld'],
-      ],
-      'status' => TRUE,
-    ])->save(TRUE);
-
     $this->container->get('router.builder')->rebuildIfNeeded();
   }
 

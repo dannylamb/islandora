@@ -2,17 +2,23 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\link\LinkItemInterface;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
+use Drupal\Tests\media\Functional\MediaFunctionalTestCreateMediaTypeTrait;
 
 /**
  * Base class for Functional tests.
  */
 class IslandoraFunctionalTestBase extends BrowserTestBase {
 
+  use EntityReferenceTestTrait;
   use TestFileCreationTrait;
+  use MediaFunctionalTestCreateMediaTypeTrait;
 
   protected static $modules = ['context_ui', 'islandora'];
 
@@ -25,26 +31,72 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     'key.key.test',
   ];
 
+  protected $testType;
+
+  protected $testMediaType;
+
+  protected $testVocabulary;
+
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
 
-    // Delete the context entities provided by the module.
-    // This will get removed as we split apart contexts into different
-    // solution packs.
-    $this->container->get('entity_type.manager')->getStorage('context')->load('node')->delete();
-    $this->container->get('entity_type.manager')->getStorage('context')->load('media')->delete();
-    $this->container->get('entity_type.manager')->getStorage('context')->load('file')->delete();
+    // Delete the node rest config that's bootstrapped with Drupal.
+    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->load('entity.node')->delete();
 
-    // Create a test content type.
-    $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
-      'type' => 'test_type',
-      'label' => 'Test Type',
+    // Set up JWT stuff.
+    $key_value = <<<EOD
+-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEA6ZT5qNjI4WlXpXzXVuo69MQ0K11V1ZmwW7JaztX0Qsi87JCi
+saDIhQps2dEBND2YYKG3AehNFd/a0+ttnKPOnqr13uCVewxpgpPD4lYD0XcCD/U1
+pPpOmHYrSOoVtmJvZfr5gQQb0izNM/k0wrO5r5UZzsDPX343HQuiBXzFJtIKau3n
+TKjjqs5ErdnftmqsnDhI28yUtlwfSjaRVBIevIT5LGmAboWDukHxf9/x1EemvgMG
+E9TQL/+JdLs+LiZglJWWeGofkcThGRcTefHe9GqxoBPtwf/rs6CKN7n3MXGfaxjl
+r/dKjJ8Lg5NCrINLUFcNNZippDWIUvj/8lLBXwIDAQABAoIBABmwsOTJMw7XrzQc
+TvLYQDO7gKFkWpRrmuH689Hb5kmSGnVKUxqGPIelZeNvAVrli2TVZHNpQVEulbrJ
+If0gZxE8bF5fBRHLg69A4UJ7g1/+XtOyfHvwq8RI+unCFTFCEk59FAQEl6q+ErOs
+rQjdC4csNvJucmBmWVlwdhl0Z5qlOX3EN/ZXCDnTJsKz75mfa8LC+izXaSv+Gesp
+h80wc2V/O9H32djCuz/Ct3WLdHCTQuTiZ32fZAILk/AlZHCHjki5PaLHxAySTmo6
+FmJ09/ns0EGuaa1IZz98xLn0yAfAX+MGfsWTsKzAxTO1FcMWvj23mAbwD3Q65ayv
+ieMWGwECgYEA/QNKuofgfXu95H+IQMn4l/8zXPt4SdGqGxD5/SlOSi292buoJOF/
+eLLlDwsHjQ3+XeFXHHgRyGxD7ZyYe5urFxYrabXlNCIidNVhQAgu31i866cs/Sy4
+z0UOzVk5ZCQdvx77/Av8Xe5SBVir54KGRa6h+QMnh7DZNHM3Yha+y+8CgYEA7Fb0
+hDCA2YJ6Vb6PeqRPyzsKJP4bQNP1JSM8eThk6RZ/ecAuU9uQjjUuB/O/UeEBRt4w
+KUCYoyHLTraPs98N8I000SCoejLjqpyf7SOB2LjGIYPjaTTiXlqJoewWPV5KOoeN
+pd+PTTTWeRSpFGjnqkSXCpa8e933raxtkLHPsZECgYBhBl4l4e1osYdElNN/ZPR7
+9VWRFq4uQMTm1D/JoYlwUNI5KQl1+zOS6aeFeUlQAknFXqC1PiYzobD68c5XuH6H
+v+yuAR8AOwbTnvBISdsPs0vfYqCSBhBpC6Z9gPXNPTxbClq/cSk6LCYv/q0NfrRX
+DHz4rQj/tAXXY0edyfMo6QKBgGgBqF+YHMwb4IxlbSzyrG7qj39SGFpCLOroA8/w
+4m+1R+ojif+7a3U5sAUt3m9BDtfKJfWxiLqZv6fnLXxh1/eZnLm/noUQaiKGBNdO
+PfFK915+dRCyhkAxpcoNZIgjO5VgXBS4Oo8mhpAIaJQjynei8blmNpJoT3wtmpYH
+ujgRAoGALyTXD/v/kxkE+31rmga1JM2IyjVwzefmqcdzNo3e8KovtZ79FJNfgcEx
+FZTd3w207YHqKu/CX/BF15kfIOh03t+0AEUyKUTY5JWS84oQPU6td1DOSA6P36xl
+EOLIc/4JOdONrJKWYpWIjDhHLL8BacjLoh2bDY0KdYa69AfYvW4=
+-----END RSA PRIVATE KEY-----
+EOD;
+
+    $key = $this->container->get('entity_type.manager')->getStorage('key')->create([
+      'id' => 'test',
+      'label' => 'Test',
+      'key_type' => 'jwt_rs',
+      'key_type_settings' => [
+        'algorithm' => 'RS256',
+      ],
+      'key_provider' => 'config',
+      'key_provider_settings' => [
+        'key_value' => $key_value,
+      ],
     ]);
-    $test_type->save();
+    $key->save();
 
+    $jwt_config = $this->container->get('config.factory')->getEditable('jwt.config');
+    $jwt_config->set('algorithm', 'RS256');
+    $jwt_config->set('key_id', 'test');
+    $jwt_config->save(TRUE);
+
+    // Make some bundles and field by hand so hooks fire.
     // Create an action that dsm's "Hello World!".
     $hello_world = $this->container->get('entity_type.manager')->getStorage('action')->create([
       'id' => 'hello_world',
@@ -57,6 +109,55 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     ]);
     $hello_world->save();
 
+    // Create a vocabulary.
+    $this->testVocabulary = $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->create([
+      'name' => 'Test Vocabulary',
+      'vid' => 'test_vocabulary',
+    ]);
+    $this->testVocabulary->save();
+
+    // Create an external_uri field for taxonomy terms.
+    $fieldStorage = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->create([
+      'field_name' => 'field_external_uri',
+      'entity_type' => 'taxonomy_term',
+      'type' => 'link',
+    ]);
+    $fieldStorage->save();
+    $field = $this->container->get('entity_type.manager')->getStorage('field_config')->create([
+      'field_storage' => $fieldStorage,
+      'bundle' => $this->testVocabulary->id(),
+      'settings' => [
+        'title' => 'External URI',
+        'link_type' => LinkItemInterface::LINK_EXTERNAL,
+      ],
+    ]);
+    $field->save();
+
+    // Create a test content type.
+    $this->testType = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
+      'type' => 'test_type',
+      'name' => 'Test Type',
+    ]);
+    $this->testType->save();
+    $this->createEntityReferenceField('node', 'test_type', 'field_member_of', 'Member Of', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('node', 'test_type', 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
+
+    // Create a media type.
+    $this->testMediaType = $this->createMediaType(['bundle' => 'test_media_type'], 'file');
+    $this->testMediaType->save();
+    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_media_of', 'Media Of', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
+
+    // Copy over the rest of the config from yml files.
+    $source = new FileStorage(__DIR__ . '/../../fixtures/config');
+    $destination = $this->container->get('config.storage');
+
+    foreach ($source->listAll() as $name) {
+      $destination->write($name, $source->read($name));
+    }
+
+    // Cache clear / rebuild.
+    drupal_flush_all_caches();
     $this->container->get('router.builder')->rebuild();
   }
 
@@ -88,39 +189,6 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
   }
 
   /**
-   * Creates a new TN media with a file.
-   */
-  protected function createThumbnailWithFile() {
-    // Have to do this in two steps since there's no ajax for the alt text.
-    // It's as annoying as in real life.
-    $file = current($this->getTestFiles('image'));
-    $values = [
-      'name[0][value]' => 'Test Media',
-      'files[field_image_0]' => \Drupal::service('file_system')->realpath($file->uri),
-    ];
-    $this->drupalPostForm('media/add/tn', $values, t('Save and publish'));
-    $values = [
-      'field_image[0][alt]' => 'Alternate text',
-    ];
-    $this->getSession()->getPage()->fillField('edit-field-image-0-alt', 'alt text');
-    $this->getSession()->getPage()->pressButton(t('Save and publish'));
-    $this->assertSession()->statusCodeEquals(200);
-    $results = $this->container->get('entity_type.manager')->getStorage('file')->loadByProperties(['filename' => $file->filename]);
-    $file_entity = reset($results);
-    $file_url = $file_entity->url('canonical', ['absolute' => TRUE]);
-    $rest_url = Url::fromRoute('islandora.media_source_update', ['media' => $file_entity->id()])
-      ->setAbsolute()
-      ->toString();
-    return [
-      'media' => $this->getUrl(),
-      'file' => [
-        'file' => $file_url,
-        'rest' => $rest_url,
-      ],
-    ];
-  }
-
-  /**
    * Create a new node by posting its add form.
    */
   protected function postNodeAddForm($bundle_id, $values, $button_text) {
@@ -147,6 +215,10 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
    */
   protected function doesNotHaveLinkHeader($rel) {
     $headers = $this->getSession()->getResponseHeaders();
+
+    if (!isset($headers['Link'])) {
+      return TRUE;
+    }
 
     foreach ($headers['Link'] as $link_header) {
       if (strpos($link_header, "rel=\"$rel\"") !== FALSE) {
@@ -219,6 +291,35 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     }
 
     return $count;
+  }
+
+  /**
+   * Utility function to make a media and an associated file.
+   */
+  protected function makeMediaAndFile(AccountInterface $account) {
+    // Make a file for the Media.
+    $file = $this->container->get('entity_type.manager')->getStorage('file')->create([
+      'uid' => $account->id(),
+      'uri' => "public://test_file.txt",
+      'filename' => "test_file.txt",
+      'filemime' => "text/plain",
+      'status' => FILE_STATUS_PERMANENT,
+    ]);
+    $file->save();
+
+    // Get the source field for the media.
+    $type_configuration = $this->testMediaType->get('source_configuration');
+    $source_field = $type_configuration['source_field'];
+
+    // Make the media for the referencer.
+    $media = $this->container->get('entity_type.manager')->getStorage('media')->create([
+      'bundle' => $this->testMediaType->id(),
+      'name' => 'Media',
+      "$source_field" => [$file->id()],
+    ]);
+    $media->save();
+
+    return [$file, $media];
   }
 
 }
