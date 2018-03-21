@@ -61,31 +61,6 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
-    // Update without Content-Disposition header should fail with 400.
-    $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
-      'http_errors' => FALSE,
-      'headers' => [
-        'Content-Type' => 'image/jpeg',
-      ],
-      'body' => $image,
-    ];
-    $response = $client->request('PUT', $media_update_url, $options);
-    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
-
-    // Update with malformed Content-Disposition header should fail with 400.
-    $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
-      'http_errors' => FALSE,
-      'headers' => [
-        'Content-Type' => 'image/jpeg',
-        'Content-Disposition' => 'garbage; filename="test.jpeg"',
-      ],
-      'body' => $image,
-    ];
-    $response = $client->request('PUT', $media_update_url, $options);
-    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
-
     // Update without body should fail with 400.
     $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
