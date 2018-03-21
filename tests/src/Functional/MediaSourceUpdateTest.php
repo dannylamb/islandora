@@ -53,9 +53,6 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
     $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
-      'headers' => [
-        'Content-Disposition' => 'attachment; filename="test.jpeg"',
-      ],
       'body' => $image,
     ];
     $response = $client->request('PUT', $media_update_url, $options);
@@ -67,7 +64,6 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'image/jpeg',
-        'Content-Disposition' => 'attachment; filename="test.jpeg"',
       ],
     ];
     $response = $client->request('PUT', $media_update_url, $options);
@@ -79,7 +75,6 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'image/jpeg',
-        'Content-Disposition' => 'attachment; filename="test.jpeg"',
       ],
       'body' => $image,
     ];

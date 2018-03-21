@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Utility\Token;
+use Drupal\file\FileInterface;
 use Drupal\media_entity\MediaInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -122,21 +123,8 @@ class MediaSourceService {
     $files = $media->get($source_field)->referencedEntities();
     $file = reset($files);
 
-    // Copy the contents over using streams.
-    $uri = $file->getFileUri();
-    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
-    $path = "";
-    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
-    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    $content_length = stream_copy_to_stream($resource, $file_stream);
-    if ($content_length === FALSE) {
-      throw new HttpException(500, "The file could not be copied into $uri");
-    }
-
-    // Set relevant fields on file.
-    $file->setMimeType($mimetype);
-    $file->setSize($content_length);
-    $file->save();
+    // Update it.
+    $this->updateFile($file, $resource, $mimetype);
 
     // Set fields provided by type plugin and mapped in bundle configuration
     // for the media.
@@ -144,17 +132,42 @@ class MediaSourceService {
       if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
         $media->set($destination, $value);
         // Ensure width and height are updated on File reference when it's an
-        // image.
+        // image. Otherwise you run into scaling problems when updating images
+        // with different sizes.
         if ($source == 'width' || $source == 'height') {
           $media->get($source_field)->first()->set($source, $value);
         }
       }
     }
 
-    // Flush the image cache for the image so thumbnails get regenerated.
-    image_path_flush($uri);
 
     $media->save();
+  }
+
+  protected function updateFile(FileInterface $file, $resource, $mimetype = NULL) {
+    $uri = $file->getFileUri();
+    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
+    $path = "";
+    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
+    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
+    $content_length = stream_copy_to_stream($resource, $file_stream);
+
+    if ($content_length === FALSE) {
+      throw new HttpException(500, "Request body could not be copied to $uri");
+    }
+
+    if ($content_length === 0) {
+      // Clean up the newly created, empty file.
+      $file_stream_wrapper->unlink($uri);
+      throw new BadRequestHttpException("The request contents are empty.");
+    }
+
+    if (!empty($mimetype)) {
+      $file->setMimeType($mimetype);
+    }
+
+    // Flush the image cache for the image so thumbnails get regenerated.
+    image_path_flush($uri);
   }
 
   /**
@@ -237,24 +250,8 @@ class MediaSourceService {
       throw new HttpException(500, "The destination directory does not exist, could not be created, or is not writable");
     }
 
-    // Copy the contents over using streams.
-    $uri = $file->getFileUri();
-    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
-    $path = "";
-    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
-    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    $content_length = stream_copy_to_stream($resource, $file_stream);
-    if ($content_length === FALSE) {
-      throw new HttpException(500, "The file could not be copied into $uri");
-    }
-    if ($content_length === 0) {
-      // Clean up the newly created, empty file.
-      $file_stream_wrapper->unlink($uri);
-      throw new BadRequestHttpException("The request contents are empty.");
-    }
-
-    $file->setSize($content_length);
-    $file->save();
+    // Copy over the file content.
+    $this->updateFile($file, $resource, $mimetype);
 
     // Construct the Media.
     $media_struct = [
@@ -277,9 +274,6 @@ class MediaSourceService {
         $media->set($destination, $value);
       }
     }
-
-    // Flush the image cache for the image so thumbnails get regenerated.
-    image_path_flush($uri);
 
     $media->save();
 
