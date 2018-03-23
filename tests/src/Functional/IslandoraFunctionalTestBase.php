@@ -2,10 +2,10 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
-use Drupal\rest\Entity\RestResourceConfig;
-use Drupal\rest\RestResourceConfigInterface;
+use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
 
@@ -14,6 +14,7 @@ use Drupal\Tests\TestFileCreationTrait;
  */
 class IslandoraFunctionalTestBase extends BrowserTestBase {
 
+  use EntityReferenceTestTrait;
   use TestFileCreationTrait;
 
   protected static $modules = ['context_ui', 'islandora'];
@@ -40,151 +41,10 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     $this->container->get('entity_type.manager')->getStorage('context')->load('media')->delete();
     $this->container->get('entity_type.manager')->getStorage('context')->load('file')->delete();
 
-    // Set up basic REST config.
     // Delete the node rest config that's bootstrapped with Drupal.
     $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->load('entity.node')->delete();
 
-    // Create our own for Nodes, Media, and Files.
-    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
-      'id' => 'entity.node',
-      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
-      'configuration' => [
-        'GET' => [
-          'supported_auth' => [
-            'cookie',
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-            'jsonld',
-          ],
-        ],
-        'POST' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'DELETE' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'PATCH' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-      ],
-    ])->save();
-    $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->create([
-      'id' => 'entity.media',
-      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
-      'configuration' => [
-        'GET' => [
-          'supported_auth' => [
-            'cookie',
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-            'jsonld',
-          ],
-        ],
-        'POST' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'DELETE' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'PATCH' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-      ],
-    ])->save();
-    RestResourceConfig::create([
-      'id' => 'entity.file',
-      'granularity' => RestResourceConfigInterface::METHOD_GRANULARITY,
-      'configuration' => [
-        'GET' => [
-          'supported_auth' => [
-            'cookie',
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-            'jsonld',
-          ],
-        ],
-        'POST' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'DELETE' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-        'PATCH' => [
-          'supported_auth' => [
-            'basic_auth',
-            'jwt_auth',
-          ],
-          'supported_formats' => [
-            'json',
-          ],
-        ],
-      ],
-    ])->save();
-
-    // Create a test content type.
-    $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
-      'type' => 'test_type',
-      'label' => 'Test Type',
-    ]);
-    $test_type->save();
-
+    // Make some bundles and field by hand so hooks fire.
     // Create an action that dsm's "Hello World!".
     $hello_world = $this->container->get('entity_type.manager')->getStorage('action')->create([
       'id' => 'hello_world',
@@ -197,6 +57,35 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     ]);
     $hello_world->save();
 
+    // Create a test content type.
+    $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
+      'type' => 'test_type',
+      'label' => 'Test Type',
+    ]);
+    $test_type->save();
+
+    // Create a test content type.
+    $test_type_with_reference = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
+      'type' => 'test_type_with_reference',
+      'label' => 'Test Type With Reference',
+    ]);
+    $test_type_with_reference->save();
+
+    // Add two entity reference fields.
+    // One for nodes and one for media.
+    $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_node', 'Referenced Node', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_media', 'Referenced Media', 'media', 'default', [], 2);
+
+    // Copy over the rest of the config from yml files.
+    $source = new FileStorage(__DIR__ . '/../../fixtures/config');
+    $destination = $this->container->get('config.storage');
+
+    foreach ($source->listAll() as $name) {
+      $destination->write($name, $source->read($name));
+    }
+
+    // Cache clear / rebuild.
+    drupal_flush_all_caches();
     $this->container->get('router.builder')->rebuild();
   }
 

@@ -46,7 +46,7 @@ services:
       - { name: 'context_provider' }
   islandora.media_source_service:
     class: Drupal\islandora\MediaSource\MediaSourceService
-    arguments: ['@entity_type.manager', '@current_user', '@stream_wrapper_manager', '@token']
+    arguments: ['@entity_type.manager', '@current_user', '@stream_wrapper_manager', '@language_manager', '@token']
   islandora.derivative_utils:
     class: Drupal\islandora\DerivativeUtils
     arguments: ['@entity_type.manager', '@entity_field.manager', '@entity.query', '@context.manager', '@stream_wrapper_manager']

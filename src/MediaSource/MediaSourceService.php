@@ -4,6 +4,7 @@ namespace Drupal\islandora\MediaSource;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Utility\Token;
@@ -42,6 +43,13 @@ class MediaSourceService {
   protected $streamWrapperManager;
 
   /**
+   * Language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Token service.
    *
    * @var \Drupal\Core\Utility\Token
@@ -57,6 +65,8 @@ class MediaSourceService {
    *   The current user.
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
    *   Stream wrapper manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   Language manager.
    * @param \Drupal\Core\Utility\Token $token
    *   Token service.
    */
@@ -64,11 +74,13 @@ class MediaSourceService {
     EntityTypeManager $entity_type_manager,
     AccountInterface $account,
     StreamWrapperManager $stream_wrapper_manager,
+    LanguageManagerInterface $language_manager,
     Token $token
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->account = $account;
     $this->streamWrapperManager = $stream_wrapper_manager;
+    $this->languageManager = $language_manager;
     $this->token = $token;
   }
 
@@ -140,10 +152,19 @@ class MediaSourceService {
       }
     }
 
-
     $media->save();
   }
 
+  /**
+   * Updates a File's binary contents on disk.
+   *
+   * @param \Drupal\file\FileInterface $file
+   *   File to update.
+   * @param resource $resource
+   *   Stream holding the new contents.
+   * @param string $mimetype
+   *   Mimetype of new contents.
+   */
   protected function updateFile(FileInterface $file, $resource, $mimetype = NULL) {
     $uri = $file->getFileUri();
     $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
@@ -252,12 +273,14 @@ class MediaSourceService {
 
     // Copy over the file content.
     $this->updateFile($file, $resource, $mimetype);
+    $file->save();
 
     // Construct the Media.
     $media_struct = [
       'bundle' => $bundle,
       'uid' => $this->account->id(),
       'name' => $filename,
+      'langcode' => $this->languageManager->getDefaultLanguage()->getId(),
       "$source_field" => [
         'target_id' => $file->id(),
       ],
@@ -266,15 +289,6 @@ class MediaSourceService {
       $media_struct[$source_field]['alt'] = $filename;
     }
     $media = $this->entityTypeManager->getStorage('media')->create($media_struct);
-
-    // Set fields provided by type plugin and mapped in bundle configuration
-    // for the media.
-    foreach ($media->bundle->entity->field_map as $source => $destination) {
-      if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
-        $media->set($destination, $value);
-      }
-    }
-
     $media->save();
 
     // Update the Node.

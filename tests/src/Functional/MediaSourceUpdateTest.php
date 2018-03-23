@@ -47,7 +47,7 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
       ->setAbsolute()
       ->toString();
 
-    $image = file_get_contents(__DIR__ . '/../../static/test.jpeg');
+    $image = file_get_contents(__DIR__ . '/../../fixtures/test.jpeg');
 
     // Update without Content-Type header should fail with 400.
     $options = [
@@ -102,7 +102,7 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
     $this->assertTrue($updated_mimetype == "image/jpeg", "Invalid mimetype.  Expected image/jpeg, received $updated_mimetype");
     $this->assertTrue($updated_width == 295, "Invalid width.  Expected 295, received $updated_width");
     $this->assertTrue($updated_height == 70, "Invalid height.  Expected 70, received $updated_height");
-    $this->assertTrue($updated_image == file_get_contents(__DIR__ . '/../../static/test.jpeg'), "Updated image not the same as PUT body.");
+    $this->assertTrue($updated_image == file_get_contents(__DIR__ . '/../../fixtures/test.jpeg'), "Updated image not the same as PUT body.");
   }
 
 }
