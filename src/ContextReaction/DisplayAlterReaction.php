@@ -16,8 +16,9 @@ abstract class DisplayAlterReaction extends ContextReactionPluginBase implements
   const MODE = 'mode';
 
   /**
+   * View mode storage.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManager
-   * View mode storage
    */
   protected $entityTypeManager;
 
@@ -26,7 +27,7 @@ abstract class DisplayAlterReaction extends ContextReactionPluginBase implements
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityTypeManager = $entity_type_manager; 
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**

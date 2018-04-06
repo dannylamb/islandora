@@ -35,7 +35,7 @@ class ViewModeAlterReaction extends DisplayAlterReaction {
     foreach ($view_modes as $view_mode) {
       $exploded = explode('.', $view_mode->id());
       $entity_type_label = $entity_types[$exploded[0]]->getLabel()->render();
-      $options[$entity_type_label][$view_mode->id()] = $view_mode->label(); 
+      $options[$entity_type_label][$view_mode->id()] = $view_mode->label();
     }
 
     // Provide a select to choose display mode.
