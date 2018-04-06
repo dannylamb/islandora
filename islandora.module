@@ -15,6 +15,7 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\node\NodeInterface;
 use Drupal\media_entity\MediaInterface;
 use Drupal\file\FileInterface;
@@ -230,5 +231,61 @@ function islandora_jsonld_alter_normalized_array(EntityInterface $entity, array 
   $context_manager = \Drupal::service('context.manager');
   foreach ($context_manager->getActiveReactions('\Drupal\islandora\ContextReaction\NormalizerAlterReaction') as $reaction) {
     $reaction->execute($entity, $normalized, $context);
+  }
+}
+
+/**
+ * Implements hook_entity_view_mode_alter().
+ */
+function islandora_entity_view_mode_alter(&$view_mode, EntityInterface $entity) {
+  $storage = \Drupal::service('entity_type.manager')->getStorage('entity_view_mode');
+  $context_manager = \Drupal::service('context.manager');
+
+  // Alter view mode based on context.
+  foreach ($context_manager->getActiveReactions('\Drupal\islandora\Plugin\ContextReaction\ViewModeAlterReaction') as $reaction) {
+    // Construct the new view mode's machine name.
+    $entity_type = $entity->getEntityTypeId();
+    $mode = $reaction->execute();
+    $machine_name = "$entity_type.$mode";
+
+    // Try to load it.
+    $new_mode = $storage->load($machine_name);
+
+    // If successful, alter the view mode.
+    if ($new_mode) {
+      $view_mode = $mode;
+    }
+    else {
+      \Drupal::logger('islandora')->info("EntityViewMode $machine_name does not exist.  View mode cannot be altered.");
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_form_display_alter().
+ */
+function islandora_entity_form_display_alter(&$form_display, $context) {
+  $storage = \Drupal::service('entity_type.manager')->getStorage('entity_form_display');
+  $context_manager = \Drupal::service('context.manager');
+
+  // Alter form display based on context.
+  foreach ($context_manager->getActiveReactions('\Drupal\islandora\Plugin\ContextReaction\FormDisplayAlterReaction') as $reaction) {
+    // Construct the new form display's machine name.
+    $entity_type = $context['entity_type'];
+    $bundle = $context['bundle'];
+    $mode = $reaction->execute();
+    $machine_name = "$entity_type.$bundle.$mode";
+
+    // Try to load it.
+    $new_display = $storage->load($machine_name);
+
+    // If successful, alter the form display.
+    if ($new_display) {
+      $form_display = $new_display; 
+    }
+    else {
+      // Otherwise, leave it be, but log a message.
+      \Drupal::logger('islandora')->info("EntityFormDisplay $machine_name does not exist.  Form display cannot be altered.");
+    }
   }
 }
