@@ -10,6 +10,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -57,6 +58,13 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   protected $routeMatch;
 
   /**
+   * Request stack (for current request).
+   *
+   * @var Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
@@ -69,13 +77,16 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
    *   The current user.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match object.
+   * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   Request stack (for current request).
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
     EntityFieldManager $entity_field_manager,
     AccessManagerInterface $access_manager,
     AccountInterface $account,
-    RouteMatchInterface $route_match
+    RouteMatchInterface $route_match,
+    RequestStack $request_stack
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
@@ -84,6 +95,7 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     $this->routeMatch = $route_match;
     $this->accessManager = $access_manager;
     $this->account = $account;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -181,9 +193,34 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
       foreach ($entity->get($field_name)->referencedEntities() as $referencedEntity) {
         // Headers are subject to an access check.
         if ($referencedEntity->access('view')) {
-          $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
-          $field_label = $field_definition->label();
-          $links[] = "<$entity_url>; rel=\"related\"; title=\"$field_label\"; field=\"{$field_name}\"";
+
+          // Taxonomy terms are written out as
+          // <url>; rel="tag"; title="Field Label"
+          // where url is defined in field_same_as.
+          // If field_same_as doesn't exist or is empty,
+          // it becomes the taxonomy term's local uri.
+          if ($referencedEntity->getEntityTypeId() == 'taxonomy_term') {
+            $rel = "tag";
+
+            if ($referencedEntity->hasField('field_same_as')) {
+                $external_uri = $referencedEntity->get('field_same_as')->first()->getValue()['uri'];
+                if (!empty($external_uri)) {
+                  $entity_url = $external_uri;
+                }
+                else {
+                  $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+                }
+            }
+          } else {
+            // If it's not a taxonomy term, referenced entity link
+            // headers take the form
+            // <url>; rel="related"; title="Field Label"
+            // and the url is the local uri.
+            $rel = "related";
+            $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+          }
+          $title = $field_definition->label();
+          $links[] = "<$entity_url>; rel=\"$rel\"; title=\"$title\"";
         }
       }
     }
@@ -205,6 +242,8 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     $entity_type = $entity->getEntityType()->id();
     $rest_resource_config = $rest_resource_config_storage->load("entity.$entity_type");
 
+    $current_format = $this->requestStack->getCurrentRequest()->query->get('_format');
+
     $links = [];
     $route_name = $this->routeMatch->getRouteName();
 
@@ -212,6 +251,10 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
       $formats = $rest_resource_config->getFormats("GET");
 
       foreach ($formats as $format) {
+        if ($format == $current_format) {
+          continue;
+        }
+
         switch ($format) {
           case 'json':
             $mime = 'application/json';
@@ -233,11 +276,7 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
             continue;
         }
 
-        $meta_route_name = "rest.entity.$entity_type.GET.$format";
-
-        if ($route_name == $meta_route_name) {
-          continue;
-        }
+        $meta_route_name = "rest.entity.$entity_type.GET";
 
         $route_params = [$entity_type => $entity->id()];
 

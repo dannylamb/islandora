@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.binary
+label: Binary
+targetEntityType: node
+cache: true

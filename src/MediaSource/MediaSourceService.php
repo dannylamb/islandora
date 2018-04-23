@@ -9,8 +9,10 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Utility\Token;
 use Drupal\file\FileInterface;
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
+use Drupal\media\MediaTypeInterface;
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -57,6 +59,13 @@ class MediaSourceService {
   protected $token;
 
   /**
+   * Entity query.
+   *
+   * @var \Drupal\Core\Entity\Query\QueryFactory
+   */
+  protected $entityQuery;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
@@ -69,37 +78,41 @@ class MediaSourceService {
    *   Language manager.
    * @param \Drupal\Core\Utility\Token $token
    *   Token service.
+   * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
+   *   Entity query.
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
     AccountInterface $account,
     StreamWrapperManager $stream_wrapper_manager,
     LanguageManagerInterface $language_manager,
-    Token $token
+    Token $token,
+    QueryFactory $entity_query
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->account = $account;
     $this->streamWrapperManager = $stream_wrapper_manager;
     $this->languageManager = $language_manager;
     $this->token = $token;
+    $this->entityQuery = $entity_query;
   }
 
   /**
    * Gets the name of a source field for a Media.
    *
-   * @param string $media_bundle
+   * @param string $media_type
    *   Media bundle whose source field you are searching for.
    *
    * @return string|null
    *   Field name if it exists in configuration, else NULL.
    */
-  public function getSourceFieldName($media_bundle) {
-    $bundle = $this->entityTypeManager->getStorage('media_bundle')->load($media_bundle);
+  public function getSourceFieldName($media_type) {
+    $bundle = $this->entityTypeManager->getStorage('media_type')->load($media_type);
     if (!$bundle) {
-      throw new NotFoundHttpException("Bundle $media_bundle does not exist");
+      throw new NotFoundHttpException("Bundle $media_type does not exist");
     }
 
-    $type_configuration = $bundle->getTypeConfiguration();
+    $type_configuration = $bundle->get('source_configuration');
     if (!isset($type_configuration['source_field'])) {
       return NULL;
     }
@@ -110,7 +123,7 @@ class MediaSourceService {
   /**
    * Updates a media's source field with the supplied resource.
    *
-   * @param \Drupal\media_entity\MediaInterface $media
+   * @param \Drupal\media\MediaInterface $media
    *   The media to update.
    * @param resource $resource
    *   New file contents as a resource.
@@ -196,10 +209,10 @@ class MediaSourceService {
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node to reference the newly created Media.
-   * @param string $field
-   *   Name of field on the Node to reference the Media.
-   * @param string $bundle
-   *   Bundle of Media to create.
+   * @param \Drupal\media\MediaTypeInterface $media_type
+   *   Media type for new media.
+   * @param \Drupal\taxonomy\TermInterface $taxonomy_term
+   *   Term from the 'Behavior' vocabulary to give to new media.
    * @param resource $resource
    *   New file contents as a resource.
    * @param string $mimetype
@@ -209,91 +222,99 @@ class MediaSourceService {
    *
    * @throws HttpException
    */
-  public function addToNode(
+  public function putToNode(
     NodeInterface $node,
-    $field,
-    $bundle,
+    MediaTypeInterface $media_type,
+    TermInterface $taxonomy_term,
     $resource,
     $mimetype,
     $filename
   ) {
-    if (!$node->hasField($field)) {
-      throw new NotFoundHttpException();
+
+    $existing = $this->entityQuery->get('media')
+      ->condition('field_media_of', $node->id())
+      ->condition('field_behavior', $term->id())
+      ->execute();
+
+    if (!empty($existing)) {
+      // Just update already existing media.
+      $media = $this->entityTypeManager->getStorage('media')->load($existing[0]);
+      $this->updateSourceField(
+          $media,
+          $resource,
+          $mimetype
+      );
+    } else {
+      // Otherwise, the media doesn't exist yet.
+      // So make everything by hand.
+
+      // Get the source field for the media type.
+      $bundle = $media_type->id();
+      $source_field = $this->getSourceFieldName($bundle);
+      if (empty($source_field)) {
+        throw new NotFoundHttpException("Source field not set for $bundle media");
+      }
+
+      // Load its config to get file extensions and upload path.
+      $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
+
+      // Construct the destination uri.
+      $directory = $source_field_config->getSetting('file_directory');
+      $directory = trim($directory, '/');
+      $directory = PlainTextOutput::renderFromHtml($this->token->replace($directory, ['node' => $node]));
+      $scheme = file_default_scheme();
+      $destination_directory = "$scheme://$directory";
+      $destination = "$destination_directory/$filename";
+
+      // Construct the File.
+      $file = $this->entityTypeManager->getStorage('file')->create([
+        'uid' => $this->account->id(),
+        'uri' => $destination,
+        'filename' => $filename,
+        'filemime' => $mimetype,
+        'status' => FILE_STATUS_PERMANENT,
+      ]);
+
+      // Validate file extension.
+      $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
+      $valid_extensions = $source_field_config->getSetting('file_extensions');
+      $errors = file_validate_extensions($file, $valid_extensions);
+
+      if (!empty($errors)) {
+        throw new BadRequestHttpException("Invalid file extension.  Valid types are $valid_extensions");
+      }
+
+      if (!file_prepare_directory($destination_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+        throw new HttpException(500, "The destination directory does not exist, could not be created, or is not writable");
+      }
+
+      // Copy over the file content.
+      $this->updateFile($file, $resource, $mimetype);
+      $file->save();
+
+      // Construct the Media.
+      $media_struct = [
+        'type' => $bundle,
+        'uid' => $this->account->id(),
+        'name' => $filename,
+        'langcode' => $this->languageManager->getDefaultLanguage()->getId(),
+        "$source_field" => [
+          'target_id' => $file->id(),
+        ],
+        'field_behavior' => [
+          'target_id' => $taxonomy_term->id(),
+        ]
+      ];
+
+      // Set alt text.
+      if ($source_field_config->getSetting('alt_field') && $source_field_config->getSetting('alt_field_required')) {
+        $media_struct[$source_field]['alt'] = $filename;
+      }
+
+      $media = $this->entityTypeManager->getStorage('media')->create($media_struct);
+      $media->save();
+
     }
-
-    // Filter out any bad references before confirming it is empty.
-    $node->get($field)->filter(function ($elem) {
-      $value = $elem->getValue();
-      $mid = $value['target_id'];
-      return $this->entityTypeManager->getStorage('media')->load($mid);
-    });
-
-    if ($node->get($field)->count()) {
-      throw new ConflictHttpException();
-    }
-
-    // Get the source field for the media type.
-    $source_field = $this->getSourceFieldName($bundle);
-    if (empty($source_field)) {
-      throw new NotFoundHttpException("Source field not set for {$media->bundle()} media");
-    }
-
-    // Load its config to get file extensions and upload path.
-    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
-
-    // Construct the destination uri.
-    $directory = $source_field_config->getSetting('file_directory');
-    $directory = trim($directory, '/');
-    $directory = PlainTextOutput::renderFromHtml($this->token->replace($directory, ['node' => $node]));
-    $scheme = file_default_scheme();
-    $destination_directory = "$scheme://$directory";
-    $destination = "$destination_directory/$filename";
-
-    // Construct the File.
-    $file = $this->entityTypeManager->getStorage('file')->create([
-      'uid' => $this->account->id(),
-      'uri' => $destination,
-      'filename' => $filename,
-      'filemime' => $mimetype,
-      'status' => FILE_STATUS_PERMANENT,
-    ]);
-
-    // Validate file extension.
-    $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
-    $valid_extensions = $source_field_config->getSetting('file_extensions');
-    $errors = file_validate_extensions($file, $valid_extensions);
-
-    if (!empty($errors)) {
-      throw new BadRequestHttpException("Invalid file extension.  Valid types are $valid_extensions");
-    }
-
-    if (!file_prepare_directory($destination_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-      throw new HttpException(500, "The destination directory does not exist, could not be created, or is not writable");
-    }
-
-    // Copy over the file content.
-    $this->updateFile($file, $resource, $mimetype);
-    $file->save();
-
-    // Construct the Media.
-    $media_struct = [
-      'bundle' => $bundle,
-      'uid' => $this->account->id(),
-      'name' => $filename,
-      'langcode' => $this->languageManager->getDefaultLanguage()->getId(),
-      "$source_field" => [
-        'target_id' => $file->id(),
-      ],
-    ];
-    if ($source_field_config->getSetting('alt_field') && $source_field_config->getSetting('alt_field_required')) {
-      $media_struct[$source_field]['alt'] = $filename;
-    }
-    $media = $this->entityTypeManager->getStorage('media')->create($media_struct);
-    $media->save();
-
-    // Update the Node.
-    $node->set($field, $media);
-    $node->save();
 
     // Return the created media.
     return $media;

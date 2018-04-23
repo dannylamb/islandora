@@ -37,8 +37,7 @@ abstract class IslandoraKernelTestBase extends KernelTestBase {
     'file',
     'entity',
     'image',
-    'media_entity',
-    'media_entity_image',
+    'media',
     'islandora',
   ];
 

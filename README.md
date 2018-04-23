@@ -49,7 +49,7 @@ the name to give the file.  Requests with empty bodies or no `Content-Length` he
 
 Example usage:
 ```
-curl -v -u admin:islandora -H "Content-Type: image/jpeg" -H "Content-Disposition: attachment; filename=\"test.jpeg\"" --data-binary @test.jpeg http://localhost:8000/node/1/media/my_media_field/add/my_media_bundle
+curl -v -u admin:islandora -H "Content-Type: image/jpeg" -H "Content-Disposition: attachment; filename=\"test.jpeg\"" --data-binary @test.jpeg http://localhost:8000/node/1/media/my_media_field/add/my_media_type
 ```
 
 ## Maintainers

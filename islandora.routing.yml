@@ -16,6 +16,28 @@ system.islandora_settings:
   requirements:
     _permission: 'administer site configuration'
 
+islandora.add_member_to_node_page:
+  path: '/node/{node}/members/add'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\ManageMembersController::addToNodePage'
+    _title_callback: '\Drupal\islandora\Controller\ManageMembersController::addTitle'
+    entity_type_id: node
+  options:
+    _admin_route: 'true'
+  requirements:
+    _entity_create_any_access: 'node'
+
+islandora.add_media_to_node_page:
+  path: '/node/{node}/media/add'
+  defaults:
+    _controller: '\Drupal\islandora\Controller\ManageMediaController::addToNodePage'
+    _title_callback: '\Drupal\islandora\Controller\ManageMediaController::addTitle'
+    entity_type_id: media
+  options:
+    _admin_route: 'true'
+  requirements:
+    _entity_create_any_access: 'media'
+
 islandora.media_source_update:
   path: '/media/{media}/source'
   defaults:
@@ -27,7 +49,7 @@ islandora.media_source_update:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']
 
 islandora.media_source_add_to_node:
-  path: '/node/{node}/media/{field}/add/{bundle}'
+  path: '/node/{node}/media/add/{media_type}/{taxonomy_term}'
   defaults:
     _controller: '\Drupal\islandora\Controller\MediaSourceController::addToNode'
   methods: [POST]

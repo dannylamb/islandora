@@ -7,8 +7,10 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
+use Drupal\media\MediaTypeInterface;
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,7 +74,7 @@ class MediaSourceController extends ControllerBase {
   /**
    * Updates a source file for a Media.
    *
-   * @param \Drupal\media_entity\MediaInterface $media
+   * @param \Drupal\media\MediaInterface $media
    *   The media whose source file you want to update.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request object.
@@ -117,10 +119,10 @@ class MediaSourceController extends ControllerBase {
    *
    * @param \Drupal\node\NodeInterface $node
    *   The Node to which you want to add a Media.
-   * @param string $field
-   *   Name of field on Node to reference Media.
-   * @param string $bundle
-   *   Name of bundle for Media to create.
+   * @param \Drupal\media\MediaTypeInterface $media_type
+   *   Media type for new media.
+   * @param \Drupal\taxonomy\TermInterface $taxonomy_term
+   *   Term from the 'Behavior' vocabulary to give to new media.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The request object.
    *
@@ -131,8 +133,8 @@ class MediaSourceController extends ControllerBase {
    */
   public function addToNode(
     NodeInterface $node,
-    $field,
-    $bundle,
+    MediaTypeInterface $media_type,
+    TermInterface $taxonomy_term,
     Request $request
   ) {
     $content_type = $request->headers->get('Content-Type', "");
@@ -160,8 +162,8 @@ class MediaSourceController extends ControllerBase {
     try {
       $media = $this->service->addToNode(
         $node,
-        $field,
-        $bundle,
+        $media_type,
+        $taxonomy_term,
         $request->getContent(TRUE),
         $content_type,
         $filename

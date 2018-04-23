@@ -1,0 +1,33 @@
+name: 'Islandora Feature'
+description: 'Default configuration for the Islandora module.'
+type: module
+core: 8.x
+dependencies:
+  - basic_auth
+  - comment
+  - context
+  - eva
+  - features
+  - field
+  - file
+  - filehash
+  - image
+  - islandora
+  - jsonld
+  - jwt
+  - link
+  - media
+  - menu_ui
+  - migrate_plus
+  - node
+  - path
+  - rdf
+  - rest
+  - serialization
+  - system
+  - taxonomy
+  - text
+  - user
+  - views
+version: 8.x-1.0
+package: Islandora

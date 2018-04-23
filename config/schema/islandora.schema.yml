@@ -53,12 +53,26 @@ condition.plugin.is_media:
   type: condition.plugin
   mapping:
 
-condition.plugin.is_referenced_media:
+condition.plugin.node_has_term:
   type: condition.plugin
   mapping:
     field:
-      type: text
-      label: 'Reference Field'
+      type: entity_reference
+      label: 'Taxonomy term'
+
+condition.plugin.media_has_term:
+  type: condition.plugin
+  mapping:
+    field:
+      type: entity_reference
+      label: 'Taxonomy term'
+
+condition.plugin.parent_node_has_term:
+  type: condition.plugin
+  mapping:
+    field:
+      type: entity_reference
+      label: 'Taxonomy term'
 
 condition.plugin.is_file:
   type: condition.plugin

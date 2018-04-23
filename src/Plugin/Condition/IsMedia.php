@@ -3,7 +3,7 @@
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
 
 /**
  * Provides an 'Is Media' condition.

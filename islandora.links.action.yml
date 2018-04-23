@@ -1,0 +1,11 @@
+islandora.add_media_to_node:
+  route_name: islandora.add_media_to_node_page
+  title: Add media
+  appears_on:
+    - view.media_of.page_1
+
+islandora.add_member_to_node:
+  route_name: islandora.add_member_to_node_page
+  title: Add member
+  appears_on:
+    - view.manage_members.page_1

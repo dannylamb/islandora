@@ -61,9 +61,9 @@ class NodeLinkHeaderTest extends IslandoraFunctionalTestBase {
     ]);
     $this->referenced->save();
 
-    $media_bundle = $this->drupalCreateMediaBundle();
+    $media_type = $this->drupalCreateMediaBundle();
     $this->media = $this->container->get('entity_type.manager')->getStorage('media')->create([
-      'bundle' => $media_bundle->id(),
+      'bundle' => $media_type->id(),
       'name' => 'Media',
     ]);
     $this->media->save();

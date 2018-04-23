@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+name: binary
+label: Binary
+group: Islandora
+description: 'Islandora binary objects'
+requireAllConditions: false
+disabled: false
+conditions:
+  node_has_term:
+    id: node_has_term
+    negate: 0
+    uuid: f84aa317-a681-4a1e-8a40-2fe2b6868ea8
+    tids:
+      -
+        target_id: '31'
+    context_mapping:
+      node: '@node.node_route_context:node'
+reactions:
+  view_mode_alter:
+    id: view_mode_alter
+    mode: node.binary
+    saved: false
+weight: 0

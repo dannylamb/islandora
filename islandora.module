@@ -16,7 +16,7 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\NodeInterface;
-use Drupal\media_entity\MediaInterface;
+use Drupal\media\MediaInterface;
 use Drupal\file\FileInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
@@ -61,18 +61,10 @@ function islandora_rdf_namespaces() {
  * Implements hook_node_insert().
  */
 function islandora_node_insert(NodeInterface $node) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute index reactions.
   $utils->executeNodeReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $node);
-
-  // Find referenced Media and execute derivative reactions.
-  $media_reference_fields = $utils->getMediaReferenceFields($node->getEntityTypeId(), $node->bundle());
-  foreach (array_keys($media_reference_fields) as $field_name) {
-    foreach ($node->get($field_name)->referencedEntities() as $media) {
-      $utils->executeDerivativeReactions('\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction', $node, $media);
-    }
-  }
 }
 
 /**
@@ -80,27 +72,20 @@ function islandora_node_insert(NodeInterface $node) {
  */
 function islandora_node_update(NodeInterface $node) {
 
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
   if (!$utils->haveFieldsChanged($node, $node->original)) {
     return;
   };
 
   // Execute index reactions.
   $utils->executeNodeReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $node);
-
-  // Fire off derivative reactions for media just addded to an entity
-  // reference field.
-  $referenced_media = $utils->getNewMediaReferences($node);
-  foreach ($referenced_media as $media) {
-    $utils->executeDerivativeReactions('\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction', $node, $media);
-  }
 }
 
 /**
  * Implements hook_node_delete().
  */
 function islandora_node_delete(NodeInterface $node) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute delete reactions.
   $utils->executeNodeReactions('\Drupal\islandora\Plugin\ContextReaction\DeleteReaction', $node);
@@ -110,10 +95,17 @@ function islandora_node_delete(NodeInterface $node) {
  * Implements hook_media_insert().
  */
 function islandora_media_insert(MediaInterface $media) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute index reactions.
   $utils->executeMediaReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $media);
+
+  // Fire off derivative reactions for the Media.
+  $utils->executeDerivativeReactions(
+    '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+    $utils->getParentNode($media),
+    $media
+  );
 }
 
 /**
@@ -122,7 +114,8 @@ function islandora_media_insert(MediaInterface $media) {
 function islandora_media_update(MediaInterface $media) {
   $media_source_service = \Drupal::service('islandora.media_source_service');
 
-  $utils = \Drupal::service('islandora.derivative_utils');
+  // Exit early if nothing's changed.
+  $utils = \Drupal::service('islandora.utils');
   if (!$utils->haveFieldsChanged($media, $media->original)) {
     return;
   };
@@ -136,26 +129,24 @@ function islandora_media_update(MediaInterface $media) {
     return;
   }
 
-  // Have the files changed?
+  // Exit early if the source file did not change.
   if ($media->get($source_field)->equals($media->original->get($source_field))) {
     return;
   }
 
   // Fire off derivative reactions for the Media.
-  foreach ($utils->getReferencingNodes($media->id()) as $node) {
-    $utils->executeDerivativeReactions(
-      '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
-      $node,
-      $media
-    );
-  }
+  $utils->executeDerivativeReactions(
+    '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+    $utils->getParentNode($media),
+    $media
+  );
 }
 
 /**
  * Implements hook_media_delete().
  */
 function islandora_media_delete(MediaInterface $media) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute delete reactions.
   $utils->executeMediaReactions('\Drupal\islandora\Plugin\ContextReaction\DeleteReaction', $media);
@@ -165,7 +156,7 @@ function islandora_media_delete(MediaInterface $media) {
  * Implements hook_file_insert().
  */
 function islandora_file_insert(FileInterface $file) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute index reactions.
   $utils->executeFileReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $file);
@@ -180,36 +171,18 @@ function islandora_file_update(FileInterface $file) {
     return;
   }
 
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute index reactions.
   $utils->executeFileReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $file);
 
-  // Get Media that reference this File.
-  $mids = $utils->getReferencingMediaIds($file->id());
-
-  // Filter list to Media that are referenced by Nodes.
-  $filtered = array_filter(
-    $mids,
-    [$utils, 'mediaIsReferenced']
-  );
-
-  // Exit early if there's not referencing media that are also referenced by a
-  // node.
-  if (empty($filtered)) {
-    return;
-  }
-
   // Execute derivative reactions.
-  $media_entities = \Drupal::service('entity_type.manager')->getStorage('media')->loadMultiple($filtered);
-  foreach ($media_entities as $media) {
-    foreach ($utils->getReferencingNodes($media->id()) as $node) {
-      $utils->executeDerivativeReactions(
-        '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
-        $node,
-        $media
-      );
-    }
+  foreach ($utils->getReferencingMedia($file->id()) as $media) {
+    $utils->executeDerivativeReactions(
+      '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+      $utils->getParentNode($media),
+      $media
+    );
   }
 }
 
@@ -217,7 +190,7 @@ function islandora_file_update(FileInterface $file) {
  * Implements hook_file_delete().
  */
 function islandora_file_delete(FileInterface $file) {
-  $utils = \Drupal::service('islandora.derivative_utils');
+  $utils = \Drupal::service('islandora.utils');
 
   // Execute delete reactions.
   $utils->executeFileReactions('\Drupal\islandora\Plugin\ContextReaction\DeleteReaction', $file);
@@ -237,10 +210,10 @@ function islandora_jsonld_alter_normalized_array(EntityInterface $entity, array 
  * Implements hook_entity_view_mode_alter().
  */
 function islandora_entity_view_mode_alter(&$view_mode, EntityInterface $entity) {
+  // Change the view mode based on user input from a 'view_mode_alter' ContextReaction.
   $storage = \Drupal::service('entity_type.manager')->getStorage('entity_view_mode');
   $context_manager = \Drupal::service('context.manager');
 
-  // Alter view mode based on context.
   foreach ($context_manager->getActiveReactions('\Drupal\islandora\Plugin\ContextReaction\ViewModeAlterReaction') as $reaction) {
     // Construct the new view mode's machine name.
     $entity_type = $entity->getEntityTypeId();
@@ -255,8 +228,24 @@ function islandora_entity_view_mode_alter(&$view_mode, EntityInterface $entity) 
       $view_mode = $mode;
     }
     else {
+      // Otherwise, leave it be, but log a message.
       \Drupal::logger('islandora')->info("EntityViewMode $machine_name does not exist.  View mode cannot be altered.");
     }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function islandora_preprocess_node(&$variables) {
+  // Using alternate view modes causes on a node's canoncial page
+  // causes the title to get printed out twice.  Once from the
+  // fields themselves and again as a block above the main content.
+  // Setting 'page' to TRUE gets rid of the title in the fields and
+  // leaves the block.  This makes it look uniform with the 'default'
+  // view mode.
+  if (node_is_page($variables['elements']['#node'])) {
+    $variables['page'] = TRUE;
   }
 }
 
@@ -264,6 +253,7 @@ function islandora_entity_view_mode_alter(&$view_mode, EntityInterface $entity) 
  * Implements hook_entity_form_display_alter().
  */
 function islandora_entity_form_display_alter(&$form_display, $context) {
+  // Change the form display based on user input from a 'form_display_alter' ContextReaction.
   $storage = \Drupal::service('entity_type.manager')->getStorage('entity_form_display');
   $context_manager = \Drupal::service('context.manager');
 

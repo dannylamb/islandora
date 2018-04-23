@@ -1,0 +1,24 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+name: collection
+label: Collection
+group: Islandora
+description: 'Islandora collections'
+requireAllConditions: false
+disabled: false
+conditions:
+  node_has_term:
+    id: node_has_term
+    negate: 0
+    uuid: 01ba2d2f-b966-4f40-bd9e-7cfc6e9f2522
+    tid: '18'
+    context_mapping:
+      node: '@node.node_route_context:node'
+    tids:
+      -
+        target_id: '32'
+reactions: {  }
+weight: 0

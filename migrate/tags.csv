@@ -1,0 +1,10 @@
+vid,name,description,external_uri
+tags,"Preservation Master","Best quality representation of the Object appropriate for long-term preservation",http://pcdm.org/use#PreservationMasterFile
+tags,"Service File","A medium quality representation of the Object appropriate for serving to users",http://pcdm.org/use#ServiceFile
+tags,"Thumbnail","A low resolution image representation of the Object appropriate for using as an icon",http://pcdm.org/use#ThumbnailImage
+tags,"Audio","A resource primarily intended to be heard. Examples include a music playback file format, an audio compact disc, and recorded speech or sounds",http://purl.org/coar/resource_type/c_18cc
+tags,"Binary","A generic binary file for repository items that don't fall into any other category or cannot be shown in a browser",http://purl.org/coar/resource_type/c_1843
+tags,"Collection","A collection is an aggregation of items",http://purl.org/dc/dcmitype/Collection
+tags,"Image","A visual representation other than text, including all types of moving image and still image",http://purl.org/coar/resource_type/c_c513
+tags,"Video","A recording of visual images, usually in motion and with sound accompaniment",http://purl.org/coar/resource_type/c_12ce
+tags,"Open Seadragon","Display using the Open Seadragon viewer",http://openseadragon.github.io

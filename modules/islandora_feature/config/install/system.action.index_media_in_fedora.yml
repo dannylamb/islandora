@@ -1,0 +1,12 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+id: index_media_in_fedora
+label: 'Index Media in Fedora'
+type: media
+plugin: emit_media_event
+configuration:
+  queue: islandora-indexing-fcrepo-media
+  event: update

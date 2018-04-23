@@ -1,0 +1,12 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - islandora
+id: delete_node_from_triplestore
+label: 'Delete Node from Triplestore'
+type: node
+plugin: emit_node_event
+configuration:
+  queue: islandora-indexing-triplestore-delete
+  event: delete
