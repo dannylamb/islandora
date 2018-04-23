@@ -13,4 +13,7 @@ excluded:
   - field.field.node.article.field_image
   - field.field.node.article.field_tags
   - media.type.large_image
+  - core.entity_view_display.node.islandora_object.preservation_master
+  - core.entity_view_display.node.islandora_object.service_file
+  - core.entity_view_display.node.page.teaser
 required: true
