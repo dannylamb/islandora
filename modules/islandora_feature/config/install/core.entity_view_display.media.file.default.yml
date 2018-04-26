@@ -9,7 +9,7 @@ dependencies:
     - field.field.media.file.field_tags
     - media.type.file
   module:
-    - file
+    - openseadragon
 id: media.file.default
 targetEntityType: media
 bundle: file
@@ -26,10 +26,9 @@ content:
     region: content
   field_media_file:
     label: visually_hidden
-    settings:
-      use_description_as_link_text: true
+    settings: {  }
     third_party_settings: {  }
-    type: file_default
+    type: openseadragon_image
     weight: 1
     region: content
   field_media_of:

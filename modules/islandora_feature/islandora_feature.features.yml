@@ -1,19 +1,8 @@
 bundle: islandora
 excluded:
-  - field.storage.media.field_behavior
   - field.storage.node.field_image
   - field.storage.node.field_tags
-  - core.entity_view_mode.node.preservation_master
-  - core.entity_view_mode.node.service_file
-  - field.field.media.large_image.field_behavior
-  - field.field.media.large_image.field_file_size
-  - field.field.media.large_image.field_media_file
-  - field.field.media.large_image.field_media_of
-  - field.field.media.large_image.field_mime_type
   - field.field.node.article.field_image
   - field.field.node.article.field_tags
-  - media.type.large_image
-  - core.entity_view_display.node.islandora_object.preservation_master
-  - core.entity_view_display.node.islandora_object.service_file
   - core.entity_view_display.node.page.teaser
 required: true

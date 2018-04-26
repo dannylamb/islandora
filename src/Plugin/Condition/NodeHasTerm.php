@@ -8,10 +8,12 @@ namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\islandora\IslandoraUtils;
+use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -29,17 +31,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Taxonomy term storage.
+   * Islandora utils.
    *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
+   * @var \Drupal\islandora\IslandoraUtils
    */
-  protected $termStorage;
+  protected $utils;
+
+  /**
+   * Term storage.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
 
   /**
    * Constructor.
    *
-   * @param \Drupal\Core\Entity\EntityStorageInterface $content_type_storage
-   *   Taxonomy term storage.
    * @param array $configuration
    *   The plugin configuration, i.e. an array with configuration values keyed
    *   by configuration option name. The special key 'context' may be used to
@@ -49,15 +56,21 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
+   * @param \Drupal\islandora\IslandoraUtils $utils
+   *   Islandora utils.
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   Entity type manager.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityStorageInterface $term_storage
+    IslandoraUtils $utils,
+    EntityTypeManager $entity_type_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->termStorage = $term_storage;
+    $this->utils = $utils;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -68,7 +81,8 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')->getStorage('taxonomy_term')
+      $container->get('islandora.utils'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -76,20 +90,12 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $tids = array_map(
-      function (array $elem) {
-          return $elem['target_id'];
-      },
-      $this->configuration['tids']
-    );
-    $terms = empty($tids) ? [] : $this->termStorage->loadMultiple($tids);
-
-    $form['tids'] = array(
+    $form['term'] = array(
       '#type' => 'entity_autocomplete',
-      '#title' => $this->t('Term(s)'),
-      '#description' => $this->t('Enter a comma separated list of terms.'),
+      '#title' => $this->t('Term'),
       '#tags' => TRUE,
-      '#default_value' => $terms,
+      '#required' => TRUE,
+      '#default_value' => $this->utils->getTermForUri($this->configuration['uri']),
       '#target_type' => 'taxonomy_term',
     );
 
@@ -100,7 +106,17 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['tids'] = $form_state->getValue('tids');
+    // Set URI for term if possible.
+    $this->configuration['uri'] = NULL;
+    $value = $form_state->getValue('term');
+    if (!empty($value)) {
+      $tid = $value[0]['target_id'];
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+      $uri = $this->utils->getUriForTerm($term);
+      if ($uri) {
+        $this->configuration['uri'] = $uri;
+      }
+    }
     parent::submitConfigurationForm($form, $form_state);
   }
 
@@ -108,9 +124,11 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function evaluate() {
-    return $this->evaluateEntity(
-      $this->getContextValue('node')
-    );
+    $node = $this->getContextValue('node');
+    if (!$node) {
+      return FALSE;
+    }
+    return $this->evaluateEntity($node);
   }
 
   /**
@@ -120,26 +138,24 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    *   The entity to evalute.
    *
    * @return bool
-   *   TRUE if entity has the specified term(s), otherwise FALSE.
+   *   TRUE if entity has all the specified term(s), otherwise FALSE.
    */
   protected function evaluateEntity(EntityInterface $entity) {
-    $tids = array_map(
-      function (array $elem) {
-          return $elem['target_id'];
-      },
-      $this->configuration['tids']
-    );
-    $tids = array_combine($tids, $tids);
-
     foreach ($entity->referencedEntities() as $referenced_entity) {
       if ($referenced_entity->getEntityTypeId() == 'taxonomy_term'
-        && isset($tids[$referenced_entity->id()])) {
-            unset($tids[$referenced_entity->id()]);
-            break;
+        && $referenced_entity->hasField(IslandoraUtils::EXTERNAL_URI_FIELD))
+      {
+        $field = $referenced_entity->get(IslandoraUtils::EXTERNAL_URI_FIELD);
+        if (!$field->isEmpty()) {
+          $link = $field->first()->getValue();
+          if ($link['uri'] == $this->configuration['uri']) {
+            return $this->isNegated() ? FALSE : TRUE;
+          }
+        }
       }
     }
 
-    return $this->isNegated() ? !empty($tids) : empty($tids);
+    return $this->isNegated() ? TRUE : FALSE;
   }
 
   /**
@@ -147,21 +163,12 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    */
   public function summary()
   {
-    $tids = array_map(
-      function (array $elem) {
-          return $elem['target_id'];
-      },
-      $this->configuration['tids']
-    );
-    $tids = implode(',', $tids);
-
     if (!empty($this->configuration['negate'])) {
-      return $this->t('The node is not associated with taxonomy term(s) @tids.', array('@tids' => $tids));
+      return $this->t('The node is not associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
     }
     else {
-      return $this->t('The node is associated with taxonomy term(s) @tids.', array('@tids' => $tids));
+      return $this->t('The node is associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
     }
  }
 
 }
-

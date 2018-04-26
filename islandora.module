@@ -100,12 +100,16 @@ function islandora_media_insert(MediaInterface $media) {
   // Execute index reactions.
   $utils->executeMediaReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $media);
 
-  // Fire off derivative reactions for the Media.
-  $utils->executeDerivativeReactions(
-    '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
-    $utils->getParentNode($media),
-    $media
-  );
+  // If it has a parent node...
+  $node = $utils->getParentNode($media);
+  if ($node) {
+    // Fire off derivative reactions for the Media.
+    $utils->executeDerivativeReactions(
+      '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+      $node,
+      $media
+    );
+  }
 }
 
 /**
@@ -134,12 +138,16 @@ function islandora_media_update(MediaInterface $media) {
     return;
   }
 
-  // Fire off derivative reactions for the Media.
-  $utils->executeDerivativeReactions(
-    '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
-    $utils->getParentNode($media),
-    $media
-  );
+  // If it has a parent node...
+  $node = $utils->getParentNode($media);
+  if ($node) {
+    // Fire off derivative reactions for the Media.
+    $utils->executeDerivativeReactions(
+      '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+      $node,
+      $media
+    );
+  }
 }
 
 /**
@@ -178,11 +186,14 @@ function islandora_file_update(FileInterface $file) {
 
   // Execute derivative reactions.
   foreach ($utils->getReferencingMedia($file->id()) as $media) {
-    $utils->executeDerivativeReactions(
-      '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
-      $utils->getParentNode($media),
-      $media
-    );
+    $node = $utils->getParentNode($media);
+    if ($node) {
+      $utils->executeDerivativeReactions(
+        '\Drupal\islandora\Plugin\ContextReaction\DerivativeReaction',
+        $node,
+        $media
+      );
+    }
   }
 }
 

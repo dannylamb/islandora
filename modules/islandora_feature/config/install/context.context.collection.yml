@@ -20,5 +20,27 @@ conditions:
     tids:
       -
         target_id: '32'
-reactions: {  }
+    uri: 'http://purl.org/dc/dcmitype/Collection'
+reactions:
+  blocks:
+    blocks:
+      83d50c24-adbb-4b7b-8b1c-6b9127bd084f:
+        id: 'views_block:members-block_1'
+        label: ''
+        provider: views
+        label_display: visible
+        views_label: ''
+        items_per_page: none
+        region: content_suffix
+        weight: '0'
+        context_mapping: {  }
+        theme: carapace
+        css_class: ''
+        unique: 0
+        context_id: collection
+        uuid: 83d50c24-adbb-4b7b-8b1c-6b9127bd084f
+    id: blocks
+    saved: false
+    uuid: 77301de1-1425-4da6-987d-8bedddf94f64
+    include_default_blocks: 1
 weight: 0

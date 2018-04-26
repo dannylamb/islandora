@@ -48,12 +48,12 @@ islandora.media_source_update:
   options:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']
 
-islandora.media_source_add_to_node:
-  path: '/node/{node}/media/add/{media_type}/{taxonomy_term}'
+islandora.media_source_put_to_node:
+  path: '/node/{node}/media/{media_type}/{taxonomy_term}'
   defaults:
-    _controller: '\Drupal\islandora\Controller\MediaSourceController::addToNode'
-  methods: [POST]
+    _controller: '\Drupal\islandora\Controller\MediaSourceController::putToNode'
+  methods: [PUT]
   requirements:
-    _custom_access: '\Drupal\islandora\Controller\MediaSourceController::addToNodeAccess'
+    _custom_access: '\Drupal\islandora\Controller\MediaSourceController::putToNodeAccess'
   options:
     _auth: ['basic_auth', 'cookie', 'jwt_auth']

@@ -56,23 +56,23 @@ condition.plugin.is_media:
 condition.plugin.node_has_term:
   type: condition.plugin
   mapping:
-    field:
-      type: entity_reference
-      label: 'Taxonomy term'
+    uri:
+      type: text 
+      label: 'Taxonomy Term URI'
 
 condition.plugin.media_has_term:
   type: condition.plugin
   mapping:
-    field:
-      type: entity_reference
-      label: 'Taxonomy term'
+    uri:
+      type: text 
+      label: 'Taxonomy Term URI'
 
 condition.plugin.parent_node_has_term:
   type: condition.plugin
   mapping:
-    field:
-      type: entity_reference
-      label: 'Taxonomy term'
+    uri:
+      type: text 
+      label: 'Taxonomy Term URI'
 
 condition.plugin.is_file:
   type: condition.plugin

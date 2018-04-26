@@ -96,18 +96,23 @@ class NodeLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubs
   }
 
   protected function generateRelatedMediaLinks(NodeInterface $node) {
-    return array_map(
-      function (MediaInterface $media) {
-        $url = $media->url('canonical', ['absolute' => TRUE]);
-        $model = $media->get('field_behavior')
-            ->first()
-            ->get('entity')
-            ->getTarget()
-            ->getValue()
-            ->label();
-        return "<$url>; rel=\"related\"; title=\"$model\"";
-      },
-      $this->utils->getMedia($node)
-    );
+    $links = [];
+    foreach($this->utils->getMedia($node) as $media) {
+      $url = $media->url('canonical', ['absolute' => TRUE]);
+      foreach ($media->referencedEntities() as $term) {
+        if ($term->getEntityTypeId() == 'taxonomy_term' && $term->hasField('field_external_uri')) {
+          $field = $term->get('field_external_uri');
+          if (!$field->isEmpty()) {
+            $link = $field->first()->getValue();
+            $uri = $link['uri'];
+            if (strpos($uri, 'http://pcdm.org/use#') === 0) {
+              $title = $term->label();
+              $links[] = "<$url>; rel=\"related\"; title=\"$title\"";
+            }
+          }
+        }
+      }
+    }
+    return $links; 
   }
 }

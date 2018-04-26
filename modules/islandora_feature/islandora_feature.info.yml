@@ -13,6 +13,7 @@ dependencies:
   - filehash
   - image
   - islandora
+  - islandora_image
   - jsonld
   - jwt
   - link
@@ -20,6 +21,7 @@ dependencies:
   - menu_ui
   - migrate_plus
   - node
+  - openseadragon
   - path
   - rdf
   - rest

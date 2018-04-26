@@ -195,22 +195,20 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
         if ($referencedEntity->access('view')) {
 
           // Taxonomy terms are written out as
-          // <url>; rel="tag"; title="Field Label"
+          // <url>; rel="tag"; title="Tag Name"
           // where url is defined in field_same_as.
           // If field_same_as doesn't exist or is empty,
           // it becomes the taxonomy term's local uri.
           if ($referencedEntity->getEntityTypeId() == 'taxonomy_term') {
             $rel = "tag";
-
-            if ($referencedEntity->hasField('field_same_as')) {
-                $external_uri = $referencedEntity->get('field_same_as')->first()->getValue()['uri'];
-                if (!empty($external_uri)) {
-                  $entity_url = $external_uri;
-                }
-                else {
-                  $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
-                }
+            $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+            if ($referencedEntity->hasField('field_external_uri')) {
+              $external_uri = $referencedEntity->get('field_external_uri')->first()->getValue()['uri'];
+              if (!empty($external_uri)) {
+                $entity_url = $external_uri;
+              }
             }
+            $title = $referencedEntity->label();
           } else {
             // If it's not a taxonomy term, referenced entity link
             // headers take the form
@@ -218,8 +216,8 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
             // and the url is the local uri.
             $rel = "related";
             $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
+            $title = $field_definition->label();
           }
-          $title = $field_definition->label();
           $links[] = "<$entity_url>; rel=\"$rel\"; title=\"$title\"";
         }
       }

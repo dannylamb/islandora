@@ -4,6 +4,7 @@ namespace Drupal\islandora\MediaSource;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
@@ -153,8 +154,8 @@ class MediaSourceService {
 
     // Set fields provided by type plugin and mapped in bundle configuration
     // for the media.
-    foreach ($media->bundle->entity->field_map as $source => $destination) {
-      if ($media->hasField($destination) && $value = $media->getType()->getField($media, $source)) {
+    foreach ($media->bundle->entity->getFieldMap() as $source => $destination) {
+      if ($media->hasField($destination) && $value = $media->getSource()->getMetadata($media, $source)) {
         $media->set($destination, $value);
         // Ensure width and height are updated on File reference when it's an
         // image. Otherwise you run into scaling problems when updating images
@@ -233,17 +234,18 @@ class MediaSourceService {
 
     $existing = $this->entityQuery->get('media')
       ->condition('field_media_of', $node->id())
-      ->condition('field_behavior', $term->id())
+      ->condition('field_tags', $taxonomy_term->id())
       ->execute();
 
     if (!empty($existing)) {
       // Just update already existing media.
-      $media = $this->entityTypeManager->getStorage('media')->load($existing[0]);
+      $media = $this->entityTypeManager->getStorage('media')->load(reset($existing));
       $this->updateSourceField(
           $media,
           $resource,
           $mimetype
       );
+      return FALSE;
     } else {
       // Otherwise, the media doesn't exist yet.
       // So make everything by hand.
@@ -294,16 +296,19 @@ class MediaSourceService {
 
       // Construct the Media.
       $media_struct = [
-        'type' => $bundle,
+        'bundle' => $bundle,
         'uid' => $this->account->id(),
         'name' => $filename,
         'langcode' => $this->languageManager->getDefaultLanguage()->getId(),
         "$source_field" => [
           'target_id' => $file->id(),
         ],
-        'field_behavior' => [
+        'field_tags' => [
           'target_id' => $taxonomy_term->id(),
-        ]
+        ],
+        'field_media_of' => [
+          'target_id' => $node->id(), 
+        ],
       ];
 
       // Set alt text.
@@ -313,11 +318,9 @@ class MediaSourceService {
 
       $media = $this->entityTypeManager->getStorage('media')->create($media_struct);
       $media->save();
-
+      return $media;
     }
 
-    // Return the created media.
-    return $media;
   }
 
 }

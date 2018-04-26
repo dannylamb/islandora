@@ -24,9 +24,11 @@ class MediaHasTerm extends NodeHasTerm {
    * {@inheritdoc}
    */
   public function evaluate() {
-    return $this->evaluateEntity(
-      $this->getContextValue('media')
-    );
+    $media = $this->getContextValue('media');
+    if (!$media) {
+      return FALSE;
+    }
+    return $this->evaluateEntity($media);
   }
 
   /**
@@ -34,19 +36,11 @@ class MediaHasTerm extends NodeHasTerm {
    */
   public function summary()
   {
-    $tids = array_map(
-      function (array $elem) {
-          return $elem['target_id'];
-      },
-      $this->configuration['tids']
-    );
-    $tids = implode(',', $tids);
-
     if (!empty($this->configuration['negate'])) {
-      return $this->t('The media is not associated with taxonomy term(s) @tids.', array('@tids' => $tids));
+      return $this->t('The media is not associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
     }
     else {
-      return $this->t('The media is associated with taxonomy term(s) @tids.', array('@tids' => $tids));
+      return $this->t('The media is associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
     }
   }
 

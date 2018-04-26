@@ -131,7 +131,7 @@ class MediaSourceController extends ControllerBase {
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function addToNode(
+  public function putToNode(
     NodeInterface $node,
     MediaTypeInterface $media_type,
     TermInterface $taxonomy_term,
@@ -155,12 +155,12 @@ class MediaSourceController extends ControllerBase {
     }
     $filename = $matches[1];
 
-    // Since we create both a Media and its File, AND update a node,
+    // Since we create both a Media and its File,
     // start a transaction.
     $transaction = $this->database->startTransaction();
 
     try {
-      $media = $this->service->addToNode(
+      $media = $this->service->putToNode(
         $node,
         $media_type,
         $taxonomy_term,
@@ -169,8 +169,14 @@ class MediaSourceController extends ControllerBase {
         $filename
       );
 
-      $response = new Response("", 201);
-      $response->headers->set("Location", $media->url('canonical', ['absolute' => TRUE]));
+      // We return the media if it was newly created.
+      if ($media) {
+        $response = new Response("", 201);
+        $response->headers->set("Location", $media->url('canonical', ['absolute' => TRUE]));
+      }
+      else {
+        $response = new Response("", 204);
+      }
       return $response;
     }
     catch (HttpException $e) {
@@ -194,7 +200,7 @@ class MediaSourceController extends ControllerBase {
    * @return \Drupal\Core\Access\AccessResultInterface
    *   Access result.
    */
-  public function addToNodeAccess(AccountInterface $account, RouteMatch $route_match) {
+  public function putToNodeAccess(AccountInterface $account, RouteMatch $route_match) {
     // We'd have 404'd already if node didn't exist, so no need to check.
     // Just hack it out of the route match.
     $node = $route_match->getParameter('node');

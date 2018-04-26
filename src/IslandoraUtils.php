@@ -15,6 +15,7 @@ use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
 use Drupal\media\MediaInterface;
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 
 /**
  * Utility functions for figuring out when to fire derivative reactions.
@@ -22,6 +23,8 @@ use Drupal\node\NodeInterface;
 class IslandoraUtils {
 
   const MEDIA_OF_FIELD = 'field_media_of';
+  const EXTERNAL_URI_FIELD = 'field_external_uri';
+  const TAGS_FIELD = 'field_tags';
 
   /**
    * The entity type manager.
@@ -97,10 +100,13 @@ class IslandoraUtils {
    */
   public function getParentNode(MediaInterface $media) {
     if (!$media->hasField(self::MEDIA_OF_FIELD)) {
-      return [];
+      return NULL;
     }
-    return $media->get(self::MEDIA_OF_FIELD)
-      ->first()
+    $field = $media->get(self::MEDIA_OF_FIELD);
+    if ($field->isEmpty()) {
+      return NULL;
+    }
+    return $field->first()
       ->get('entity')
       ->getTarget()
       ->getValue();
@@ -118,6 +124,28 @@ class IslandoraUtils {
   public function getMedia(NodeInterface $node) {
     $mids = $this->entityQuery->get('media')->condition(self::MEDIA_OF_FIELD, $node->id())->execute();
     return $this->entityTypeManager->getStorage('media')->loadMultiple($mids);
+  }
+
+  /**
+   * Gets media that belong to a node with the specified term.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The parent node.
+   * @param \Drupal\taxonomy\TermInterface $term
+   *   Taxonomy term.
+   *
+   * @return MediaInterface
+   *   The child Media.
+   */
+  public function getMediaWithTerm(NodeInterface $node, TermInterface $term) {
+    $mids = $this->entityQuery->get('media')
+      ->condition(self::MEDIA_OF_FIELD, $node->id())
+      ->condition(self::TAGS_FIELD, $term->id())
+      ->execute();
+    if (empty($mids)) {
+      return NULL;
+    }
+    return $this->entityTypeManager->getStorage('media')->load(reset($mids));
   }
 
   /**
@@ -151,6 +179,46 @@ class IslandoraUtils {
     }
 
     return $this->entityTypeManager->getStorage('media')->loadMultiple($query->execute());
+  }
+
+  /**
+   * Gets the taxonomy term associated with an external uri.
+   *
+   * @param string $uri
+   *   External uri.
+   *
+   * @return \Drupal\taxonomy\TermInterface|NULL
+   *   Term or NULL if not found.
+   */
+  public function getTermForUri($uri) {
+    $results = $this->entityQuery->get('taxonomy_term')
+      ->condition(self::EXTERNAL_URI_FIELD . '.uri', $uri)
+      ->execute();
+
+    if (empty($results)) {
+      return NULL; 
+    }
+    return $this->entityTypeManager->getStorage('taxonomy_term')->load(reset($results));
+  }
+
+  /**
+   * Gets the taxonomy term associated with an external uri.
+   *
+   * @param \Drupal\taxonomy\TermInterface $term
+   *   Taxonomy term.
+   *
+   * @return string|NULL
+   *   URI or NULL if not found.
+   */
+  public function getUriForTerm(TermInterface $term) {
+    if ($term && $term->hasField(self::EXTERNAL_URI_FIELD)) {
+      $field = $term->get(self::EXTERNAL_URI_FIELD);
+      if (!$field->isEmpty()) {
+        $link = $field->first()->getValue();
+        return $link['uri'];
+      }
+    }
+    return NULL;
   }
 
   /**

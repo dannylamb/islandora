@@ -16,9 +16,10 @@ conditions:
     uuid: f84aa317-a681-4a1e-8a40-2fe2b6868ea8
     tids:
       -
-        target_id: '31'
+        target_id: '5'
     context_mapping:
       node: '@node.node_route_context:node'
+    uri: 'http://purl.org/coar/resource_type/c_1843'
 reactions:
   view_mode_alter:
     id: view_mode_alter

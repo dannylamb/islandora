@@ -17,3 +17,6 @@ fieldMappings:
   description:
     properties:
       - 'schema:description'
+  field_external_uri:
+    properties:
+      - 'owl:sameAs'
