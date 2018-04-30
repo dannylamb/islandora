@@ -13,6 +13,7 @@ use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
+use Drupal\islandora\ContextProvider\TermContextProvider;
 use Drupal\media\MediaInterface;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
@@ -275,6 +276,25 @@ class IslandoraUtils {
     // Fire off index reactions.
     foreach ($this->contextManager->getActiveReactions($reaction_type) as $reaction) {
       $reaction->execute($file);
+    }
+  }
+
+  /**
+   * Executes context reactions for a File.
+   *
+   * @param string $reaction_type
+   *   Reaction type.
+   * @param \Drupal\taxonomy\TermInterface $term
+   *   Term to evaluate contexts and pass to reaction.
+   */
+  public function executeTermReactions($reaction_type, TermInterface $term) {
+    $provider = new TermContextProvider($term);
+    $provided = $provider->getRuntimeContexts([]);
+    $this->contextManager->evaluateContexts($provided);
+
+    // Fire off index reactions.
+    foreach ($this->contextManager->getActiveReactions($reaction_type) as $reaction) {
+      $reaction->execute($term);
     }
   }
 

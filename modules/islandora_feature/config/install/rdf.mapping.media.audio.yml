@@ -7,7 +7,7 @@ dependencies:
     - media
 id: media.audio
 targetEntityType: media
-bundle: audio 
+bundle: audio
 types:
   - 'pcdm:File'
 fieldMappings:

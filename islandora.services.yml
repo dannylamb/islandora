@@ -48,6 +48,11 @@ services:
     arguments: ['@current_route_match']
     tags:
       - { name: 'context_provider' }
+  islandora.taxonomy_term_route_context_provider:
+    class: Drupal\islandora\ContextProvider\TermRouteContextProvider
+    arguments: ['@current_route_match']
+    tags:
+      - { name: 'context_provider' }
   islandora.media_source_service:
     class: Drupal\islandora\MediaSource\MediaSourceService
     arguments: ['@entity_type.manager', '@current_user', '@stream_wrapper_manager', '@language_manager', '@token', '@entity.query']

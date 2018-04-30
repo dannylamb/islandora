@@ -7,7 +7,7 @@ dependencies:
     - media
 id: media.video
 targetEntityType: media
-bundle: video 
+bundle: video
 types:
   - 'pcdm:File'
 fieldMappings:

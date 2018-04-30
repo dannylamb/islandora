@@ -7,7 +7,7 @@ dependencies:
     - media
 id: media.image
 targetEntityType: media
-bundle: image 
+bundle: image
 types:
   - 'pcdm:File'
 fieldMappings:
@@ -36,3 +36,9 @@ fieldMappings:
     properties:
       - 'schema:additionalType'
     mapping_type: rel
+  field_width:
+    properties:
+      - 'ebucore:width'
+  field_height:
+    properties:
+      - 'ebucore:height'

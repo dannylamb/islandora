@@ -18,6 +18,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\NodeInterface;
 use Drupal\media\MediaInterface;
 use Drupal\file\FileInterface;
+use Drupal\taxonomy\TermInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -205,6 +206,36 @@ function islandora_file_delete(FileInterface $file) {
 
   // Execute delete reactions.
   $utils->executeFileReactions('\Drupal\islandora\Plugin\ContextReaction\DeleteReaction', $file);
+}
+
+/**
+ * Implements hook_taxonomy_term_insert().
+ */
+function islandora_taxonomy_term_insert(TermInterface $term) {
+  $utils = \Drupal::service('islandora.utils');
+
+  // Execute delete reactions.
+  $utils->executeTermReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $term);
+}
+
+/**
+ * Implements hook_taxonomy_term_update().
+ */
+function islandora_taxonomy_term_update(TermInterface $term) {
+  $utils = \Drupal::service('islandora.utils');
+
+  // Execute delete reactions.
+  $utils->executeTermReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $term);
+}
+
+/**
+ * Implements hook_taxonomy_term_delete().
+ */
+function islandora_taxonomy_term_delete(TermInterface $term) {
+  $utils = \Drupal::service('islandora.utils');
+
+  // Execute delete reactions.
+  $utils->executeTermReactions('\Drupal\islandora\Plugin\ContextReaction\DeleteReaction', $term);
 }
 
 /**

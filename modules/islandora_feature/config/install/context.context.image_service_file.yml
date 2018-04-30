@@ -6,7 +6,7 @@ dependencies:
 name: image_service_file
 label: 'Image Service File'
 group: Islandora
-description: ''
+description: 'Service files for images'
 requireAllConditions: true
 disabled: false
 conditions:

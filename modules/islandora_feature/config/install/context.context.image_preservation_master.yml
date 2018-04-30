@@ -6,7 +6,7 @@ dependencies:
 name: image_preservation_master
 label: 'Image Preservation Master'
 group: Islandora
-description: ''
+description: 'Preservation masters for images'
 requireAllConditions: true
 disabled: false
 conditions:

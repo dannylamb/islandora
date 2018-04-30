@@ -3,6 +3,10 @@ excluded:
   - field.storage.node.field_image
   - field.storage.node.field_tags
   - field.field.node.article.field_image
-  - field.field.node.article.field_tags
   - core.entity_view_display.node.page.teaser
+  - core.entity_view_display.media.file.open_seadragon
+  - core.entity_view_display.node.islandora_object.open_seadragon
+  - context.context.open_seadragon
+  - core.entity_view_mode.media.open_seadragon
+  - core.entity_view_mode.node.open_seadragon
 required: true

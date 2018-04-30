@@ -36,7 +36,18 @@ action.configuration.emit_media_event:
 
 action.configuration.emit_file_event:
   type: mapping
-  label: 'Emit a Flie event to a queue/topic'
+  label: 'Emit a File event to a queue/topic'
+  mapping:
+    queue:
+      type: text
+      label: 'Queue'
+    event:
+      type: text
+      label: 'Event Type'
+
+action.configuration.emit_term_event:
+  type: mapping
+  label: 'Emit a Taxonomy Term event to a queue/topic'
   mapping:
     queue:
       type: text
@@ -50,6 +61,14 @@ condition.plugin.is_node:
   mapping:
 
 condition.plugin.is_media:
+  type: condition.plugin
+  mapping:
+
+condition.plugin.is_file:
+  type: condition.plugin
+  mapping:
+
+condition.plugin.is_term:
   type: condition.plugin
   mapping:
 
@@ -73,7 +92,3 @@ condition.plugin.parent_node_has_term:
     uri:
       type: text 
       label: 'Taxonomy Term URI'
-
-condition.plugin.is_file:
-  type: condition.plugin
-  mapping:
