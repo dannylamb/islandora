@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.media.open_seadragon
     - core.entity_view_mode.media.source
   module:
     - eva

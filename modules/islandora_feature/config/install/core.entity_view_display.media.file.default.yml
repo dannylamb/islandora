@@ -9,52 +9,53 @@ dependencies:
     - field.field.media.file.field_tags
     - media.type.file
   module:
-    - openseadragon
+    - file
 id: media.file.default
 targetEntityType: media
 bundle: file
 mode: default
 content:
   field_file_size:
-    weight: 4
+    type: number_integer
+    weight: 3
+    region: content
     label: above
     settings:
       thousand_separator: ''
       prefix_suffix: true
     third_party_settings: {  }
-    type: number_integer
-    region: content
   field_media_file:
     label: visually_hidden
-    settings: {  }
+    settings:
+      use_description_as_link_text: true
     third_party_settings: {  }
-    type: openseadragon_image
+    type: file_default
     weight: 1
     region: content
   field_media_of:
-    weight: 5
+    type: entity_reference_label
+    weight: 4
+    region: content
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    type: entity_reference_label
-    region: content
   field_mime_type:
-    weight: 3
+    type: string
+    weight: 2
+    region: content
     label: above
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    type: string
-    region: content
   field_tags:
-    weight: 6
+    type: entity_reference_label
+    weight: 5
+    region: content
     label: above
     settings:
       link: true
     third_party_settings: {  }
-    type: entity_reference_label
-    region: content
   name:
     type: string
     weight: 0

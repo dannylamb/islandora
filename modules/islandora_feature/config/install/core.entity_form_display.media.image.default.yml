@@ -21,24 +21,10 @@ mode: default
 content:
   created:
     type: datetime_timestamp
-    weight: 9
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_file_size:
-    weight: 5
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-    type: number
-    region: content
-  field_height:
-    weight: 4
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-    type: number
-    region: content
   field_media_image:
     settings:
       progress_indicator: throbber
@@ -48,38 +34,23 @@ content:
     weight: 1
     region: content
   field_media_of:
-    weight: 6
-    settings:
-      match_operator: CONTAINS
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
     type: entity_reference_autocomplete
-    region: content
-  field_mime_type:
     weight: 2
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-    type: string_textfield
     region: content
-  field_tags:
-    weight: 7
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_tags:
     type: entity_reference_autocomplete
-    region: content
-  field_width:
     weight: 3
+    region: content
     settings:
+      match_operator: CONTAINS
+      size: 60
       placeholder: ''
     third_party_settings: {  }
-    type: number
-    region: content
   name:
     type: string_textfield
     weight: 0
@@ -90,7 +61,7 @@ content:
     third_party_settings: {  }
   path:
     type: path
-    weight: 10
+    weight: 6
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -98,16 +69,20 @@ content:
     type: boolean_checkbox
     settings:
       display_label: true
-    weight: 11
+    weight: 7
     region: content
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 8
+    weight: 4
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
     region: content
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  field_file_size: true
+  field_height: true
+  field_mime_type: true
+  field_width: true
