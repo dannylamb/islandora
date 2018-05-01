@@ -7,4 +7,3 @@ tags,"Binary","A generic binary file for repository items that don't fall into a
 tags,"Collection","A collection is an aggregation of items",http://purl.org/dc/dcmitype/Collection
 tags,"Image","A visual representation other than text, including all types of moving image and still image",http://purl.org/coar/resource_type/c_c513
 tags,"Video","A recording of visual images, usually in motion and with sound accompaniment",http://purl.org/coar/resource_type/c_12ce
-tags,"Open Seadragon","Display using the Open Seadragon viewer",http://openseadragon.github.io
