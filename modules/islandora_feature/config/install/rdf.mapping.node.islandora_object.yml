@@ -14,7 +14,7 @@ fieldMappings:
   field_description:
     properties:
       - 'dc:description'
-  field_memberof:
+  field_member_of:
     properties:
       - 'pcdm:memberOf'
     mapping_type: rel
