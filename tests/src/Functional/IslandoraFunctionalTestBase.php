@@ -293,6 +293,9 @@ EOD;
     return $count;
   }
 
+  /**
+   * Utility function to make a media and an associated file.
+   */
   protected function makeMediaAndFile(AccountInterface $account) {
     // Make a file for the Media.
     $file = $this->container->get('entity_type.manager')->getStorage('file')->create([
