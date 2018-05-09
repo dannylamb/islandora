@@ -95,28 +95,9 @@ class LinkHeaderTest extends IslandoraFunctionalTestBase {
     ]);
     $this->referencer->save();
 
-    // Make a file for the Media.
-    $this->file = $this->container->get('entity_type.manager')->getStorage('file')->create([
-      'uid' => $account->id(),
-      'uri' => "public://test_file.txt",
-      'filename' => "test_file.txt",
-      'filemime' => "text/plain",
-      'status' => FILE_STATUS_PERMANENT,
-    ]);
-    $this->file->save();
-
-    // Get the source field for the media.
-    $type_configuration = $this->testMediaType->get('source_configuration');
-    $source_field = $type_configuration['source_field'];
-
-    // Make the media for the referencer.
-    $this->media = $this->container->get('entity_type.manager')->getStorage('media')->create([
-      'bundle' => $this->testMediaType->id(),
-      'name' => 'Media',
-      "$source_field" => [$this->file->id()],
-      'field_media_of' => [$this->referencer->id()],
-      'field_tags' => [$this->preservationMasterTerm->id()],
-    ]);
+    list($this->file, $this->media) = $this->makeMediaAndFile($account);
+    $this->media->set('field_media_of', $this->referencer);
+    $this->media->set('field_tags', $this->preservationMasterTerm);
     $this->media->save();
   }
 

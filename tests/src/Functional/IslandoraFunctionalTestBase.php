@@ -4,6 +4,7 @@ namespace Drupal\Tests\islandora\Functional;
 
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\link\LinkItemInterface;
 use Drupal\Tests\BrowserTestBase;
@@ -290,6 +291,32 @@ EOD;
     }
 
     return $count;
+  }
+
+  protected function makeMediaAndFile(AccountInterface $account) {
+    // Make a file for the Media.
+    $file = $this->container->get('entity_type.manager')->getStorage('file')->create([
+      'uid' => $account->id(),
+      'uri' => "public://test_file.txt",
+      'filename' => "test_file.txt",
+      'filemime' => "text/plain",
+      'status' => FILE_STATUS_PERMANENT,
+    ]);
+    $file->save();
+
+    // Get the source field for the media.
+    $type_configuration = $this->testMediaType->get('source_configuration');
+    $source_field = $type_configuration['source_field'];
+
+    // Make the media for the referencer.
+    $media = $this->container->get('entity_type.manager')->getStorage('media')->create([
+      'bundle' => $this->testMediaType->id(),
+      'name' => 'Media',
+      "$source_field" => [$file->id()],
+    ]);
+    $media->save();
+
+    return [$file, $media];
   }
 
 }
