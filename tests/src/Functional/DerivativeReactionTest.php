@@ -10,7 +10,27 @@ namespace Drupal\Tests\islandora\Functional;
 class DerivativeReactionTest extends IslandoraFunctionalTestBase {
 
   /**
-   * @covers \Drupal\islandora\DerivativeUtils::executeDerivativeReactions
+   * Node to hold the media.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
+  protected $node;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    $this->node = $this->container->get('entity_type.manager')->getStorage('node')->create([
+      'type' => 'test_type',
+      'title' => 'Test Node',
+    ]);
+    $this->node->save();
+  }
+
+  /**
+   * @covers \Drupal\islandora\IslandoraUtils::executeDerivativeReactions
    */
   public function testExecuteDerivativeReaction() {
     // Create a test user.
@@ -18,7 +38,6 @@ class DerivativeReactionTest extends IslandoraFunctionalTestBase {
       'bypass node access',
       'administer contexts',
       'administer actions',
-      'view media',
       'create media',
       'update media',
     ]);
@@ -28,37 +47,32 @@ class DerivativeReactionTest extends IslandoraFunctionalTestBase {
     $this->addPresetReaction('test', 'derivative', 'hello_world');
 
     // Create a new media.
-    $urls = $this->createThumbnailWithFile();
+    $values = [
+      'name[0][value]' => 'Test Media',
+      'files[field_media_file_0]' => __DIR__ . '/../../fixtures/test_file.txt',
+      'field_media_of[0][target_id]' => 'Test Node',
+    ];
+    $this->drupalPostForm('media/add/' . $this->testMediaType->id(), $values, t('Save'));
 
-    // Media is not referenced, so derivatives should not fire.
-    $this->assertSession()->pageTextNotContains("Hello World!");
-
-    // Create a new node without referencing a media and confirm derivatives
-    // do not fire.
-    $this->postNodeAddForm('test_type_with_reference', ['title[0][value]' => 'Test Node'], 'Save');
-    $this->assertSession()->pageTextNotContains("Hello World!");
-
-    // Create a new node that does reference media and confirm derivatives
-    // do fire.
-    $this->postNodeAddForm(
-      'test_type_with_reference',
-      [
-        'title[0][value]' => 'Test Node 2',
-        'field_media[0][target_id]' => 'Test Media',
-      ],
-      'Save'
-    );
+    // field_media_of is set and there's a file, so derivatives should fire.
     $this->assertSession()->pageTextContains("Hello World!");
 
-    // Stash the node's url.
-    $url = $this->getUrl();
-
-    // Edit the node but not the media and confirm derivatives do not fire.
-    $this->postEntityEditForm($url, ['title[0][value]' => 'Test Node Changed'], 'Save');
+    // Change media but not file, so derivatives should not fire.
+    $values = [
+      'name[0][value]' => 'Test Media Changed',
+    ];
+    $this->postEntityEditForm($this->getUrl(), $values, 'Save');
+    $media_url = $this->getUrl();
     $this->assertSession()->pageTextNotContains("Hello World!");
 
-    // Edit the Media now that it's referenced.
-    $this->postEntityEditForm($urls['media'], ['field_image[0][alt]' => 'alt text changed'], 'Save');
+    // Change the file, so derivatives should fire again.
+    $values = [
+      'files[field_media_file_0]' => __DIR__ . '/../../fixtures/test_file2.txt',
+    ];
+    $this->drupalGet($media_url . '/edit');
+    $this->getSession()->getPage()->pressButton(t('Remove'));
+    $this->getSession()->getPage()->fillField('files[field_media_file_0]', __DIR__ . '/../../fixtures/test_file2.txt');
+    $this->getSession()->getPage()->pressButton(t('Save'));
     $this->assertSession()->pageTextContains("Hello World!");
   }
 

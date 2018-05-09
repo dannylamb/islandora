@@ -25,6 +25,9 @@ class IsTerm extends ConditionPluginBase {
     return $this->t('The entity is a Taxonomy Term');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getContextMapping() {
     $this->configuration['context_mapping'] = ['taxonomy_term' => '@islandora.taxonomy_term_route_context_provider:taxonomy_term'];
     return parent::getContextMapping();

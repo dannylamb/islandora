@@ -29,7 +29,7 @@ class FormDisplayAlterReactionTest extends IslandoraFunctionalTestBase {
 
     // Create a new node referencing the media.
     $this->postNodeAddForm(
-      'test_type_with_reference',
+      'test_type',
       [
         'title[0][value]' => 'Test Node',
       ],
@@ -40,9 +40,9 @@ class FormDisplayAlterReactionTest extends IslandoraFunctionalTestBase {
     $url = $this->getUrl();
 
     // Visit the edit url and make sure we're on the default form display
-    // (e.g. there's an autocomplete for the media field);
+    // (e.g. there's an autocomplete for the member of field);
     $this->drupalGet($url . "/edit");
-    $this->assertSession()->pageTextContains("Referenced Media");
+    $this->assertSession()->pageTextContains("Member Of");
 
     // Create a context and set the form mode to alter to "secondary".
     $this->createContext('Test', 'test');
@@ -57,7 +57,7 @@ class FormDisplayAlterReactionTest extends IslandoraFunctionalTestBase {
     // Re-visit the node and make sure we're in secondar mode (e.g. the media
     // field is not displayed).
     $this->drupalGet($url . "/edit");
-    $this->assertSession()->pageTextNotContains("Referenced Media");
+    $this->assertSession()->pageTextNotContains("Member Of");
 
   }
 

@@ -15,7 +15,6 @@ use Drupal\media\MediaTypeInterface;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -246,10 +245,10 @@ class MediaSourceService {
           $mimetype
       );
       return FALSE;
-    } else {
+    }
+    else {
       // Otherwise, the media doesn't exist yet.
       // So make everything by hand.
-
       // Get the source field for the media type.
       $bundle = $media_type->id();
       $source_field = $this->getSourceFieldName($bundle);
@@ -307,7 +306,7 @@ class MediaSourceService {
           'target_id' => $taxonomy_term->id(),
         ],
         'field_media_of' => [
-          'target_id' => $node->id(), 
+          'target_id' => $node->id(),
         ],
       ];
 

@@ -252,7 +252,8 @@ function islandora_jsonld_alter_normalized_array(EntityInterface $entity, array 
  * Implements hook_entity_view_mode_alter().
  */
 function islandora_entity_view_mode_alter(&$view_mode, EntityInterface $entity) {
-  // Change the view mode based on user input from a 'view_mode_alter' ContextReaction.
+  // Change the view mode based on user input from a 'view_mode_alter'
+  // ContextReaction.
   $storage = \Drupal::service('entity_type.manager')->getStorage('entity_view_mode');
   $context_manager = \Drupal::service('context.manager');
 
@@ -295,7 +296,8 @@ function islandora_preprocess_node(&$variables) {
  * Implements hook_entity_form_display_alter().
  */
 function islandora_entity_form_display_alter(&$form_display, $context) {
-  // Change the form display based on user input from a 'form_display_alter' ContextReaction.
+  // Change the form display based on user input from a 'form_display_alter'
+  // ContextReaction.
   $storage = \Drupal::service('entity_type.manager')->getStorage('entity_form_display');
   $context_manager = \Drupal::service('context.manager');
 

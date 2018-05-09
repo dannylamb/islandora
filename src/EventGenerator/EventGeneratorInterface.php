@@ -18,10 +18,10 @@ interface EventGeneratorInterface {
    * @param \Drupal\user\UserInterface $user
    *   The user performing the action.
    * @param array $data
-   *   Arbitrary data to include as a json encoded note. 
+   *   Arbitrary data to include as a json encoded note.
    *
-   * @return string 
-   *   Serialized event message. 
+   * @return string
+   *   Serialized event message.
    */
   public function generateEvent(EntityInterface $entity, UserInterface $user, array $data);
 

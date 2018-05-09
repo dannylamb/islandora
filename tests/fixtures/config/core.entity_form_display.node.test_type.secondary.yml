@@ -2,15 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.test_type_with_reference.field_media
-    - field.field.node.test_type_with_reference.field_node
-    - node.type.test_type_with_reference
+    - field.field.node.test_type.field_member_of
+    - node.type.test_type
   module:
     - path
     - text
-id: node.test_type_with_reference.secondary
+id: node.test_type.secondary
 targetEntityType: node
-bundle: test_type_with_reference
+bundle: test_type
 mode: secondary
 content:
   title:

@@ -12,58 +12,91 @@ use Drupal\Core\Url;
 class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
 
   /**
-   * @covers \Drupal\islandora\Controller\MediaSourceController::put
+   * Media to belong to the referencer.
+   *
+   * @var \Drupal\media\MediaInterface
    */
-  public function testMediaSourceUpdate() {
-    $account = $this->drupalCreateUser([
+  protected $media;
+
+  /**
+   * File to belong to the media.
+   *
+   * @var \Drupal\file\FileInterface
+   */
+  protected $file;
+
+  /**
+   * User.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $account;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Make a user with appropriate permissions.
+    $this->account = $this->drupalCreateUser([
       'view media',
       'create media',
       'update media',
     ]);
-    $this->drupalLogin($account);
+    $this->drupalLogin($this->account);
 
-    // Make a media and give it a png.
-    $urls = $this->createThumbnailWithFile();
-    $url = $urls['media'];
+    // Make a file for the Media.
+    $this->file = $this->container->get('entity_type.manager')->getStorage('file')->create([
+      'uid' => $this->account->id(),
+      'uri' => "public://test_file.txt",
+      'filename' => "test_file.txt",
+      'filemime' => "text/plain",
+      'status' => FILE_STATUS_PERMANENT,
+    ]);
+    $this->file->save();
 
+    // Get the source field for the media.
+    $type_configuration = $this->testMediaType->get('source_configuration');
+    $source_field = $type_configuration['source_field'];
+
+    // Make the media.
+    $this->media = $this->container->get('entity_type.manager')->getStorage('media')->create([
+      'bundle' => $this->testMediaType->id(),
+      'name' => 'Media',
+      "$source_field" => [$this->file->id()],
+    ]);
+    $this->media->save();
+  }
+
+  /**
+   * @covers \Drupal\islandora\Controller\MediaSourceController::put
+   */
+  public function testMediaSourceUpdate() {
     // Hack out the guzzle client.
     $client = $this->getSession()->getDriver()->getClient()->getClient();
 
-    // GET the media to stash its original values for comparison later.
-    $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
-      'http_errors' => FALSE,
-    ];
-    $response = $client->request('GET', $url . '?_format=json', $options);
-    $media = json_decode($response->getBody(), TRUE);
-
-    $mid = $media['mid'][0]['value'];
-    $original_mimetype = $media['field_mimetype'][0]['value'];
-    $original_width = $media['field_width'][0]['value'];
-    $original_height = $media['field_height'][0]['value'];
-    $original_image = file_get_contents($media['field_image'][0]['url']);
-
-    $media_update_url = Url::fromRoute('islandora.media_source_update', ['media' => $mid])
+    $media_update_url = Url::fromRoute('islandora.media_source_update', ['media' => $this->media->id()])
       ->setAbsolute()
       ->toString();
 
-    $image = file_get_contents(__DIR__ . '/../../fixtures/test.jpeg');
+    $file_contents = file_get_contents(__DIR__ . '/../../fixtures/test_file2.txt');
 
     // Update without Content-Type header should fail with 400.
     $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
+      'auth' => [$this->account->getUsername(), $this->account->pass_raw],
       'http_errors' => FALSE,
-      'body' => $image,
+      'body' => $file_contents,
     ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
     // Update without body should fail with 400.
     $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
+      'auth' => [$this->account->getUsername(), $this->account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
-        'Content-Type' => 'image/jpeg',
+        'Content-Type' => 'text/plain',
       ],
     ];
     $response = $client->request('PUT', $media_update_url, $options);
@@ -71,38 +104,32 @@ class MediaSourceUpdateTest extends IslandoraFunctionalTestBase {
 
     // Should be successful.
     $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
+      'auth' => [$this->account->getUsername(), $this->account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
-        'Content-Type' => 'image/jpeg',
+        'Content-Type' => 'text/plain',
       ],
-      'body' => $image,
+      'body' => $file_contents,
     ];
     $response = $client->request('PUT', $media_update_url, $options);
     $this->assertTrue($response->getStatusCode() == 204, "Expected 204, received {$response->getStatusCode()}");
 
-    // GET the media again and compare image and metadata.
+    // GET the media and compare file and metadata.
     $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
+      'auth' => [$this->account->getUsername(), $this->account->pass_raw],
       'http_errors' => FALSE,
     ];
+    $url = $this->media->url('canonical', ['absolute' => TRUE]);
     $response = $client->request('GET', $url . '?_format=json', $options);
     $updated = json_decode($response->getBody(), TRUE);
 
-    $updated_mimetype = $updated['field_mimetype'][0]['value'];
-    $updated_width = $updated['field_width'][0]['value'];
-    $updated_height = $updated['field_height'][0]['value'];
-    $updated_image = file_get_contents($updated['field_image'][0]['url']);
+    // Get the source field for the media.
+    $type_configuration = $this->testMediaType->get('source_configuration');
+    $source_field = $type_configuration['source_field'];
 
-    $this->assertTrue($original_mimetype != $updated_mimetype, "Mimetypes should be updated with media source update");
-    $this->assertTrue($original_width != $updated_width, "Width should be updated with media source update");
-    $this->assertTrue($original_height != $updated_height, "Height should be updated with media source update");
-    $this->assertTrue($original_image != $updated_image, "Image should be updated with media source update");
+    $updated_file_contents = file_get_contents($updated[$source_field][0]['url']);
 
-    $this->assertTrue($updated_mimetype == "image/jpeg", "Invalid mimetype.  Expected image/jpeg, received $updated_mimetype");
-    $this->assertTrue($updated_width == 295, "Invalid width.  Expected 295, received $updated_width");
-    $this->assertTrue($updated_height == 70, "Invalid height.  Expected 70, received $updated_height");
-    $this->assertTrue($updated_image == file_get_contents(__DIR__ . '/../../fixtures/test.jpeg'), "Updated image not the same as PUT body.");
+    $this->assertTrue($updated_file_contents == file_get_contents(__DIR__ . '/../../fixtures/test_file2.txt'), "Updated file not the same as PUT body.");
   }
 
 }

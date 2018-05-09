@@ -10,6 +10,42 @@ namespace Drupal\Tests\islandora\Functional;
 class ViewModeAlterReactionTest extends IslandoraFunctionalTestBase {
 
   /**
+   * Node that has node and term entity reference fields.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
+  protected $referencer;
+
+  /**
+   * Another similar node, to be referenced by referencer.
+   *
+   * @var \Drupal\node\NodeInterface
+   */
+  protected $referenced;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Node to be referenced via member of.
+    $this->referenced = $this->container->get('entity_type.manager')->getStorage('node')->create([
+      'type' => $this->testType->id(),
+      'title' => 'Referenced',
+    ]);
+    $this->referenced->save();
+
+    // Node that is member of something.
+    $this->referencer = $this->container->get('entity_type.manager')->getStorage('node')->create([
+      'type' => $this->testType->id(),
+      'title' => 'Referencer',
+      'field_member_of' => [$this->referenced->id()],
+    ]);
+    $this->referencer->save();
+  }
+
+  /**
    * @covers \Drupal\islandora\Plugin\ContextReaction\ViewModeAlterReaction::execute
    * @covers \Drupal\islandora\Plugin\ContextReaction\ViewModeAlterReaction::buildConfigurationForm
    * @covers \Drupal\islandora\Plugin\ContextReaction\ViewModeAlterReaction::submitConfigurationForm
@@ -27,24 +63,12 @@ class ViewModeAlterReactionTest extends IslandoraFunctionalTestBase {
     ]);
     $this->drupalLogin($account);
 
-    // Create a new media.
-    $urls = $this->createThumbnailWithFile();
-
-    // Create a new node referencing the media.
-    $this->postNodeAddForm(
-      'test_type_with_reference',
-      [
-        'title[0][value]' => 'Test Node',
-        'field_media[0][target_id]' => 'Test Media',
-      ],
-      'Save'
-    );
-
     // Stash the node's url.
-    $url = $this->getUrl();
+    $url = $this->referencer->url('canonical', ['absolute' => TRUE]);
+    $this->drupalGet($url);
 
     // Make sure we're viewing the default (e.g. the media field is displayed).
-    $this->assertSession()->pageTextContains("Referenced Media");
+    $this->assertSession()->pageTextContains("Member Of");
 
     // Create a context and set the view mode to alter to "teaser".
     $this->createContext('Test', 'test');
@@ -59,8 +83,7 @@ class ViewModeAlterReactionTest extends IslandoraFunctionalTestBase {
     // Re-visit the node and make sure we're in teaser mode (e.g. the media
     // field is not displayed).
     $this->drupalGet($url);
-    $this->assertSession()->pageTextNotContains("Referenced Media");
-
+    $this->assertSession()->pageTextNotContains("Member Of");
   }
 
 }

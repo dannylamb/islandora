@@ -37,22 +37,15 @@ class IsFileTest extends IslandoraFunctionalTestBase {
     $this->addCondition('test', 'is_file');
     $this->addPresetReaction('test', 'index', 'hello_world');
 
-    // Add a new Thumbnail media and confirm Hello World! is printed to the
+    // Add a new media and confirm Hello World! is printed to the
     // screen for the file upload.
-    $file = current($this->getTestFiles('image'));
+    $file = current($this->getTestFiles('file'));
     $values = [
       'name[0][value]' => 'Test Media',
-      'files[field_image_0]' => \Drupal::service('file_system')->realpath($file->uri),
+      'files[field_media_file_0]' => __DIR__ . '/../../fixtures/test_file.txt',
     ];
-    $this->drupalPostForm('media/add/tn', $values, t('Save and publish'));
+    $this->drupalPostForm('media/add/' . $this->testMediaType->id(), $values, t('Save'));
     $this->assertSession()->pageTextContains("Hello World!");
-
-    $values = [
-      'field_image[0][alt]' => 'Alternate text',
-    ];
-    $this->getSession()->getPage()->fillField('edit-field-image-0-alt', 'alt text');
-    $this->getSession()->getPage()->pressButton(t('Save and publish'));
-    $this->assertSession()->statusCodeEquals(200);
 
     // Stash the media's url.
     $url = $this->getUrl();
@@ -61,7 +54,7 @@ class IsFileTest extends IslandoraFunctionalTestBase {
     $values = [
       'name[0][value]' => 'Test Media Changed',
     ];
-    $this->postEntityEditForm($url, $values, 'Save and keep published');
+    $this->postEntityEditForm($url, $values, 'Save');
 
     // Confirm Hello World! is not printed to the screen.
     $this->assertSession()->pageTextNotContains("Hello World!");

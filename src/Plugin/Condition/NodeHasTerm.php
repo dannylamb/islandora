@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\islandora\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
@@ -11,23 +7,20 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\islandora\IslandoraUtils;
-use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
-* Provides a 'Term' condition for nodes.
-*
-* @Condition(
-*   id = "node_has_term",
-*   label = @Translation("Node has term"),
-*   context = {
-*     "node" = @ContextDefinition("entity:node", required = TRUE , label = @Translation("node"))
-*   }
-* )
-*
-*/
+ * Provides a 'Term' condition for nodes.
+ *
+ * @Condition(
+ *   id = "node_has_term",
+ *   label = @Translation("Node has term"),
+ *   context = {
+ *     "node" = @ContextDefinition("entity:node", required = TRUE , label = @Translation("node"))
+ *   }
+ * )
+ */
 class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
@@ -90,14 +83,14 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form['term'] = array(
+    $form['term'] = [
       '#type' => 'entity_autocomplete',
       '#title' => $this->t('Term'),
       '#tags' => TRUE,
       '#required' => TRUE,
       '#default_value' => $this->utils->getTermForUri($this->configuration['uri']),
       '#target_type' => 'taxonomy_term',
-    );
+    ];
 
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -143,8 +136,7 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
   protected function evaluateEntity(EntityInterface $entity) {
     foreach ($entity->referencedEntities() as $referenced_entity) {
       if ($referenced_entity->getEntityTypeId() == 'taxonomy_term'
-        && $referenced_entity->hasField(IslandoraUtils::EXTERNAL_URI_FIELD))
-      {
+        && $referenced_entity->hasField(IslandoraUtils::EXTERNAL_URI_FIELD)) {
         $field = $referenced_entity->get(IslandoraUtils::EXTERNAL_URI_FIELD);
         if (!$field->isEmpty()) {
           $link = $field->first()->getValue();
@@ -161,14 +153,13 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  public function summary()
-  {
+  public function summary() {
     if (!empty($this->configuration['negate'])) {
-      return $this->t('The node is not associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
+      return $this->t('The node is not associated with taxonomy term with uri @uri.', ['@uri' => $this->configuration['uri']]);
     }
     else {
-      return $this->t('The node is associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
+      return $this->t('The node is associated with taxonomy term with uri @uri.', ['@uri' => $this->configuration['uri']]);
     }
- }
+  }
 
 }

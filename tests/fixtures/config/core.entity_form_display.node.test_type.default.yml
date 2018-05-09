@@ -2,15 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.test_type_with_reference.field_media
-    - field.field.node.test_type_with_reference.field_node
-    - node.type.test_type_with_reference
+    - field.field.node.test_type.field_member_of
+    - node.type.test_type
   module:
     - path
     - text
-id: node.test_type_with_reference.default
+id: node.test_type.default
 targetEntityType: node
-bundle: test_type_with_reference
+bundle: test_type
 mode: default
 content:
   created:
@@ -19,16 +18,7 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_media:
-    weight: 123
-    settings:
-      match_operator: CONTAINS
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-    type: entity_reference_autocomplete
-    region: content
-  field_node:
+  field_member_of:
     weight: 122
     settings:
       match_operator: CONTAINS

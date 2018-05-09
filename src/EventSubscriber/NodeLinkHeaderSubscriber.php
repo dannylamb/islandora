@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\islandora\IslandoraUtils;
-use Drupal\media\MediaInterface;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -95,9 +94,12 @@ class NodeLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubs
     $response->headers->set('Link', $links, FALSE);
   }
 
+  /**
+   * Generates link headrs for media asssociated with a node.
+   */
   protected function generateRelatedMediaLinks(NodeInterface $node) {
     $links = [];
-    foreach($this->utils->getMedia($node) as $media) {
+    foreach ($this->utils->getMedia($node) as $media) {
       $url = $media->url('canonical', ['absolute' => TRUE]);
       foreach ($media->referencedEntities() as $term) {
         if ($term->getEntityTypeId() == 'taxonomy_term' && $term->hasField('field_external_uri')) {
@@ -113,6 +115,7 @@ class NodeLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSubs
         }
       }
     }
-    return $links; 
+    return $links;
   }
+
 }

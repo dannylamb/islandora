@@ -157,6 +157,9 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
     }
   }
 
+  /**
+   * Override this function to control what gets encoded as a json note.
+   */
   protected function generateData($entity) {
     return $this->configuration;
   }

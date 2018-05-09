@@ -4,13 +4,13 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-    - node.type.test_type_with_reference
+    - node.type.test_type
   module:
     - text
     - user
-id: node.test_type_with_reference.teaser
+id: node.test_type.teaser
 targetEntityType: node
-bundle: test_type_with_reference
+bundle: test_type
 mode: teaser
 content:
 hidden:

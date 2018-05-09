@@ -1,25 +1,18 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\islandora\Plugin\Condition;
 
-use Drupal\islandora\IslandoraUtils;
-
 /**
-* Provides a 'Term' condition for Media.
-*
-* @Condition(
-*   id = "parent_node_has_term",
-*   label = @Translation("Parent node for media has term"),
-*   context = {
-*     "media" = @ContextDefinition("entity:media", required = TRUE , label = @Translation("media"))
-*   }
-* )
-*
-*/
+ * Provides a 'Term' condition for Media.
+ *
+ * @Condition(
+ *   id = "parent_node_has_term",
+ *   label = @Translation("Parent node for media has term"),
+ *   context = {
+ *     "media" = @ContextDefinition("entity:media", required = TRUE , label = @Translation("media"))
+ *   }
+ * )
+ */
 class ParentNodeHasTerm extends NodeHasTerm {
 
   /**
@@ -40,17 +33,13 @@ class ParentNodeHasTerm extends NodeHasTerm {
   /**
    * {@inheritdoc}
    */
-  public function summary()
-  {
+  public function summary() {
     if (!empty($this->configuration['negate'])) {
-      return $this->t('The parent node is not associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
+      return $this->t('The parent node is not associated with taxonomy term with uri @uri.', ['@uri' => $this->configuration['uri']]);
     }
     else {
-      return $this->t('The parent node is associated with taxonomy term with uri @uri.', array('@uri' => $this->configuration['uri']));
+      return $this->t('The parent node is associated with taxonomy term with uri @uri.', ['@uri' => $this->configuration['uri']]);
     }
   }
 
 }
-
-
-

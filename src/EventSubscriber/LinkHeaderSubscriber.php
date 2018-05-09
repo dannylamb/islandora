@@ -209,7 +209,8 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
               }
             }
             $title = $referencedEntity->label();
-          } else {
+          }
+          else {
             // If it's not a taxonomy term, referenced entity link
             // headers take the form
             // <url>; rel="related"; title="Field Label"

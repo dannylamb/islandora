@@ -4,10 +4,11 @@ namespace Drupal\Tests\islandora\Functional;
 
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
 use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\link\LinkItemInterface;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
+use Drupal\Tests\media\Functional\MediaFunctionalTestCreateMediaTypeTrait;
 
 /**
  * Base class for Functional tests.
@@ -16,6 +17,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
 
   use EntityReferenceTestTrait;
   use TestFileCreationTrait;
+  use MediaFunctionalTestCreateMediaTypeTrait;
 
   protected static $modules = ['context_ui', 'islandora'];
 
@@ -28,18 +30,17 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
     'key.key.test',
   ];
 
+  protected $testType;
+
+  protected $testMediaType;
+
+  protected $testVocabulary;
+
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
-
-    // Delete the context entities provided by the module.
-    // This will get removed as we split apart contexts into different
-    // solution packs.
-    $this->container->get('entity_type.manager')->getStorage('context')->load('node')->delete();
-    $this->container->get('entity_type.manager')->getStorage('context')->load('media')->delete();
-    $this->container->get('entity_type.manager')->getStorage('context')->load('file')->delete();
 
     // Delete the node rest config that's bootstrapped with Drupal.
     $this->container->get('entity_type.manager')->getStorage('rest_resource_config')->load('entity.node')->delete();
@@ -107,24 +108,44 @@ EOD;
     ]);
     $hello_world->save();
 
+    // Create a vocabulary.
+    $this->testVocabulary = $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->create([
+      'name' => 'Test Vocabulary',
+      'vid' => 'test_vocabulary',
+    ]);
+    $this->testVocabulary->save();
+
+    // Create an external_uri field for taxonomy terms.
+    $fieldStorage = $this->container->get('entity_type.manager')->getStorage('field_storage_config')->create([
+      'field_name' => 'field_external_uri',
+      'entity_type' => 'taxonomy_term',
+      'type' => 'link',
+    ]);
+    $fieldStorage->save();
+    $field = $this->container->get('entity_type.manager')->getStorage('field_config')->create([
+      'field_storage' => $fieldStorage,
+      'bundle' => $this->testVocabulary->id(),
+      'settings' => [
+        'title' => 'External URI',
+        'link_type' => LinkItemInterface::LINK_EXTERNAL,
+      ],
+    ]);
+    $field->save();
+
     // Create a test content type.
-    $test_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
+    $this->testType = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
       'type' => 'test_type',
       'name' => 'Test Type',
     ]);
-    $test_type->save();
+    $this->testType->save();
+    $this->createEntityReferenceField('node', 'test_type', 'field_member_of', 'Member Of', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('node', 'test_type', 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
 
-    // Create a test content type.
-    $test_type_with_reference = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
-      'type' => 'test_type_with_reference',
-      'name' => 'Test Type With Reference',
-    ]);
-    $test_type_with_reference->save();
-
-    // Add two entity reference fields.
-    // One for nodes and one for media.
-    $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_node', 'Referenced Node', 'node', 'default', [], 2);
-    $this->createEntityReferenceField('node', 'test_type_with_reference', 'field_media', 'Referenced Media', 'media', 'default', [], 2);
+    // Create a media type.
+    $this->testMediaType = $this->createMediaType(['bundle' => 'test_media_type'], 'file');
+    $this->testMediaType->save();
+    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_media_of', 'Media Of', 'node', 'default', [], 2);
+    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
 
     // Copy over the rest of the config from yml files.
     $source = new FileStorage(__DIR__ . '/../../fixtures/config');
@@ -167,39 +188,6 @@ EOD;
   }
 
   /**
-   * Creates a new TN media with a file.
-   */
-  protected function createThumbnailWithFile() {
-    // Have to do this in two steps since there's no ajax for the alt text.
-    // It's as annoying as in real life.
-    $file = current($this->getTestFiles('image'));
-    $values = [
-      'name[0][value]' => 'Test Media',
-      'files[field_image_0]' => \Drupal::service('file_system')->realpath($file->uri),
-    ];
-    $this->drupalPostForm('media/add/tn', $values, t('Save and publish'));
-    $values = [
-      'field_image[0][alt]' => 'Alternate text',
-    ];
-    $this->getSession()->getPage()->fillField('edit-field-image-0-alt', 'alt text');
-    $this->getSession()->getPage()->pressButton(t('Save and publish'));
-    $this->assertSession()->statusCodeEquals(200);
-    $results = $this->container->get('entity_type.manager')->getStorage('file')->loadByProperties(['filename' => $file->filename]);
-    $file_entity = reset($results);
-    $file_url = $file_entity->url('canonical', ['absolute' => TRUE]);
-    $rest_url = Url::fromRoute('islandora.media_source_update', ['media' => $file_entity->id()])
-      ->setAbsolute()
-      ->toString();
-    return [
-      'media' => $this->getUrl(),
-      'file' => [
-        'file' => $file_url,
-        'rest' => $rest_url,
-      ],
-    ];
-  }
-
-  /**
    * Create a new node by posting its add form.
    */
   protected function postNodeAddForm($bundle_id, $values, $button_text) {
@@ -226,6 +214,10 @@ EOD;
    */
   protected function doesNotHaveLinkHeader($rel) {
     $headers = $this->getSession()->getResponseHeaders();
+
+    if (!isset($headers['Link'])) {
+      return TRUE;
+    }
 
     foreach ($headers['Link'] as $link_header) {
       if (strpos($link_header, "rel=\"$rel\"") !== FALSE) {

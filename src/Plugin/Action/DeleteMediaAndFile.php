@@ -2,7 +2,6 @@
 
 namespace Drupal\islandora\Plugin\Action;
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Action\ActionBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -23,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DeleteMediaAndFile extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Media source service
+   * Media source service.
    *
    * @var \Drupal\islandora\MediaSource\MediaSourceService
    */
@@ -44,7 +43,7 @@ class DeleteMediaAndFile extends ActionBase implements ContainerFactoryPluginInt
   protected $logger;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -53,9 +52,11 @@ class DeleteMediaAndFile extends ActionBase implements ContainerFactoryPluginInt
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\islandora\MediaSource\MediaSourceService $media_source_service
-   *   Media source service
-   * @param \Drupal\Core\Database\Connection $database
+   *   Media source service.
+   * @param \Drupal\Core\Database\Connection $connection
    *   Database connection.
+   * @param Psr\Log\LoggerInterface $logger
+   *   Logger.
    */
   public function __construct(
     array $configuration,
@@ -97,8 +98,8 @@ class DeleteMediaAndFile extends ActionBase implements ContainerFactoryPluginInt
 
     try {
       // Delete all the source files and then the media.
-      $source_field = $this->getSourceFieldName($media->bundle());
-      foreach ($media->get($source_field)->referencedEntities() as $file) {
+      $source_field = $this->mediaSourceService->getSourceFieldName($entity->bundle());
+      foreach ($entity->get($source_field)->referencedEntities() as $file) {
         $file->delete();
       }
       $entity->delete();
@@ -117,4 +118,3 @@ class DeleteMediaAndFile extends ActionBase implements ContainerFactoryPluginInt
   }
 
 }
-

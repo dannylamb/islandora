@@ -11,6 +11,7 @@ dependencies:
   - path
   - text
   - options
+  - link
   - jsonld
   - search_api
   - jwt
@@ -25,6 +26,5 @@ dependencies:
   - media
   - prepopulate
   - features_ui
-  - permissions_by_term
   - migrate_tools
   - migrate_source_csv

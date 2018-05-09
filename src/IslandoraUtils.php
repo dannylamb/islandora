@@ -7,7 +7,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\file\FileInterface;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
@@ -23,8 +22,8 @@ use Drupal\taxonomy\TermInterface;
  */
 class IslandoraUtils {
 
-  const MEDIA_OF_FIELD = 'field_media_of';
   const EXTERNAL_URI_FIELD = 'field_external_uri';
+  const MEDIA_OF_FIELD = 'field_media_of';
   const TAGS_FIELD = 'field_tags';
 
   /**
@@ -93,7 +92,7 @@ class IslandoraUtils {
   /**
    * Gets nodes that a media belongs to.
    *
-   * @param MediaInterface $media
+   * @param \Drupal\media\MediaInterface $media
    *   The Media whose node you are searching for.
    *
    * @return \Drupal\node\NodeInterface
@@ -119,11 +118,17 @@ class IslandoraUtils {
    * @param \Drupal\node\NodeInterface $node
    *   The parent node.
    *
-   * @return MediaInterface[]
+   * @return \Drupal\media\MediaInterface[]
    *   The children Media.
    */
   public function getMedia(NodeInterface $node) {
+    if (!$this->entityTypeManager->getStorage('field_storage_config')->load('media.' . self::MEDIA_OF_FIELD)) {
+      return [];
+    }
     $mids = $this->entityQuery->get('media')->condition(self::MEDIA_OF_FIELD, $node->id())->execute();
+    if (empty($mids)) {
+      return [];
+    }
     return $this->entityTypeManager->getStorage('media')->loadMultiple($mids);
   }
 
@@ -135,7 +140,7 @@ class IslandoraUtils {
    * @param \Drupal\taxonomy\TermInterface $term
    *   Taxonomy term.
    *
-   * @return MediaInterface
+   * @return \Drupal\media\MediaInterface
    *   The child Media.
    */
   public function getMediaWithTerm(NodeInterface $node, TermInterface $term) {
@@ -188,7 +193,7 @@ class IslandoraUtils {
    * @param string $uri
    *   External uri.
    *
-   * @return \Drupal\taxonomy\TermInterface|NULL
+   * @return \Drupal\taxonomy\TermInterface|null
    *   Term or NULL if not found.
    */
   public function getTermForUri($uri) {
@@ -197,7 +202,7 @@ class IslandoraUtils {
       ->execute();
 
     if (empty($results)) {
-      return NULL; 
+      return NULL;
     }
     return $this->entityTypeManager->getStorage('taxonomy_term')->load(reset($results));
   }
@@ -208,7 +213,7 @@ class IslandoraUtils {
    * @param \Drupal\taxonomy\TermInterface $term
    *   Taxonomy term.
    *
-   * @return string|NULL
+   * @return string|null
    *   URI or NULL if not found.
    */
   public function getUriForTerm(TermInterface $term) {
