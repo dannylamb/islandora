@@ -32,6 +32,10 @@ fieldMappings:
   field_mimetype:
     properties:
       - 'ebucore:hasMimeType'
+  field_media_of:
+    properties:
+      - 'pcdm:fileOf'
+    mapping_type: rel
   field_tags:
     properties:
       - 'schema:additionalType'
