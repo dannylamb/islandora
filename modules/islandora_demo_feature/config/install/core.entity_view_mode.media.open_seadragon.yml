@@ -1,0 +1,12 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - media
+  enforced:
+    module:
+      - islandora_demo_feature
+id: media.open_seadragon
+label: 'Open Seadragon'
+targetEntityType: media
+cache: true

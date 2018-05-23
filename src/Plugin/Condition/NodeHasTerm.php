@@ -83,12 +83,18 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    if (isset($this->configuration['uri']) && !empty($this->configuration['uri'])) {
+      $default = $this->utils->getTermForUri($this->configuration['uri']);
+    } else {
+      $default = NULL;
+    }
+
     $form['term'] = [
       '#type' => 'entity_autocomplete',
       '#title' => $this->t('Term'),
       '#tags' => TRUE,
       '#required' => TRUE,
-      '#default_value' => $this->utils->getTermForUri($this->configuration['uri']),
+      '#default_value' => $default,
       '#target_type' => 'taxonomy_term',
     ];
 
