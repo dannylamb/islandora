@@ -85,7 +85,8 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     if (isset($this->configuration['uri']) && !empty($this->configuration['uri'])) {
       $default = $this->utils->getTermForUri($this->configuration['uri']);
-    } else {
+    }
+    else {
       $default = NULL;
     }
 
