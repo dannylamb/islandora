@@ -1,11 +1,6 @@
 # Islandora Services
 # islandora.services.yml:
 services:
-  islandora.paramconverter.entity:
-    class: Drupal\islandora\ParamConverter\UuidEntityConverter
-    tags:
-      - { name: paramconverter }
-    arguments: ['@entity.manager']
   islandora.eventgenerator:
     class: Drupal\islandora\EventGenerator\EventGenerator
   islandora.stomp:
@@ -32,9 +27,6 @@ services:
     class: Drupal\islandora\EventSubscriber\AdminViewsRouteSubscriber
     tags:
       - { name: event_subscriber }
-  islandora.versioncounter:
-    class: Drupal\islandora\VersionCounter\VersionCounter
-    arguments: ['@database']
   logger.channel.islandora:
       parent: logger.channel_base
       arguments: ['islandora']
