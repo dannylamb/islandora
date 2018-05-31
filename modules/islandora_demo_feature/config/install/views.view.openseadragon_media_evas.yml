@@ -3,14 +3,14 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.media.open_seadragon
+  enforced:
+    module:
+      - islandora_demo_feature
   module:
     - eva
     - media
     - taxonomy
     - user
-  enforced:
-    module:
-      - islandora_demo_feature
 id: openseadragon_media_evas
 label: 'OpenSeadragon Media EVAs'
 module: views

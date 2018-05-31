@@ -9,11 +9,11 @@ dependencies:
     - field.field.media.file.field_mime_type
     - field.field.media.file.field_tags
     - media.type.file
-  module:
-    - openseadragon
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - openseadragon
 id: media.file.open_seadragon
 targetEntityType: media
 bundle: file

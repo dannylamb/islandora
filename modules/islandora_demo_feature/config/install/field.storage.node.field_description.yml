@@ -6,9 +6,6 @@ dependencies:
       - islandora
   module:
     - node
-  enforced:
-    module:
-      - islandora_demo_feature
 id: node.field_description
 field_name: field_description
 entity_type: node

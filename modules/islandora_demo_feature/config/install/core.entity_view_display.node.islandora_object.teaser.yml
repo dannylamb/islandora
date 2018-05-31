@@ -7,11 +7,11 @@ dependencies:
     - field.field.node.islandora_object.field_member_of
     - field.field.node.islandora_object.field_tags
     - node.type.islandora_object
-  module:
-    - user
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - user
 id: node.islandora_object.teaser
 targetEntityType: node
 bundle: islandora_object
