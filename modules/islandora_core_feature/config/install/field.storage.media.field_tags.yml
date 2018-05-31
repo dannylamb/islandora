@@ -1,12 +1,12 @@
 langcode: en
 status: true
 dependencies:
+  enforced:
+    module:
+      - islandora_core_feature
   module:
     - media
     - taxonomy
-  enforced:
-    module:
-      - islandora_core_feature 
 id: media.field_tags
 field_name: field_tags
 entity_type: media

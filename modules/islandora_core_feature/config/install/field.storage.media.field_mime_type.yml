@@ -1,11 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - media
   enforced:
     module:
-      - islandora_core_feature 
+      - islandora_core_feature
+  module:
+    - media
 id: media.field_mime_type
 field_name: field_mime_type
 entity_type: media

@@ -9,11 +9,11 @@ dependencies:
     - field.field.media.audio.field_mime_type
     - field.field.media.audio.field_tags
     - media.type.audio
-  module:
-    - file
   enforced:
     module:
       - islandora_core_feature
+  module:
+    - file
 id: media.audio.source
 targetEntityType: media
 bundle: audio

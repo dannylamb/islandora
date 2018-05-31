@@ -3,11 +3,11 @@ status: true
 dependencies:
   config:
     - taxonomy.vocabulary.tags
-  module:
-    - taxonomy
   enforced:
     module:
-      - islandora_core_feature 
+      - islandora_core_feature
+  module:
+    - taxonomy
 id: taxonomy_term.tags
 targetEntityType: taxonomy_term
 bundle: tags

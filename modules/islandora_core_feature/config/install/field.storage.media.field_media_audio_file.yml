@@ -1,12 +1,12 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - file
-    - media
   enforced:
     module:
       - islandora_core_feature
+  module:
+    - file
+    - media
 id: media.field_media_audio_file
 field_name: field_media_audio_file
 entity_type: media
