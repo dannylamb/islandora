@@ -16,10 +16,10 @@ types:
 fieldMappings:
   name:
     properties:
-      - 'schema:name'
+      - 'dc:title'
   description:
     properties:
-      - 'schema:description'
+      - 'dc:description'
   field_external_uri:
     properties:
       - 'owl:sameAs'
