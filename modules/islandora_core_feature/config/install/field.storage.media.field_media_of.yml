@@ -1,12 +1,21 @@
 langcode: en
 status: true
 dependencies:
+<<<<<<< HEAD:modules/islandora_core_feature/config/install/field.storage.media.field_media_of.yml
   module:
     - media
     - node
   enforced:
     module:
       - islandora_core_feature 
+=======
+  enforced:
+    module:
+      - islandora_core_feature
+  module:
+    - media
+    - node
+>>>>>>> a1987ae... Content modeling overhaul (#86):modules/islandora_core_feature/config/install/field.storage.media.field_media_of.yml
 id: media.field_media_of
 field_name: field_media_of
 entity_type: media

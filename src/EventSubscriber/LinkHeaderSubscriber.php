@@ -39,16 +39,16 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
   /**
    * The access manager.
    *
-   * @var \Drupal\Core\Access\AccessManager
+   * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  protected $accessManager;
+  protected $routeMatch;
 
   /**
-   * The current user.
+   * Request stack (for current request).
    *
-   * @var \Drupal\Core\Session\AccountInterface
+   * @var Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $account;
+  protected $requestStack;
 
   /**
    * The route match object.
@@ -247,7 +247,7 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
     $route_name = $this->routeMatch->getRouteName();
 
     if ($rest_resource_config) {
-      $configuration = $rest_resource_config->get('configuration');
+      $formats = $rest_resource_config->getFormats("GET");
 
       foreach ($formats as $format) {
         if ($format == $current_format) {

@@ -3,11 +3,11 @@ status: true
 dependencies:
   config:
     - taxonomy.vocabulary.tags
-  module:
-    - taxonomy
   enforced:
     module:
-      - islandora_core_feature 
+      - islandora_core_feature
+  module:
+    - taxonomy
 id: taxonomy_term.tags
 targetEntityType: taxonomy_term
 bundle: tags
@@ -16,10 +16,17 @@ types:
 fieldMappings:
   name:
     properties:
+<<<<<<< HEAD
       - 'schema:name'
   description:
     properties:
       - 'schema:description'
+=======
+      - 'dc:title'
+  description:
+    properties:
+      - 'dc:description'
+>>>>>>> a1987ae... Content modeling overhaul (#86)
   field_external_uri:
     properties:
       - 'owl:sameAs'

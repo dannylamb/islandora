@@ -65,17 +65,6 @@ class MediaLinkHeaderSubscriber extends LinkHeaderSubscriber implements EventSub
       $links[] = "<$edit_media_url>; rel=\"edit-media\"";
     }
 
-    $links = [];
-
-    $update_route_name = 'islandora.media_source_update';
-    $update_route_params = ['media' => $media->id()];
-    if ($this->accessManager->checkNamedRoute($update_route_name, $update_route_params, $this->account)) {
-      $edit_media_url = Url::fromRoute($update_route_name, $update_route_params)
-        ->setAbsolute()
-        ->toString();
-      $links[] = "<$edit_media_url>; rel=\"edit-media\"";
-    }
-
     if (!isset($type_configuration['source_field'])) {
       return $links;
     }

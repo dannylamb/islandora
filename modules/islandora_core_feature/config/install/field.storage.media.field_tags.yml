@@ -6,7 +6,14 @@ dependencies:
     - taxonomy
   enforced:
     module:
+<<<<<<< HEAD:modules/islandora_core_feature/config/install/field.storage.media.field_tags.yml
       - islandora_core_feature 
+=======
+      - islandora_core_feature
+  module:
+    - media
+    - taxonomy
+>>>>>>> a1987ae... Content modeling overhaul (#86):modules/islandora_core_feature/config/install/field.storage.media.field_tags.yml
 id: media.field_tags
 field_name: field_tags
 entity_type: media

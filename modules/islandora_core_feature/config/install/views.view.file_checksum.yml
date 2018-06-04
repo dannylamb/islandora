@@ -3,14 +3,11 @@ status: true
 dependencies:
   enforced:
     module:
-      - islandora
+      - islandora_core_feature
   module:
     - file
     - rest
     - serialization
-  enforced:
-    module:
-      - islandora_core_feature
 id: file_checksum
 label: 'File Checksum'
 module: views

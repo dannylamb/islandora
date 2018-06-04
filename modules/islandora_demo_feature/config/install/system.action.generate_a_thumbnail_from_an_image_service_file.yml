@@ -1,11 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora_image
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - islandora_image
 id: generate_a_thumbnail_from_an_image_service_file
 label: 'Generate a thumbnail from an image service file'
 type: node

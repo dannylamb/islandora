@@ -1,11 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - islandora
 name: image_service_file
 label: 'Image Service File'
 group: Islandora

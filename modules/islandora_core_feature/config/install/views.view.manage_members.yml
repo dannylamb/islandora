@@ -1,15 +1,15 @@
 langcode: en
 status: true
 dependencies:
+  enforced:
+    module:
+      - islandora_core_feature
   module:
     - jsonld
     - node
     - rest
     - serialization
     - user
-  enforced:
-    module:
-      - islandora_core_feature
 id: manage_members
 label: 'Manage members'
 module: views
@@ -258,11 +258,15 @@ display:
             sort_order: asc
             number_of_records: 0
             format: default_summary
-          specify_validation: false
+          specify_validation: true
           validate:
-            type: none
+            type: 'entity:node'
             fail: 'not found'
-          validate_options: {  }
+          validate_options:
+            operation: view
+            multiple: 0
+            bundles: {  }
+            access: false
           break_phrase: false
           not: false
           plugin_id: numeric

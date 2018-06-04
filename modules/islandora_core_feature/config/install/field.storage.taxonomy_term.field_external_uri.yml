@@ -1,12 +1,12 @@
 langcode: en
 status: true
 dependencies:
+  enforced:
+    module:
+      - islandora_core_feature
   module:
     - link
     - taxonomy
-  enforced:
-    module:
-      - islandora_core_feature 
 id: taxonomy_term.field_external_uri
 field_name: field_external_uri
 entity_type: taxonomy_term

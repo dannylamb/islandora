@@ -3,12 +3,12 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-  module:
-    - node
-    - user
   enforced:
     module:
       - islandora_core_feature
+  module:
+    - node
+    - user
 id: members
 label: Members
 module: views

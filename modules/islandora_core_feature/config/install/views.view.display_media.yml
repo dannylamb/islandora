@@ -3,14 +3,14 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.media.source
+  enforced:
+    module:
+      - islandora_core_feature
   module:
     - eva
     - media
     - taxonomy
     - user
-  enforced:
-    module:
-      - islandora_core_feature
 id: display_media
 label: 'Media EVAs'
 module: views

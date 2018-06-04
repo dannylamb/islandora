@@ -4,11 +4,11 @@ dependencies:
   config:
     - field.storage.taxonomy_term.field_external_uri
     - taxonomy.vocabulary.tags
-  module:
-    - link
   enforced:
     module:
       - islandora_core_feature
+  module:
+    - link
 id: taxonomy_term.tags.field_external_uri
 field_name: field_external_uri
 entity_type: taxonomy_term

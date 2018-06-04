@@ -3,11 +3,11 @@ status: true
 dependencies:
   config:
     - media.type.image
-  module:
-    - media
   enforced:
     module:
-      - islandora_core_feature 
+      - islandora_core_feature
+  module:
+    - media
 id: media.image
 targetEntityType: media
 bundle: image
@@ -32,7 +32,11 @@ fieldMappings:
     properties:
       - 'schema:author'
     mapping_type: rel
+<<<<<<< HEAD
   field_mimetype:
+=======
+  field_mime_type:
+>>>>>>> a1987ae... Content modeling overhaul (#86)
     properties:
       - 'ebucore:hasMimeType'
   field_media_of:

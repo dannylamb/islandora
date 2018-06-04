@@ -3,7 +3,7 @@ status: true
 dependencies:
   enforced:
     module:
-      - islandora_core_feature 
+      - islandora_core_feature
 id: video
 label: Video
 description: 'A locally hosted video file.'

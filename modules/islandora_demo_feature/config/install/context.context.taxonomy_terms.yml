@@ -1,11 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - islandora
 name: taxonomy_terms
 label: 'Taxonomy Terms'
 group: Islandora

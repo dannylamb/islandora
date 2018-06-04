@@ -3,9 +3,6 @@ status: true
 dependencies:
   module:
     - node
-  enforced:
-    module:
-      - islandora_demo_feature
 id: node.teaser
 label: Teaser
 targetEntityType: node

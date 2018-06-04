@@ -11,11 +11,11 @@ dependencies:
     - field.field.media.image.field_tags
     - field.field.media.image.field_width
     - media.type.image
-  module:
-    - image
   enforced:
     module:
       - islandora_core_feature
+  module:
+    - image
 id: media.image.source
 targetEntityType: media
 bundle: image

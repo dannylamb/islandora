@@ -1,11 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - islandora_image
   enforced:
     module:
       - islandora_demo_feature
+  module:
+    - islandora_image
 id: generate_a_service_file_from_preservation_master
 label: 'Generate a service file from image preservation master'
 type: node

@@ -4,15 +4,15 @@ dependencies:
   config:
     - field.storage.media.field_mime_type
     - field.storage.media.field_tags
+  enforced:
+    module:
+      - islandora_core_feature
   module:
     - jsonld
     - media
     - rest
     - serialization
     - user
-  enforced:
-    module:
-      - islandora_core_feature
 id: media_of
 label: 'Manage media'
 module: views
@@ -452,11 +452,15 @@ display:
             sort_order: asc
             number_of_records: 0
             format: default_summary
-          specify_validation: false
+          specify_validation: true
           validate:
-            type: none
+            type: 'entity:node'
             fail: 'not found'
-          validate_options: {  }
+          validate_options:
+            operation: view
+            multiple: 0
+            bundles: {  }
+            access: false
           break_phrase: false
           not: false
           plugin_id: numeric

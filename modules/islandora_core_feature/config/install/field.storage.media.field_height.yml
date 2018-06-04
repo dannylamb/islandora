@@ -1,11 +1,19 @@
 langcode: en
 status: true
 dependencies:
+<<<<<<< HEAD:modules/islandora_core_feature/config/install/field.storage.media.field_height.yml
   module:
     - media
   enforced:
     module:
       - islandora_core_feature
+=======
+  enforced:
+    module:
+      - islandora_core_feature
+  module:
+    - media
+>>>>>>> a1987ae... Content modeling overhaul (#86):modules/islandora_core_feature/config/install/field.storage.media.field_height.yml
 id: media.field_height
 field_name: field_height
 entity_type: media
