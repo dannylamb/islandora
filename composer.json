@@ -16,7 +16,7 @@
   ],
   "require": {
     "drupal/context": "^4.0",
-    "drupal/search_api": "^1.8",
+    "drupal/search_api": "~1.8",
     "islandora/jsonld": "dev-8.x-1.x",
     "stomp-php/stomp-php": "4.*",
     "drupal/jwt": "1.0.0-alpha6",
@@ -30,7 +30,7 @@
     "drupal/permissions_by_term" : "^1.51"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8",
+    "phpunit/phpunit": "^6",
     "squizlabs/php_codesniffer": "2.7.1",
     "drupal/coder": "*",
     "sebastian/phpcpd": "*"
