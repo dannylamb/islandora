@@ -22,10 +22,6 @@ conditions:
     uuid: 640d52cd-7cd5-4d9e-837d-c93b2deb814e
     context_mapping:
       node: '@node.node_route_context:node'
-  node_has_term:
-    id: node_has_term
-    negate: false
-    uuid: 4852a60d-06ef-4c8c-b983-98218db82111
 reactions:
   index:
     id: index
