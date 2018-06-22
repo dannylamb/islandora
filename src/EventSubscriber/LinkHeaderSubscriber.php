@@ -203,9 +203,9 @@ abstract class LinkHeaderSubscriber implements EventSubscriberInterface {
             $rel = "tag";
             $entity_url = $referencedEntity->url('canonical', ['absolute' => TRUE]);
             if ($referencedEntity->hasField('field_external_uri')) {
-              $external_uri = $referencedEntity->get('field_external_uri')->first()->getValue()['uri'];
-              if (!empty($external_uri)) {
-                $entity_url = $external_uri;
+              $external_uri = $referencedEntity->get('field_external_uri')->getValue();
+              if (!empty($external_uri) && isset($external_uri[0]['uri'])) {
+                $entity_url = $external_uri[0]['uri'];
               }
             }
             $title = $referencedEntity->label();
