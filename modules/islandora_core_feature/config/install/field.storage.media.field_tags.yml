@@ -1,9 +1,6 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - media
-    - taxonomy
   enforced:
     module:
 <<<<<<< HEAD:modules/islandora_core_feature/config/install/field.storage.media.field_tags.yml

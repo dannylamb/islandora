@@ -6,9 +6,6 @@ dependencies:
       - islandora_demo_feature
   module:
     - islandora
-  enforced:
-    module:
-      - islandora_demo_feature
 name: media
 label: Media
 group: Islandora
