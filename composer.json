@@ -27,7 +27,8 @@
     "drupal/migrate_plus" : "4.0-beta3",
     "drupal/migrate_tools" : "4.0-beta3",
     "drupal/migrate_source_csv" : "^2.1",
-    "drupal/permissions_by_term" : "^1.51"
+    "drupal/permissions_by_term" : "^1.51",
+    "drupal/flysystem" : "^1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^6",

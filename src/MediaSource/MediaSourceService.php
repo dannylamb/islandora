@@ -5,6 +5,7 @@ namespace Drupal\islandora\MediaSource;
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\File\FileSystem;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
@@ -52,18 +53,18 @@ class MediaSourceService {
   protected $languageManager;
 
   /**
-   * Token service.
-   *
-   * @var \Drupal\Core\Utility\Token
-   */
-  protected $token;
-
-  /**
    * Entity query.
    *
    * @var \Drupal\Core\Entity\Query\QueryFactory
    */
   protected $entityQuery;
+
+  /**
+   * File system service.
+   *
+   * @var \Drupal\Core\File\FileSystem
+   */
+  protected $fileSystem;
 
   /**
    * Constructor.
@@ -76,25 +77,25 @@ class MediaSourceService {
    *   Stream wrapper manager.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   Language manager.
-   * @param \Drupal\Core\Utility\Token $token
-   *   Token service.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
    *   Entity query.
+   * @param \Drupal\Core\File\FileSystem $file_system
+   *   File system service.
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
     AccountInterface $account,
     StreamWrapperManager $stream_wrapper_manager,
     LanguageManagerInterface $language_manager,
-    Token $token,
-    QueryFactory $entity_query
+    QueryFactory $entity_query,
+    FileSystem $file_system
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->account = $account;
     $this->streamWrapperManager = $stream_wrapper_manager;
     $this->languageManager = $language_manager;
-    $this->token = $token;
     $this->entityQuery = $entity_query;
+    $this->fileSystem = $file_system;
   }
 
   /**
@@ -217,8 +218,8 @@ class MediaSourceService {
    *   New file contents as a resource.
    * @param string $mimetype
    *   New mimetype of contents.
-   * @param string $filename
-   *   New filename for contents.
+   * @param string $content_location
+   *   Drupal/PHP stream wrapper for where to upload the binary.
    *
    * @throws HttpException
    */
@@ -228,7 +229,7 @@ class MediaSourceService {
     TermInterface $taxonomy_term,
     $resource,
     $mimetype,
-    $filename
+    $content_location
   ) {
 
     $existing = $this->entityQuery->get('media')
@@ -256,22 +257,11 @@ class MediaSourceService {
         throw new NotFoundHttpException("Source field not set for $bundle media");
       }
 
-      // Load its config to get file extensions and upload path.
-      $source_field_config = $this->entityTypeManager->getStorage('field_config')->load("media.$bundle.$source_field");
-
-      // Construct the destination uri.
-      $directory = $source_field_config->getSetting('file_directory');
-      $directory = trim($directory, '/');
-      $directory = PlainTextOutput::renderFromHtml($this->token->replace($directory, ['node' => $node]));
-      $scheme = file_default_scheme();
-      $destination_directory = "$scheme://$directory";
-      $destination = "$destination_directory/$filename";
-
       // Construct the File.
       $file = $this->entityTypeManager->getStorage('file')->create([
         'uid' => $this->account->id(),
-        'uri' => $destination,
-        'filename' => $filename,
+        'uri' => $content_location,
+        'filename' => $this->fileSystem->basename($content_location),
         'filemime' => $mimetype,
         'status' => FILE_STATUS_PERMANENT,
       ]);
@@ -297,7 +287,7 @@ class MediaSourceService {
       $media_struct = [
         'bundle' => $bundle,
         'uid' => $this->account->id(),
-        'name' => $filename,
+        'name' => $file->getFilename(),
         'langcode' => $this->languageManager->getDefaultLanguage()->getId(),
         "$source_field" => [
           'target_id' => $file->id(),

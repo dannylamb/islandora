@@ -143,17 +143,7 @@ class MediaSourceController extends ControllerBase {
       throw new BadRequestHttpException("Missing Content-Type header");
     }
 
-    $content_disposition = $request->headers->get('Content-Disposition', "");
-
-    if (empty($content_disposition)) {
-      throw new BadRequestHttpException("Missing Content-Disposition header");
-    }
-
-    $matches = [];
-    if (!preg_match('/attachment; filename="(.*)"/', $content_disposition, $matches)) {
-      throw new BadRequestHttpException("Malformed Content-Disposition header");
-    }
-    $filename = $matches[1];
+    $content_location = $request->headers->get('Content-Location', "");
 
     // Since we create both a Media and its File,
     // start a transaction.
@@ -166,7 +156,7 @@ class MediaSourceController extends ControllerBase {
         $taxonomy_term,
         $request->getContent(TRUE),
         $content_type,
-        $filename
+        $content_location
       );
 
       // We return the media if it was newly created.
