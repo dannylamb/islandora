@@ -4,23 +4,29 @@ type: module
 core: 8.x
 dependencies:
   - basic_auth
+  - comment
+  - content_translation
   - eva
   - features
   - field
   - file
   - image
   - islandora
+  - islandora_demo_feature
   - jsonld
   - jwt
+  - language
   - link
   - media
   - migrate_plus
   - node
+  - path
   - rdf
   - rest
   - serialization
   - system
   - taxonomy
+  - text
   - user
   - views
 package: Islandora

@@ -4,6 +4,7 @@ type: module
 core: 8.x
 dependencies:
   - comment
+  - content_translation
   - context
   - eva
   - field
@@ -12,6 +13,7 @@ dependencies:
   - islandora
   - islandora_core_feature
   - islandora_image
+  - language
   - link
   - media
   - menu_ui

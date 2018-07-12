@@ -59,4 +59,5 @@ hidden:
   display_media_entity_view_1: true
   display_media_service_file: true
   display_media_thumbnail: true
+  langcode: true
   openseadragon_media_evas_service_file: true

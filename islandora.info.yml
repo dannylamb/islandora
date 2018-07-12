@@ -28,3 +28,4 @@ dependencies:
   - features_ui
   - migrate_tools
   - migrate_source_csv
+  - content_translation
