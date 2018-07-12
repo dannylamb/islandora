@@ -8,7 +8,6 @@ use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Utility\Token;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
@@ -39,13 +38,6 @@ class MediaSourceService {
   protected $account;
 
   /**
-   * Stream wrapper manager.
-   *
-   * @var \Drupal\Core\StreamWrapper\StreamWrapperManager
-   */
-  protected $streamWrapperManager;
-
-  /**
    * Language manager.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
@@ -73,8 +65,6 @@ class MediaSourceService {
    *   The entity type manager.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The current user.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
-   *   Stream wrapper manager.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   Language manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
@@ -85,14 +75,12 @@ class MediaSourceService {
   public function __construct(
     EntityTypeManager $entity_type_manager,
     AccountInterface $account,
-    StreamWrapperManager $stream_wrapper_manager,
     LanguageManagerInterface $language_manager,
     QueryFactory $entity_query,
     FileSystem $file_system
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->account = $account;
-    $this->streamWrapperManager = $stream_wrapper_manager;
     $this->languageManager = $language_manager;
     $this->entityQuery = $entity_query;
     $this->fileSystem = $file_system;
@@ -121,6 +109,21 @@ class MediaSourceService {
     return $type_configuration['source_field'];
   }
 
+  public function getSourceFile(MediaInterface $media) {
+    // Get the source field for the media type.
+    $source_field = $this->getSourceFieldName($media->bundle());
+
+    if (empty($source_field)) {
+      throw new NotFoundHttpException("Source field not set for {$media->bundle()} media");
+    }
+
+    // Get the file from the media.
+    $files = $media->get($source_field)->referencedEntities();
+    $file = reset($files);
+
+    return $file;
+  }
+
   /**
    * Updates a media's source field with the supplied resource.
    *
@@ -138,16 +141,7 @@ class MediaSourceService {
     $resource,
     $mimetype
   ) {
-    // Get the source field for the media type.
-    $source_field = $this->getSourceFieldName($media->bundle());
-
-    if (empty($source_field)) {
-      throw new NotFoundHttpException("Source field not set for {$media->bundle()} media");
-    }
-
-    // Get the file from the media.
-    $files = $media->get($source_field)->referencedEntities();
-    $file = reset($files);
+    $file = $this->getSourceFile($media);
 
     // Update it.
     $this->updateFile($file, $resource, $mimetype);
@@ -181,11 +175,10 @@ class MediaSourceService {
    */
   protected function updateFile(FileInterface $file, $resource, $mimetype = NULL) {
     $uri = $file->getFileUri();
-    $file_stream_wrapper = $this->streamWrapperManager->getViaUri($uri);
-    $path = "";
-    $file_stream_wrapper->stream_open($uri, 'w', STREAM_REPORT_ERRORS, $path);
-    $file_stream = $file_stream_wrapper->stream_cast(STREAM_CAST_AS_STREAM);
-    $content_length = stream_copy_to_stream($resource, $file_stream);
+
+    $destination = fopen($uri, 'c');
+    $content_length = stream_copy_to_stream($resource, $destination);
+    fclose($destination);
 
     if ($content_length === FALSE) {
       throw new HttpException(500, "Request body could not be copied to $uri");
@@ -193,7 +186,7 @@ class MediaSourceService {
 
     if ($content_length === 0) {
       // Clean up the newly created, empty file.
-      $file_stream_wrapper->unlink($uri);
+      unlink($uri);
       throw new BadRequestHttpException("The request contents are empty.");
     }
 
@@ -231,7 +224,6 @@ class MediaSourceService {
     $mimetype,
     $content_location
   ) {
-
     $existing = $this->entityQuery->get('media')
       ->condition('field_media_of', $node->id())
       ->condition('field_tags', $taxonomy_term->id())
@@ -275,7 +267,8 @@ class MediaSourceService {
         throw new BadRequestHttpException("Invalid file extension.  Valid types are $valid_extensions");
       }
 
-      if (!file_prepare_directory($destination_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      $directory = $this->fileSystem->dirname($content_location);
+      if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
         throw new HttpException(500, "The destination directory does not exist, could not be created, or is not writable");
       }
 
@@ -302,7 +295,7 @@ class MediaSourceService {
 
       // Set alt text.
       if ($source_field_config->getSetting('alt_field') && $source_field_config->getSetting('alt_field_required')) {
-        $media_struct[$source_field]['alt'] = $filename;
+        $media_struct[$source_field]['alt'] = $file->getFilename;
       }
 
       $media = $this->entityTypeManager->getStorage('media')->create($media_struct);

@@ -4,6 +4,7 @@ namespace Drupal\islandora\EventGenerator;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Action\ConfigurableActionBase;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -133,6 +134,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
       $this->eventGenerator->generateEvent($entity, $user, $data),
       ['Authorization' => "Bearer $token"]
     );
+dsm($this->eventGenerator->generateEvent($entity, $user, $data));
 
     // Send the message.
     try {
@@ -160,7 +162,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
   /**
    * Override this function to control what gets encoded as a json note.
    */
-  protected function generateData($entity) {
+  protected function generateData(EntityInterface $entity) {
     return $this->configuration;
   }
 

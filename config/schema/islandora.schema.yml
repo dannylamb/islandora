@@ -100,3 +100,19 @@ condition.plugin.parent_node_has_term:
     uri:
       type: text 
       label: 'Taxonomy Term URI'
+
+condition.plugin.file_uses_filesystem:
+  type: condition.plugin
+  mapping:
+    bundles:
+      type: sequence
+      sequence:
+        type: string
+
+condition.plugin.media_uses_filesystem:
+  type: condition.plugin
+  mapping:
+    bundles:
+      type: sequence
+      sequence:
+        type: string

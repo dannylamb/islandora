@@ -7,8 +7,9 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
+use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
+use Drupal\flysystem\FlysystemFactory;
 use Drupal\islandora\ContextProvider\NodeContextProvider;
 use Drupal\islandora\ContextProvider\MediaContextProvider;
 use Drupal\islandora\ContextProvider\FileContextProvider;
@@ -55,11 +56,11 @@ class IslandoraUtils {
   protected $contextManager;
 
   /**
-   * Stream wrapper manager.
+   * Flysystem factory.
    *
-   * @var \Drupal\Core\StreamWrapper\StreamWrapperManager
+   * @var \Drupal\flysystem\FlysystemFactory
    */
-  protected $streamWrapperManager;
+  protected $flysystemFactory;
 
   /**
    * Constructor.
@@ -72,21 +73,21 @@ class IslandoraUtils {
    *   Entity query.
    * @param \Drupal\context\ContextManager $context_manager
    *   Context manager.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager
-   *   Stream wrapper manager.
+   * @param \Drupal\flysystem\FlysystemFactory $flysystem_factory
+   *   Flysystem factory.
    */
   public function __construct(
     EntityTypeManager $entity_type_manager,
     EntityFieldManager $entity_field_manager,
     QueryFactory $entity_query,
     ContextManager $context_manager,
-    StreamWrapperManager $stream_wrapper_manager
+    FlysystemFactory $flysystem_factory
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->entityQuery = $entity_query;
     $this->contextManager = $context_manager;
-    $this->streamWrapperManager = $stream_wrapper_manager;
+    $this->flysystemFactory = $flysystem_factory;
   }
 
   /**
@@ -367,4 +368,17 @@ class IslandoraUtils {
     return FALSE;
   }
 
+  /**
+   * Returns a list of all available filesystem schemes.
+   *
+   * @return String[]
+   *   List of all available filesystem schemes.
+   */
+  public function getFilesystemSchemes() {
+    $schemes = ['public'];
+    if (!empty(Settings::get('file_private_path'))) {
+      $schemes[] = 'private';
+    }
+    return array_merge($schemes, $this->flysystemFactory->getSchemes());
+  }
 }

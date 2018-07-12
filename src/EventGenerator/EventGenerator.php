@@ -21,6 +21,15 @@ class EventGenerator implements EventGeneratorInterface {
 
     $user_url = $user->toUrl()->setAbsolute()->toString();
 
+    if ($entity instanceof FileInterface) {
+      $entity_url = $entity->url();
+      $mimetype = $entity->getMimeType();
+    }
+    else {
+      $entity_url = $entity->toUrl()->setAbsolute()->toString();
+      $mimetype = 'text/html';
+    }
+
     $event = [
       "@context" => "https://www.w3.org/ns/activitystreams",
       "actor" => [
@@ -38,7 +47,15 @@ class EventGenerator implements EventGeneratorInterface {
       ],
       "object" => [
         "id" => "urn:uuid:{$entity->uuid()}",
-        "url" => $entity instanceof FileInterface ? $this->generateFileLinks($entity) : $this->generateRestLinks($entity),
+        "url" => [
+          [
+            "name" => "Canoncial",
+            "type" => "Link",
+            "href" => $entity_url,
+            "mediaType" => $mimetype,
+            "rel" => "canonical",
+          ],
+        ],
       ],
     ];
 
@@ -65,71 +82,6 @@ class EventGenerator implements EventGeneratorInterface {
     }
 
     return json_encode($event);
-  }
-
-  /**
-   * Generates file urls.
-   *
-   * @param \Drupal\file\FileInterface $file
-   *   The file.
-   *
-   * @return array
-   *   AS2 Links.
-   */
-  protected function generateFileLinks(FileInterface $file) {
-    $file_url = $file->url();
-    $checksum_url = Url::fromRoute('view.file_checksum.rest_export_1', ['file' => $file->id()])
-      ->setAbsolute()
-      ->toString();
-
-    return [
-      [
-        "name" => "File",
-        "type" => "Link",
-        "href" => "$file_url",
-        "mediaType" => $file->getMimeType(),
-      ],
-      [
-        "name" => "Checksum",
-        "type" => "Link",
-        "href" => "$checksum_url?_format=json",
-        "mediaType" => "application/json",
-      ],
-    ];
-  }
-
-  /**
-   * Generates REST urls.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
-   *
-   * @return array
-   *   AS2 Links.
-   */
-  protected function generateRestLinks(EntityInterface $entity) {
-    $url = $entity->toUrl()->setAbsolute()->toString();
-    return [
-        [
-          "name" => "Canoncial",
-          "type" => "Link",
-          "href" => "$url",
-          "mediaType" => "text/html",
-          "rel" => "canonical",
-        ],
-        [
-          "name" => "JSONLD",
-          "type" => "Link",
-          "href" => "$url?_format=jsonld",
-          "mediaType" => "application/ld+json",
-        ],
-        [
-          "name" => "JSON",
-          "type" => "Link",
-          "href" => "$url?_format=json",
-          "mediaType" => "application/json",
-        ],
-    ];
   }
 
 }

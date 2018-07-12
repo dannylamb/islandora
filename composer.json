@@ -29,6 +29,7 @@
     "drupal/migrate_source_csv" : "^2.1",
     "drupal/permissions_by_term" : "^1.51",
     "drupal/flysystem" : "^1.0"
+    "islandora/chullo" : "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^6",
