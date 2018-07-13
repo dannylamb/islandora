@@ -87,5 +87,6 @@ content:
     third_party_settings: {  }
 hidden:
   created: true
+  langcode: true
   thumbnail: true
   uid: true

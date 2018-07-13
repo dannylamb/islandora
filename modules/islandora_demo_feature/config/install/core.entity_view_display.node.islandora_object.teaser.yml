@@ -34,6 +34,7 @@ hidden:
   field_description: true
   field_member_of: true
   field_tags: true
+  langcode: true
   members_eva_entity_view_1: true
   openseadragon_media_evas_entity_view_2: true
   openseadragon_media_evas_service_file: true

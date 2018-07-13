@@ -36,6 +36,7 @@ hidden:
   field_mime_type: true
   field_tags: true
   field_width: true
+  langcode: true
   name: true
   thumbnail: true
   uid: true
