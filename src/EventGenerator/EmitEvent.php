@@ -127,12 +127,25 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
     }
 
     // Generate event as stomp message.
-    $user = $this->entityTypeManager->getStorage('user')->load($this->account->id());
-    $data = $this->generateData($entity);
-    $message = new Message(
-      $this->eventGenerator->generateEvent($entity, $user, $data),
-      ['Authorization' => "Bearer $token"]
-    );
+    try {
+      $user = $this->entityTypeManager->getStorage('user')->load($this->account->id());
+      $data = $this->generateData($entity);
+      $message = new Message(
+        $this->eventGenerator->generateEvent($entity, $user, $data),
+        ['Authorization' => "Bearer $token"]
+      );
+    }
+    catch (\RuntimeException $e) {
+      // Notify the user the event couldn't be generated and abort.
+      \Drupal::logger('islandora')->error(
+        t('Error generating event: @msg', ['@msg' => $e->getMessage()])
+      );
+      drupal_set_message(
+        t('Error generating event: @msg', ['@msg' => $e->getMessage()]),
+        'error'
+      );
+      return;
+    }
 
     // Send the message.
     try {
