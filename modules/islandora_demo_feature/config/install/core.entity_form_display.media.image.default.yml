@@ -79,6 +79,9 @@ content:
     weight: 7
     region: content
     third_party_settings: {  }
+  translation:
+    weight: 10
+    region: content
   uid:
     type: entity_reference_autocomplete
     weight: 4

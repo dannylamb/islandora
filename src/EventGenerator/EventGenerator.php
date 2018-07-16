@@ -70,6 +70,24 @@ class EventGenerator implements EventGeneratorInterface {
       $event["summary"] = ucfirst($data["event"]) . " a " . ucfirst($entity_type);
     }
 
+    // Add REST links for non-file entities.
+    if ($entity_type != 'file') {
+      $event['object']['url'][] = [
+        "name" => "JSON",
+        "type" => "Link",
+        "href" => "$entity_url?_format=json",
+        "mediaType" => "application/json",
+        "rel" => "alternate",
+      ];
+      $event['object']['url'][] = [
+        "name" => "JSONLD",
+        "type" => "Link",
+        "href" => "$entity_url?_format=jsonld",
+        "mediaType" => "application/ld+json",
+        "rel" => "alternate",
+      ];
+    }
+
     unset($data["event"]);
     unset($data["queue"]);
 
