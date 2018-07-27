@@ -84,7 +84,7 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'text/plain',
-        'Content-Disposition' => 'attachment; filename="test_file.txt"',
+        'Content-Location' => 'public://test_file.txt',
       ],
       'body' => $file_contents,
     ];
@@ -124,32 +124,19 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
-        'Content-Disposition' => 'attachment; filename="test_file.txt"',
+        'Content-Location' => 'public://test_file.txt',
       ],
       'body' => $file_contents,
     ];
     $response = $client->request('PUT', $add_to_node_url, $options);
     $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
 
-    // Request without Content-Disposition header should fail with 400.
+    // Request without Content-Location header should fail with 400.
     $options = [
       'auth' => [$account->getUsername(), $account->pass_raw],
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'text/plain',
-      ],
-      'body' => $file_contents,
-    ];
-    $response = $client->request('PUT', $add_to_node_url, $options);
-    $this->assertTrue($response->getStatusCode() == 400, "Expected 400, received {$response->getStatusCode()}");
-
-    // Request with malformed Content-Disposition header should fail with 400.
-    $options = [
-      'auth' => [$account->getUsername(), $account->pass_raw],
-      'http_errors' => FALSE,
-      'headers' => [
-        'Content-Type' => 'text/plain',
-        'Content-Disposition' => 'garbage; filename="test_file.txt"',
       ],
       'body' => $file_contents,
     ];
@@ -162,7 +149,7 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'text/plain',
-        'Content-Disposition' => 'attachment; filename="test_file.txt"',
+        'Content-Location' => 'public://test_file.txt',
       ],
     ];
     $response = $client->request('PUT', $add_to_node_url, $options);
@@ -174,7 +161,7 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'text/plain',
-        'Content-Disposition' => 'attachment; filename="test_file.txt"',
+        'Content-Location' => 'public://test_file.txt',
       ],
       'body' => $file_contents,
     ];
@@ -217,7 +204,7 @@ class AddMediaToNodeTest extends IslandoraFunctionalTestBase {
       'http_errors' => FALSE,
       'headers' => [
         'Content-Type' => 'text/plain',
-        'Content-Disposition' => 'attachment; filename="test_file.txt"',
+        'Content-Location' => 'public://test_file.txt',
       ],
       'body' => $file_contents,
     ];

@@ -78,7 +78,7 @@ class FileUsesFilesystem extends ConditionPluginBase implements ContainerFactory
       $container->get('file_system')
     );
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -86,12 +86,12 @@ class FileUsesFilesystem extends ConditionPluginBase implements ContainerFactory
     $schemes = $this->utils->getFilesystemSchemes();
     $options = array_combine($schemes, $schemes);
 
-    $form['filesystems'] = array(
+    $form['filesystems'] = [
       '#title' => $this->t('Filesystems'),
       '#type' => 'checkboxes',
       '#options' => $options,
       '#default_value' => $this->configuration['filesystems'],
-    );
+    ];
     return parent::buildConfigurationForm($form, $form_state);
   }
 
@@ -122,7 +122,7 @@ class FileUsesFilesystem extends ConditionPluginBase implements ContainerFactory
     $filesystem = reset($this->configuration['filesystems']);
     return $this->t(
       'The file uses @filesystem',
-      [ 
+      [
         '@filesystem' => $filesystem,
       ]
     );
@@ -139,6 +139,15 @@ class FileUsesFilesystem extends ConditionPluginBase implements ContainerFactory
     return $this->evaluateFile($file);
   }
 
+  /**
+   * The actual evaluate function.
+   *
+   * @param \Drupal\file\FileInterface $file
+   *   File.
+   *
+   * @return bool
+   *   TRUE on success.
+   */
   protected function evaluateFile(FileInterface $file) {
     $uri = $file->getFileUri();
     $scheme = $this->fileSystem->uriScheme($uri);

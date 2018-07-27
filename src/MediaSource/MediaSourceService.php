@@ -2,13 +2,11 @@
 
 namespace Drupal\islandora\MediaSource;
 
-use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Utility\Token;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Drupal\media\MediaTypeInterface;
@@ -109,6 +107,17 @@ class MediaSourceService {
     return $type_configuration['source_field'];
   }
 
+  /**
+   * Gets the value of a source field for a Media.
+   *
+   * @param \Drupal\media\MediaInterface $media
+   *   Media whose source field you are searching for.
+   *
+   * @return \Drupal\file\FileInterface
+   *   File if it exists
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   */
   public function getSourceFile(MediaInterface $media) {
     // Get the source field for the media type.
     $source_field = $this->getSourceFieldName($media->bundle());

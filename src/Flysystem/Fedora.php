@@ -33,6 +33,8 @@ class Fedora implements FlysystemPluginInterface, ContainerFactoryPluginInterfac
    *
    * @param \Islandora\Chullo\IFedoraApi $fedora
    *   Fedora client.
+   * @param \Symfony\Component\HttpFoundation\File\Mimetype\MimeTypeGuesserInterface $mime_type_guesser
+   *   Mimetype guesser.
    */
   public function __construct(
     IFedoraApi $fedora,
@@ -57,7 +59,7 @@ class Fedora implements FlysystemPluginInterface, ContainerFactoryPluginInterfac
       'handler' => $stack,
       'base_uri' => $configuration['root'],
     ]);
-    $fedora = new FedoraApi($client); 
+    $fedora = new FedoraApi($client);
 
     // Return it.
     return new static(
@@ -79,7 +81,11 @@ class Fedora implements FlysystemPluginInterface, ContainerFactoryPluginInterfac
       return function (
         RequestInterface $request,
         array $options
-      ) use ($handler, $header, $value) {
+      ) use (
+$handler,
+ $header,
+ $value
+) {
         $request = $request->withHeader($header, $value);
         return $handler($request, $options);
       };
@@ -108,11 +114,11 @@ class Fedora implements FlysystemPluginInterface, ContainerFactoryPluginInterfac
           '%url' => $this->fedora->getBaseUri(),
           '%status' => $response->getStatusCode(),
         ],
-      ]];
+      ],
+      ];
     }
 
     return [];
   }
 
 }
-

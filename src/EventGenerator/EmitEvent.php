@@ -134,7 +134,6 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
       $this->eventGenerator->generateEvent($entity, $user, $data),
       ['Authorization' => "Bearer $token"]
     );
-dsm($this->eventGenerator->generateEvent($entity, $user, $data));
 
     // Send the message.
     try {

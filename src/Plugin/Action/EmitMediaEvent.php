@@ -2,12 +2,8 @@
 
 namespace Drupal\islandora\Plugin\Action;
 
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Action\ConfigurableActionBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\jwt\Authentication\Provider\JwtAuth;
 use Drupal\islandora\EventGenerator\EmitEvent;
@@ -97,6 +93,9 @@ class EmitMediaEvent extends EmitEvent {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function generateData(EntityInterface $entity) {
     $data = parent::generateData($entity);
     $data['source_field'] = $this->mediaSource->getSourceFieldName($entity->bundle());

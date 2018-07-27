@@ -2,19 +2,14 @@
 
 namespace Drupal\islandora\Plugin\Action;
 
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Action\ConfigurableActionBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\File\FileSystem;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\jwt\Authentication\Provider\JwtAuth;
 use Drupal\islandora\EventGenerator\EmitEvent;
 use Drupal\islandora\EventGenerator\EventGeneratorInterface;
-use Drupal\islandora\MediaSource\MediaSourceService;
 use Stomp\StatefulStomp;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -99,6 +94,9 @@ class EmitFileEvent extends EmitEvent {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function generateData(EntityInterface $entity) {
     $uri = $entity->getFileUri();
     $scheme = $this->fileSystem->uriScheme($uri);

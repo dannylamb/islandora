@@ -2,10 +2,7 @@
 
 namespace Drupal\islandora\Plugin\Condition;
 
-use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\File\FileSystem;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Drupal\islandora\IslandoraUtils;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -42,12 +39,12 @@ class MediaUsesFilesystem extends FileUsesFilesystem {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\islandora\MediaSource\MediaSourceService $mediaSource
-   *   Media source service.
    * @param \Drupal\islandora\IslandoraUtils $utils
    *   Islandora utility functions.
    * @param \Drupal\Core\File\FileSystem $file_system
    *   File system service.
+   * @param \Drupal\islandora\MediaSource\MediaSourceService $media_source
+   *   Media source service.
    */
   public function __construct(
     array $configuration,
@@ -74,7 +71,7 @@ class MediaUsesFilesystem extends FileUsesFilesystem {
       $container->get('islandora.media_source_service')
     );
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -94,7 +91,7 @@ class MediaUsesFilesystem extends FileUsesFilesystem {
     $filesystem = reset($this->configuration['filesystems']);
     return $this->t(
       'The media uses @filesystem',
-      [ 
+      [
         '@filesystem' => $filesystem,
       ]
     );

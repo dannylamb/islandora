@@ -381,4 +381,5 @@ class IslandoraUtils {
     }
     return array_merge($schemes, $this->flysystemFactory->getSchemes());
   }
+
 }
