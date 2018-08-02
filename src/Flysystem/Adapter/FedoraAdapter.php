@@ -7,6 +7,7 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\Config;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 

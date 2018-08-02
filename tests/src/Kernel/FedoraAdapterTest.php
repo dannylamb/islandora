@@ -3,12 +3,12 @@
 namespace Drupal\Tests\islandora\Kernel;
 
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Response;
 use Drupal\islandora\Flysystem\Adapter\FedoraAdapter;
 use Islandora\Chullo\IFedoraApi;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use Prophecy\Argument;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
 /**
@@ -23,7 +23,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * Mocks up an adapter for Fedora calls that return 404.
    */
   protected function createAdapterForFail() {
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(404);
     $response = $prophecy->reveal();
 
@@ -41,7 +41,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * Mocks up an adapter for Fedora LDP-NR response.
    */
   protected function createAdapterForFile() {
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"']);
@@ -64,7 +64,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * Mocks up an adapter for Fedora LDP-RS response.
    */
   protected function createAdapterForDirectory() {
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#RDFSource>;rel="type"']);
@@ -85,12 +85,12 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function createAdapterForWrite() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(201);
 
     $fedora_prophecy->saveResource('', '', Argument::any())->willReturn($prophecy->reveal());
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"']);
@@ -113,7 +113,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function createAdapterForWriteFail() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(500);
 
     $fedora_prophecy->saveResource('', '', Argument::any())->willReturn($prophecy->reveal());
@@ -131,12 +131,12 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function createAdapterForCreateDir() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(201);
 
     $fedora_prophecy->saveResource('')->willReturn($prophecy->reveal());
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#RDFSource>;rel="type"']);
@@ -156,7 +156,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function createAdapterForDelete() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(204);
 
     $fedora_prophecy->deleteResource('')->willReturn($prophecy->reveal());
@@ -174,7 +174,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function createAdapterForDeleteFail() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(500);
 
     $fedora_prophecy->deleteResource('')->willReturn($prophecy->reveal());
@@ -184,6 +184,26 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $mime_guesser = $this->prophesize(MimeTypeGuesserInterface::class)->reveal();
 
     return new FedoraAdapter($api, $mime_guesser);
+  }
+
+  /**
+   * Asserts the stucture/contents of a metadata response for a file.
+   */ 
+  protected function assertFileMetadata(array $metadata) {
+    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
+    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
+    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
+    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
+    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+  }
+
+  /**
+   * Asserts the stucture/contents of a metadata response for a directory.
+   */ 
+  protected function assertDirMetadata(array $metadata) {
+    $this->assertTrue($metadata['type'] == 'dir', "Expecting 'type' of 'dir', received '" . $metadata['type'] . "'");
+    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
+    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
   }
 
   /**
@@ -202,11 +222,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForFile();
 
     $metadata = $adapter->getMetadata('');
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+    $this->assertFileMetadata($metadata);
   }
 
   /**
@@ -216,9 +232,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForDirectory();
 
     $metadata = $adapter->getMetadata('');
-    $this->assertTrue($metadata['type'] == 'dir', "Expecting 'type' of 'dir', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
+    $this->assertDirMetadata($metadata);
   }
 
   /**
@@ -228,12 +242,8 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForFile();
 
     $metadata = $adapter->readStream('');
+    $this->assertFileMetadata($metadata);
     $this->assertTrue(is_resource($metadata['stream']), "Expecting a 'stream' that is a resource");
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
   }
 
   /**
@@ -252,12 +262,8 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForFile();
 
     $metadata = $adapter->read('');
+    $this->assertFileMetadata($metadata);
     $this->assertTrue($metadata['contents'] == "DERP", "Expecting 'content' of 'DERP', received '${metadata['contents']}'");
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
   }
 
   /**
@@ -398,11 +404,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForWrite();
 
     $metadata = $adapter->write('', '', $this->prophesize(Config::class)->reveal());
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+    $this->assertFileMetadata($metadata);
   }
 
   /**
@@ -421,11 +423,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForWrite();
 
     $metadata = $adapter->writeStream('', '', $this->prophesize(Config::class)->reveal());
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+    $this->assertFileMetadata($metadata);
   }
 
   /**
@@ -444,11 +442,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForWrite();
 
     $metadata = $adapter->update('', '', $this->prophesize(Config::class)->reveal());
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+    $this->assertFileMetadata($metadata);
   }
 
   /**
@@ -467,11 +461,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = $this->createAdapterForWrite();
 
     $metadata = $adapter->updateStream('', '', $this->prophesize(Config::class)->reveal());
-    $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-    $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
-    $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
+    $this->assertFileMetadata($metadata);
   }
 
   /**
@@ -525,7 +515,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::copy
    */
   public function testRename() {
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"']);
@@ -537,13 +527,13 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
     $fedora_prophecy->getResource(Argument::any())->willReturn($response);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(201);
     $response = $prophecy->reveal();
 
     $fedora_prophecy->saveResource(Argument::any(), Argument::any(), Argument::any())->willReturn($response);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"']);
@@ -553,7 +543,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
 
     $fedora_prophecy->getResourceHeaders(Argument::any())->willReturn($response);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(204);
     $response = $prophecy->reveal();
 
@@ -572,7 +562,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::createDir
    */
   public function testCreateDirFail() {
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(500);
 
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
@@ -593,12 +583,12 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   public function testCreateDir() {
     $fedora_prophecy = $this->prophesize(IFedoraApi::class);
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(201);
 
     $fedora_prophecy->saveResource('')->willReturn($prophecy->reveal());
 
-    $prophecy = $this->prophesize(ResponseInterface::class);
+    $prophecy = $this->prophesize(Response::class);
     $prophecy->getStatusCode()->willReturn(200);
     $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
     $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#RDFSource>;rel="type"']);
@@ -612,9 +602,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
     $adapter = new FedoraAdapter($api, $mime_guesser);
 
     $metadata = $adapter->createDir('', $this->prophesize(Config::class)->reveal());
-    $this->assertTrue($metadata['type'] == 'dir', "Expecting 'type' of 'dir', received '" . $metadata['type'] . "'");
-    $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
+    $this->assertDirMetadata($metadata);
   }
 
 }

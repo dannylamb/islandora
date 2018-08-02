@@ -4,8 +4,12 @@ namespace Drupal\islandora\Plugin\ContextReaction;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\islandora\ContextReaction\NormalizerAlterReaction;
+use Drupal\islandora\MediaSource\MediaSourceService;
 use Drupal\jsonld\Normalizer\NormalizerBase;
+use Drupal\media\MediaInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Map URI to predicate context reaction.
@@ -15,9 +19,31 @@ use Drupal\jsonld\Normalizer\NormalizerBase;
  *   label = @Translation("Map URI to predicate")
  * )
  */
-class MappingUriPredicateReaction extends NormalizerAlterReaction {
+class MappingUriPredicateReaction extends NormalizerAlterReaction implements ContainerFactoryPluginInterface {
 
   const URI_PREDICATE = 'drupal_uri_predicate';
+
+  protected $mediaSource;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MediaSourceService $media_source) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->mediaSource = $media_source;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('islandora.media_source_service')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -43,6 +69,10 @@ class MappingUriPredicateReaction extends NormalizerAlterReaction {
       if (isset($normalized['@graph']) && is_array($normalized['@graph'])) {
         foreach ($normalized['@graph'] as &$graph) {
           if (isset($graph['@id']) && $graph['@id'] == $url) {
+            if ($entity instanceof MediaInterface) {
+              $file = $this->mediaSource->getSourceFile($entity);
+              $url = $file->url('canonical', ['absolute' => TRUE]);
+            }
             if (isset($graph[$drupal_predicate])) {
               if (!is_array($graph[$drupal_predicate])) {
                 if ($graph[$drupal_predicate] == $url) {
