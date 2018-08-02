@@ -188,7 +188,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
 
   /**
    * Asserts the stucture/contents of a metadata response for a file.
-   */ 
+   */
   protected function assertFileMetadata(array $metadata) {
     $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
     $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
@@ -199,7 +199,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
 
   /**
    * Asserts the stucture/contents of a metadata response for a directory.
-   */ 
+   */
   protected function assertDirMetadata(array $metadata) {
     $this->assertTrue($metadata['type'] == 'dir', "Expecting 'type' of 'dir', received '" . $metadata['type'] . "'");
     $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");

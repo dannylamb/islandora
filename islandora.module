@@ -247,23 +247,23 @@ function islandora_jsonld_alter_normalized_array(EntityInterface $entity, array 
     $reaction->execute($entity, $normalized, $context);
   }
 
-/*
+  /*
   if ($entity instanceof MediaInterface) {
-    Drupal::logger('islandora')->debug("GOT A MEDIA");
-    $manager = \Drupal::service('plugin.manager.condition');
-    $media_uses_filesystem = $manager->createInstance('media_uses_filesystem')
-      ->setConfig('filesystems', ['fedora' => 'fedora'])
-      ->setConfig('negate', TRUE)
-      ->setContextValue('media', $entity);
-    if ($media_uses_filesystem->execute()) {
-      $media_source = \Drupal::service('islandora.media_source_service');
-      $file = $media_source->getSourceFile($entity);
-      $normalized['@graph'][0]['http://www.schema.org/sameAs'] = [
-        ['@id' => $file->url('canonical', ['absolute' => TRUE])],
-      ];
-    }
+  Drupal::logger('islandora')->debug("GOT A MEDIA");
+  $manager = \Drupal::service('plugin.manager.condition');
+  $media_uses_filesystem = $manager->createInstance('media_uses_filesystem')
+  ->setConfig('filesystems', ['fedora' => 'fedora'])
+  ->setConfig('negate', TRUE)
+  ->setContextValue('media', $entity);
+  if ($media_uses_filesystem->execute()) {
+  $media_source = \Drupal::service('islandora.media_source_service');
+  $file = $media_source->getSourceFile($entity);
+  $normalized['@graph'][0]['http://www.schema.org/sameAs'] = [
+  ['@id' => $file->url('canonical', ['absolute' => TRUE])],
+  ];
   }
-*/
+  }
+   */
 }
 
 /**
