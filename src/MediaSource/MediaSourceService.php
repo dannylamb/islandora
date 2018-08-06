@@ -201,7 +201,7 @@ class MediaSourceService {
     if ($content_length === 0) {
       // Clean up the newly created, empty file.
       unlink($uri);
-      throw new HttpException(500, "Request body could not be copied to $uri");
+      throw new HttpException(400, "No bytes were copied to $uri");
     }
 
     if (!empty($mimetype)) {
