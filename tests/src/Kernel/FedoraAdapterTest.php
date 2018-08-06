@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Response;
 use Drupal\islandora\Flysystem\Adapter\FedoraAdapter;
 use Islandora\Chullo\IFedoraApi;
-use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
