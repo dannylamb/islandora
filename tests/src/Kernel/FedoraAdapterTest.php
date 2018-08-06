@@ -192,7 +192,6 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function assertFileMetadata(array $metadata) {
     $this->assertTrue($metadata['type'] == 'file', "Expecting 'type' of 'file', received '" . $metadata['type'] . "'");
     $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
     $this->assertTrue($metadata['size'] == strlen("DERP"), "Expecting 'size' of '" . strlen("DERP") . "', received '" . $metadata['size'] . "'");
     $this->assertTrue($metadata['mimetype'] == 'text/plain', "Expecting 'mimetype' of 'image/png', received '" . $metadata['mimetype'] . "'");
   }
@@ -203,7 +202,6 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
   protected function assertDirMetadata(array $metadata) {
     $this->assertTrue($metadata['type'] == 'dir', "Expecting 'type' of 'dir', received '" . $metadata['type'] . "'");
     $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
   }
 
   /**
@@ -348,44 +346,6 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
 
     $metadata = $adapter->getTimestamp('');
     $this->assertTrue($metadata['timestamp'] == '1532540524', "Expecting 'timestamp' of '1532540524', received '" . $metadata['timestamp'] . "'");
-  }
-
-  /**
-   * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::getVisibility
-   */
-  public function testGetVisibilityFail() {
-    $adapter = $this->createAdapterForFail();
-
-    $this->assertTrue($adapter->getVisibility('') == FALSE, "getVisibility() must return FALSE on non-200");
-  }
-
-  /**
-   * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::getVisibility
-   */
-  public function testGetVisibilitySuccess() {
-    $adapter = $this->createAdapterForFile();
-
-    $metadata = $adapter->getVisibility('');
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PRIVATE, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PRIVATE . "', received '" . $metadata['visibility'] . "'");
-  }
-
-  /**
-   * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::setVisibility
-   */
-  public function testSetVisibilityFail() {
-    $adapter = $this->createAdapterForFail();
-
-    $this->assertTrue($adapter->setVisibility('', AdapterInterface::VISIBILITY_PUBLIC) == FALSE, "setVisibility() must return FALSE on non-200");
-  }
-
-  /**
-   * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::setVisibility
-   */
-  public function testSetVisibilitySuccess() {
-    $adapter = $this->createAdapterForFile();
-
-    $metadata = $adapter->setVisibility('', AdapterInterface::VISIBILITY_PUBLIC);
-    $this->assertTrue($metadata['visibility'] == AdapterInterface::VISIBILITY_PUBLIC, "Expecting 'visibility' of '" . AdapterInterface::VISIBILITY_PUBLIC . "', received '" . $metadata['visibility'] . "'");
   }
 
   /**
