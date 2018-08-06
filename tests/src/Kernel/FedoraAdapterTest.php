@@ -581,25 +581,7 @@ class FedoraAdapterTest extends IslandoraKernelTestBase {
    * @covers \Drupal\islandora\Flysystem\Adapter\FedoraAdapter::createDir
    */
   public function testCreateDir() {
-    $fedora_prophecy = $this->prophesize(IFedoraApi::class);
-
-    $prophecy = $this->prophesize(Response::class);
-    $prophecy->getStatusCode()->willReturn(201);
-
-    $fedora_prophecy->saveResource('')->willReturn($prophecy->reveal());
-
-    $prophecy = $this->prophesize(Response::class);
-    $prophecy->getStatusCode()->willReturn(200);
-    $prophecy->getHeader('Last-Modified')->willReturn(["Wed, 25 Jul 2018 17:42:04 GMT"]);
-    $prophecy->getHeader('Link')->willReturn(['<http://www.w3.org/ns/ldp#Resource>;rel="type"', '<http://www.w3.org/ns/ldp#RDFSource>;rel="type"']);
-
-    $fedora_prophecy->getResourceHeaders('')->willReturn($prophecy->reveal());
-
-    $api = $fedora_prophecy->reveal();
-
-    $mime_guesser = $this->prophesize(MimeTypeGuesserInterface::class)->reveal();
-
-    $adapter = new FedoraAdapter($api, $mime_guesser);
+    $adapter = $this->createAdapterForCreateDir();
 
     $metadata = $adapter->createDir('', $this->prophesize(Config::class)->reveal());
     $this->assertDirMetadata($metadata);
