@@ -35,4 +35,8 @@ reactions:
       delete_node_from_fedora: delete_node_from_fedora
       delete_node_from_triplestore: delete_node_from_triplestore
     saved: false
+  islandora_map_uri_predicate:
+    id: islandora_map_uri_predicate
+    drupal_uri_predicate: 'schema:sameAs'
+    saved: false
 weight: 0

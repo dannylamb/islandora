@@ -10,9 +10,9 @@ dependencies:
   - features
   - field
   - file
+  - filehash
   - image
   - islandora
-  - islandora_demo_feature
   - jsonld
   - jwt
   - language
