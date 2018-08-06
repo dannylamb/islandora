@@ -4,6 +4,7 @@ namespace Drupal\islandora\Flysystem\Adapter;
 
 use Islandora\Chullo\IFedoraApi;
 use League\Flysystem\AdapterInterface;
+use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\Config;
 use GuzzleHttp\Psr7;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 class FedoraAdapter implements AdapterInterface {
 
   use StreamedCopyTrait;
+  use NotSupportingVisibilityTrait;
 
   protected $fedora;
   protected $mimeTypeGuesser;
@@ -118,13 +120,6 @@ class FedoraAdapter implements AdapterInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function getVisibility($path) {
-    return $this->getMetadata($path);
-  }
-
-  /**
    * Gets metadata from response headers.
    *
    * @param \GuzzleHttp\Psr7\Response $response
@@ -150,7 +145,6 @@ class FedoraAdapter implements AdapterInterface {
     $meta = [
       'type' => $type,
       'timestamp' => $last_modified->getTimestamp(),
-      'visibility' => AdapterInterface::VISIBILITY_PRIVATE,
     ];
 
     if ($type == 'file') {
@@ -326,18 +320,6 @@ class FedoraAdapter implements AdapterInterface {
     }
 
     return $this->getMetadata($dirname);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setVisibility($path, $visibility) {
-    $metadata = $this->getMetadata($path);
-    if ($metadata) {
-      $metadata['visibility'] = $visibility;
-      return $metadata;
-    }
-    return FALSE;
   }
 
 }

@@ -150,22 +150,24 @@ class MediaSourceService {
     $resource,
     $mimetype
   ) {
+    $source_field = $this->getSourceFieldName($media->bundle());
     $file = $this->getSourceFile($media);
 
     // Update it.
     $this->updateFile($file, $resource, $mimetype);
+    $file->save();
 
     // Set fields provided by type plugin and mapped in bundle configuration
     // for the media.
     foreach ($media->bundle->entity->getFieldMap() as $source => $destination) {
       if ($media->hasField($destination) && $value = $media->getSource()->getMetadata($media, $source)) {
         $media->set($destination, $value);
-        // Ensure width and height are updated on File reference when it's an
-        // image. Otherwise you run into scaling problems when updating images
-        // with different sizes.
-        if ($source == 'width' || $source == 'height') {
-          $media->get($source_field)->first()->set($source, $value);
-        }
+      }
+      // Ensure width and height are updated on File reference when it's an
+      // image. Otherwise you run into scaling problems when updating images
+      // with different sizes.
+      if ($source == 'width' || $source == 'height') {
+        $media->get($source_field)->first()->set($source, $value);
       }
     }
 
@@ -185,9 +187,12 @@ class MediaSourceService {
   protected function updateFile(FileInterface $file, $resource, $mimetype = NULL) {
     $uri = $file->getFileUri();
 
-    $destination = fopen($uri, 'c');
+    $destination = fopen($uri, 'wb');
+    if (!$destination) {
+      throw new HttpException(500, "File $uri could not be opened to write.");
+    }
+
     $content_length = stream_copy_to_stream($resource, $destination);
-    fclose($destination);
 
     if ($content_length === FALSE) {
       throw new HttpException(500, "Request body could not be copied to $uri");
@@ -196,7 +201,7 @@ class MediaSourceService {
     if ($content_length === 0) {
       // Clean up the newly created, empty file.
       unlink($uri);
-      throw new BadRequestHttpException("The request contents are empty.");
+      throw new HttpException(500, "Request body could not be copied to $uri");
     }
 
     if (!empty($mimetype)) {
