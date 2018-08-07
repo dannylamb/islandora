@@ -160,8 +160,7 @@ class FedoraAdapter implements AdapterInterface {
    */
   public function listContents($directory = '', $recursive = FALSE) {
     // Strip leading and trailing whitespace and /'s.
-    $normalized = trim($directory);
-    $normalized = trim($normalized, '/');
+    $normalized = trim($directory, ' \t\n\r\0\x0B/');
 
     // Exit early if it's a file.
     $meta = $this->getMetadata($normalized);
