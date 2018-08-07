@@ -49,7 +49,7 @@ class EventGenerator implements EventGeneratorInterface {
         "id" => "urn:uuid:{$entity->uuid()}",
         "url" => [
           [
-            "name" => "Canoncial",
+            "name" => "Canonical",
             "type" => "Link",
             "href" => $entity_url,
             "mediaType" => $mimetype,
