@@ -2,13 +2,8 @@
 
 namespace Drupal\islandora\Plugin\Condition;
 
-use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\NodeInterface;
-use Drupal\media\MediaInterface;
-use Drupal\file\FileInterface;
-use Drupal\taxonomy\TermInterface;
 
 /**
  * Provides a 'Content Entity Type' condition.

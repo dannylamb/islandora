@@ -58,4 +58,3 @@ class ContentEntityTypeTest extends IslandoraFunctionalTestBase {
   }
 
 }
-
