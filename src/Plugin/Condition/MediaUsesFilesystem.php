@@ -104,6 +104,7 @@ class MediaUsesFilesystem extends FileUsesFilesystem {
     if (empty($this->configuration['filesystems']) && !$this->isNegated()) {
       return TRUE;
     }
+
     $media = $this->getContextValue('media');
     $file = $this->mediaSource->getSourceFile($media);
     if (!$file) {

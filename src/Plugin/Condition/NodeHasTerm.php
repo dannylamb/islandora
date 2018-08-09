@@ -94,7 +94,6 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
       '#type' => 'entity_autocomplete',
       '#title' => $this->t('Term'),
       '#tags' => TRUE,
-      '#required' => TRUE,
       '#default_value' => $default,
       '#target_type' => 'taxonomy_term',
     ];
@@ -124,6 +123,10 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function evaluate() {
+    if (empty($this->configuration['uri']) && !$this->isNegated()) {
+      return TRUE;
+    }
+
     $node = $this->getContextValue('node');
     if (!$node) {
       return FALSE;

@@ -19,6 +19,10 @@ class MediaHasTerm extends NodeHasTerm {
    * {@inheritdoc}
    */
   public function evaluate() {
+    if (empty($this->configuration['uri']) && !$this->isNegated()) {
+      return TRUE;
+    }
+
     $media = $this->getContextValue('media');
     if (!$media) {
       return FALSE;

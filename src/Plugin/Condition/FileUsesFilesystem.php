@@ -135,6 +135,7 @@ class FileUsesFilesystem extends ConditionPluginBase implements ContainerFactory
     if (empty($this->configuration['filesystems']) && !$this->isNegated()) {
       return TRUE;
     }
+
     $file = $this->getContextValue('file');
     return $this->evaluateFile($file);
   }
