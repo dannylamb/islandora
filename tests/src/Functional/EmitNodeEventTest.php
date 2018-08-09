@@ -18,7 +18,9 @@ class EmitNodeEventTest extends IslandoraFunctionalTestBase {
    * @covers \Drupal\islandora\EventGenerator\EventGenerator::generateEvent
    * @covers \Drupal\islandora\IslandoraContextManager::evaluateContexts
    * @covers \Drupal\islandora\IslandoraContextManager::applyContexts
-   * @covers \Drupal\islandora\Plugin\Condition\IsNode::evaluate
+   * @covers \Drupal\islandora\Plugin\Condition\ContentEntityType::buildConfigurationForm
+   * @covers \Drupal\islandora\Plugin\Condition\ContentEntityType::submitConfigurationForm
+   * @covers \Drupal\islandora\Plugin\Condition\ContentEntityType::evaluate
    * @covers \Drupal\islandora\PresetReaction\PresetReaction::buildConfigurationForm
    * @covers \Drupal\islandora\PresetReaction\PresetReaction::submitConfigurationForm
    * @covers \Drupal\islandora\PresetReaction\PresetReaction::execute
@@ -38,7 +40,12 @@ class EmitNodeEventTest extends IslandoraFunctionalTestBase {
 
     // Create a context and add the action as an index reaction.
     $this->createContext('Test', 'test');
-    $this->addCondition('test', 'is_node');
+
+    $this->addCondition('test', 'content_entity_type');
+    $this->getSession()->getPage()->checkField("edit-conditions-content-entity-type-types-node");
+    $this->getSession()->getPage()->findById("edit-conditions-content-entity-type-context-mapping-node")->selectOption("@node.node_route_context:node");
+    $this->getSession()->getPage()->pressButton(t('Save and continue'));
+
     $this->addPresetReaction('test', 'index', $action_id);
     $this->assertSession()->statusCodeEquals(200);
 
