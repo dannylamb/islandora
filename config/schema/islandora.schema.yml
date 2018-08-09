@@ -104,7 +104,7 @@ condition.plugin.parent_node_has_term:
 condition.plugin.file_uses_filesystem:
   type: condition.plugin
   mapping:
-    bundles:
+    filesystems:
       type: sequence
       sequence:
         type: string
@@ -112,7 +112,15 @@ condition.plugin.file_uses_filesystem:
 condition.plugin.media_uses_filesystem:
   type: condition.plugin
   mapping:
-    bundles:
+    filesystems:
+      type: sequence
+      sequence:
+        type: string
+
+condition.plugin.content_entity_type:
+  type: condition.plugin
+  mapping:
+    types:
       type: sequence
       sequence:
         type: string

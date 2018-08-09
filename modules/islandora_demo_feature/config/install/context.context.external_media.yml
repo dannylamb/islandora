@@ -10,18 +10,20 @@ description: 'Reactions for media whose source are outside of Fedora'
 requireAllConditions: true
 disabled: false
 conditions:
-  is_media:
-    id: is_media
-    negate: 0
-    uuid: 208b61f1-19f0-46a1-9606-d6bd976ac800
-    context_mapping:
-      media: '@islandora.media_route_context_provider:media'
   media_uses_filesystem:
     id: media_uses_filesystem
     filesystems:
       fedora: fedora
     negate: 1
     uuid: 4f3c414a-8c94-464c-a4b9-5d3eb2b35e92
+    context_mapping:
+      media: '@islandora.media_route_context_provider:media'
+  content_entity_type:
+    id: content_entity_type
+    types:
+      media: media
+    negate: 0
+    uuid: c10985ef-16ef-4571-89ad-1a0926c83b83
     context_mapping:
       media: '@islandora.media_route_context_provider:media'
 reactions:

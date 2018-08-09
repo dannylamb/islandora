@@ -6,6 +6,7 @@ dependencies:
       - islandora_core_feature
   module:
     - file
+    - filehash
     - rest
     - serialization
 id: file_checksum
