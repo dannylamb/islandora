@@ -74,7 +74,7 @@ class ContentEntityType extends ConditionPluginBase {
     if (count($this->configuration['types']) > 1) {
       $types = $this->configuration['types'];
       $last = array_pop($types);
-      $types = implode(', ', $filesystems);
+      $types = implode(', ', $types);
       return $this->t(
         'The content entity is a @types or @last',
         [
