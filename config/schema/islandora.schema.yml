@@ -3,13 +3,13 @@ islandora.settings:
   label: 'Islandora Core Settings'
   mapping:
     broker_url:
-      type: string 
+      type: string
       label: 'Url to connect to message broker'
     fedora_rest_endpoint:
-      type: string 
+      type: string
       label: 'Url to Fedora instance'
     broadcast_queue:
-      type: string 
+      type: string
       label: 'Queue that handles distributing messages amongst multiple recipients'
 
 action.configuration.emit_node_event:
@@ -68,21 +68,21 @@ condition.plugin.node_has_term:
   type: condition.plugin
   mapping:
     uri:
-      type: text 
+      type: text
       label: 'Taxonomy Term URI'
 
 condition.plugin.media_has_term:
   type: condition.plugin
   mapping:
     uri:
-      type: text 
+      type: text
       label: 'Taxonomy Term URI'
 
 condition.plugin.parent_node_has_term:
   type: condition.plugin
   mapping:
     uri:
-      type: text 
+      type: text
       label: 'Taxonomy Term URI'
 
 condition.plugin.file_uses_filesystem:

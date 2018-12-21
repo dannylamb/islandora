@@ -38,6 +38,20 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
   protected $testVocabulary;
 
   /**
+   * Term to belong to the node.
+   *
+   * @var \Drupal\taxonomy\TermInterface
+   */
+  protected $imageTerm;
+
+  /**
+   * Term to belong to the source media.
+   *
+   * @var \Drupal\taxonomy\TermInterface
+   */
+  protected $preservationMasterTerm;
+
+  /**
    * {@inheritdoc}
    */
   public function setUp() {
@@ -159,6 +173,46 @@ EOD;
     // Cache clear / rebuild.
     drupal_flush_all_caches();
     $this->container->get('router.builder')->rebuild();
+  }
+
+  /**
+   * Create a new user and log them in.
+   */
+  protected function createUserAndLogin() {
+    // Create a test user.
+    $account = $this->drupalCreateUser();
+    $this->drupalLogin($account);
+    return $account;
+  }
+
+  /**
+   * Create an Image tag.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  protected function createImageTag() {
+    // 'Image' tag.
+    $this->imageTerm = $this->container->get('entity_type.manager')->getStorage('taxonomy_term')->create([
+      'name' => 'Image',
+      'vid' => $this->testVocabulary->id(),
+      'field_external_uri' => [['uri' => "http://purl.org/coar/resource_type/c_c513"]],
+    ]);
+    $this->imageTerm->save();
+  }
+
+  /**
+   * Create a Preservation Master tag.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  protected function createPreservationMasterTag() {
+    // 'Preservation Master' tag.
+    $this->preservationMasterTerm = $this->container->get('entity_type.manager')->getStorage('taxonomy_term')->create([
+      'name' => 'Preservation Master',
+      'vid' => $this->testVocabulary->id(),
+      'field_external_uri' => [['uri' => "http://pcdm.org/use#PreservationMasterFile"]],
+    ]);
+    $this->preservationMasterTerm->save();
   }
 
   /**
