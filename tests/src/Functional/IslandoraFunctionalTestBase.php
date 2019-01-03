@@ -20,7 +20,7 @@ class IslandoraFunctionalTestBase extends BrowserTestBase {
   use TestFileCreationTrait;
   use MediaFunctionalTestCreateMediaTypeTrait;
 
-  protected static $modules = ['context_ui', 'islandora'];
+  protected static $modules = ['context_ui', 'field_ui', 'islandora'];
 
   protected static $configSchemaCheckerExclusions = [
     'jwt.config',
@@ -247,6 +247,14 @@ EOD;
    */
   protected function postNodeAddForm($bundle_id, $values, $button_text) {
     $this->drupalPostForm("node/add/$bundle_id", $values, t('@text', ['@text' => $button_text]));
+    $this->assertSession()->statusCodeEquals(200);
+  }
+
+  /**
+   * Create a new node by posting its add form.
+   */
+  protected function postTermAddForm($taxomony_id, $values, $button_text) {
+    $this->drupalPostForm("admin/structure/taxonomy/manage/$taxomony_id/add", $values, t('@text', ['@text' => $button_text]));
     $this->assertSession()->statusCodeEquals(200);
   }
 
