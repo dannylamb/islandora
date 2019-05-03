@@ -120,3 +120,14 @@ condition.plugin.content_entity_type:
       type: sequence
       sequence:
         type: string
+
+field.formatter.settings.islandora_image:
+  type: mapping
+  label: 'Image field display format settings'
+  mapping:
+    image_link:
+      type: string
+      label: 'Link image to'
+    image_style:
+      type: string
+      label: 'Image style'
