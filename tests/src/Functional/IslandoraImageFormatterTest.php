@@ -2,15 +2,8 @@
 
 namespace Drupal\Tests\islandora\Functional;
 
-/*
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\user\RoleInterface;
-use Drupal\image\Entity\ImageStyle;
- */
-
 /**
- * Tests the display of image fields.
+ * Tests the links for image fields with the islandora_image field formatter.
  *
  * @group islandora
  * @coversDefaultClass \Drupal\islandora\Plugin\Field\FieldFormatter\IslandoraImageFormatter
