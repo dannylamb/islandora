@@ -44,10 +44,12 @@ class GenerateVideoDerivative extends AbstractGenerateDerivative {
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::validateConfigurationForm($form, $form_state);
     $exploded_mime = explode('/', $form_state->getValue('mimetype'));
-    if ($exploded_mime[0] != 'video') {
+    if ($form_state->getValue('mimetype') != 'image/jpeg' && $exploded_mime[0] != 'video') {
+      $message = 'Please enter a video mimetype (e.g. video/mp4, video/quicktime, etc...) ' .
+        'if generating a video or image/jpeg if capturing a frame from the video.';
       $form_state->setErrorByName(
         'mimetype',
-        t('Please enter a video mimetype (e.g. video/mp4, video/quicktime, etc...)')
+        t('@message', ['@message' => $message])
       );
     }
   }
