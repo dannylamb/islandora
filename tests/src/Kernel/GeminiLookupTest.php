@@ -27,16 +27,98 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
 
   private $logger;
 
+  private $guzzle;
+
+  private $geminiClient;
+
+  private $mediaSource;
+
+  private $entity;
+
+  private $media;
+
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
+
+    // Mock up dummy objects by default.
     $prophecy = $this->prophesize(JwtAuth::class);
     $this->jwtAuth = $prophecy->reveal();
 
     $prophecy = $this->prophesize(LoggerInterface::class);
     $this->logger = $prophecy->reveal();
+
+    $prophecy = $this->prophesize(MediaSourceService::class);
+    $this->mediaSource = $prophecy->reveal();
+
+    $prophecy = $this->prophesize(GeminiClient::class);
+    $this->geminiClient = $prophecy->reveal();
+
+    $prophecy = $this->prophesize(Client::class);
+    $this->guzzle = $prophecy->reveal();
+
+    // Mock up an entity to use (node in this case).
+    $prophecy = $this->prophesize(EntityInterface::class);
+    $prophecy->id()->willReturn(1);
+    $prophecy->getEntityTypeId()->willReturn('node');
+    $prophecy->uuid()->willReturn('abc123');
+    $this->entity = $prophecy->reveal();
+
+    // Mock up a media to use.
+    $prophecy = $this->prophesize(MediaInterface::class);
+    $prophecy->id()->willReturn(1);
+    $prophecy->getEntityTypeId()->willReturn('media');
+    $prophecy->uuid()->willReturn('abc123');
+    $this->media = $prophecy->reveal();
+  }
+
+  /**
+   * Mocks up a gemini client that fails its lookup.
+   */
+  private function mockGeminiClientForFail() {
+    $prophecy = $this->prophesize(GeminiClient::class);
+    $prophecy->getUrls(Argument::any(), Argument::any())
+      ->willReturn([]);
+    $this->geminiClient = $prophecy->reveal();
+  }
+
+  /**
+   * Mocks up a gemini client that finds a fedora url.
+   */
+  private function mockGeminiClientForSuccess() {
+    $prophecy = $this->prophesize(GeminiClient::class);
+    $prophecy->getUrls(Argument::any(), Argument::any())
+      ->willReturn(['drupal' => '', 'fedora' => 'http://localhost:8080/fcrepo/rest/abc123']);
+    $this->geminiClient = $prophecy->reveal();
+  }
+
+  /**
+   * Mocks up a media source service that finds the source file for a media.
+   */
+  private function mockMediaSourceForSuccess() {
+    $prophecy = $this->prophesize(FileInterface::class);
+    $prophecy->uuid()->willReturn('abc123');
+    $file = $prophecy->reveal();
+
+    $prophecy = $this->prophesize(MediaSourceService::class);
+    $prophecy->getSourceFile(Argument::any())
+      ->willReturn($file);
+    $this->mediaSource = $prophecy->reveal();
+  }
+
+  /**
+   * Make the gemini lookup out of class variables.
+   */
+  private function createGeminiLookup() {
+    return new GeminiLookup(
+      $this->geminiClient,
+      $this->jwtAuth,
+      $this->mediaSource,
+      $this->guzzle,
+      $this->logger
+    );
   }
 
   /**
@@ -44,28 +126,18 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testEntityNotSaved() {
+    // Mock an entity that returns a null id.
+    // That means it's not saved in the db yet.
     $prophecy = $this->prophesize(EntityInterface::class);
     $prophecy->id()->willReturn(NULL);
-    $entity = $prophecy->reveal();
+    $this->entity = $prophecy->reveal();
 
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $gemini_client = $prophecy->reveal();
+    $gemini_lookup = $this->createGeminiLookup();
 
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(Client::class);
-    $guzzle = $prophecy->reveal();
-
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
+    $this->assertEquals(
+      NULL,
+      $gemini_lookup->lookup($this->entity)
     );
-
-    $this->assertEquals(NULL, $this->geminiLookup->lookup($entity));
   }
 
   /**
@@ -73,32 +145,14 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testEntityNotFound() {
-    $prophecy = $this->prophesize(EntityInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('node');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
+    $this->mockGeminiClientForFail();
 
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $prophecy->getUrls(Argument::any(), Argument::any())
-      ->willReturn([]);
-    $gemini_client = $prophecy->reveal();
+    $gemini_lookup = $this->createGeminiLookup();
 
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(Client::class);
-    $guzzle = $prophecy->reveal();
-
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
+    $this->assertEquals(
+      NULL,
+      $gemini_lookup->lookup($this->entity)
     );
-
-    $this->assertEquals(NULL, $this->geminiLookup->lookup($entity));
   }
 
   /**
@@ -106,34 +160,13 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testEntityFound() {
-    $prophecy = $this->prophesize(EntityInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('node');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
+    $this->mockGeminiClientForSuccess();
 
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $prophecy->getUrls(Argument::any(), Argument::any())
-      ->willReturn(['drupal' => '', 'fedora' => 'http://localhost:8080/fcrepo/rest/abc123']);
-    $gemini_client = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(Client::class);
-    $guzzle = $prophecy->reveal();
-
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
-    );
+    $gemini_lookup = $this->createGeminiLookup();
 
     $this->assertEquals(
       'http://localhost:8080/fcrepo/rest/abc123',
-      $this->geminiLookup->lookup($entity)
+      $gemini_lookup->lookup($this->entity)
     );
   }
 
@@ -142,32 +175,19 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testMediaHasNoSourceFile() {
-    $prophecy = $this->prophesize(MediaInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('media');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $gemini_client = $prophecy->reveal();
-
+    // Mock a media source service that fails to find
+    // the source file for a media.
     $prophecy = $this->prophesize(MediaSourceService::class);
     $prophecy->getSourceFile(Argument::any())
       ->willThrow(new NotFoundHttpException("Media has no source"));
-    $media_source = $prophecy->reveal();
+    $this->mediaSource = $prophecy->reveal();
 
-    $prophecy = $this->prophesize(Client::class);
-    $guzzle = $prophecy->reveal();
+    $gemini_lookup = $this->createGeminiLookup();
 
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
+    $this->assertEquals(
+      NULL,
+      $gemini_lookup->lookup($this->media)
     );
-
-    $this->assertEquals(NULL, $this->geminiLookup->lookup($entity));
   }
 
   /**
@@ -175,38 +195,15 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testMediaNotFound() {
-    $prophecy = $this->prophesize(MediaInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('media');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
+    $this->mockMediaSourceForSuccess();
+    $this->mockGeminiClientForFail();
 
-    $prophecy = $this->prophesize(FileInterface::class);
-    $prophecy->uuid()->willReturn('xyzpdq');
-    $file = $prophecy->reveal();
+    $gemini_lookup = $this->createGeminiLookup();
 
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $prophecy->getSourceFile(Argument::any())
-      ->willReturn($file);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $prophecy->getUrls(Argument::any(), Argument::any())
-      ->willReturn([]);
-    $gemini_client = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(Client::class);
-    $guzzle = $prophecy->reveal();
-
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
+    $this->assertEquals(
+      NULL,
+      $gemini_lookup->lookup($this->media)
     );
-
-    $this->assertEquals(NULL, $this->geminiLookup->lookup($entity));
   }
 
   /**
@@ -214,40 +211,22 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testFileFoundButNoDescribedby() {
-    $prophecy = $this->prophesize(MediaInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('media');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
+    $this->mockMediaSourceForSuccess();
+    $this->mockGeminiClientForSuccess();
 
-    $prophecy = $this->prophesize(FileInterface::class);
-    $prophecy->uuid()->willReturn('xyzpdq');
-    $file = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $prophecy->getSourceFile(Argument::any())
-      ->willReturn($file);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $prophecy->getUrls(Argument::any(), Argument::any())
-      ->willReturn(['drupal' => '', 'fedora' => 'http://localhost:8080/fcrepo/rest/xyzpdq']);
-    $gemini_client = $prophecy->reveal();
-
+    // Mock up a guzzle client that does not return
+    // the describedby header.
     $prophecy = $this->prophesize(Client::class);
     $prophecy->head(Argument::any(), Argument::any())
       ->willReturn(new Response(200, []));
-    $guzzle = $prophecy->reveal();
+    $this->guzzle = $prophecy->reveal();
 
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
+    $gemini_lookup = $this->createGeminiLookup();
+
+    $this->assertEquals(
+      NULL,
+      $gemini_lookup->lookup($this->media)
     );
-
-    $this->assertEquals(NULL, $this->geminiLookup->lookup($entity));
   }
 
   /**
@@ -255,42 +234,21 @@ class GeminiLookupTest extends IslandoraKernelTestBase {
    * @covers ::__construct
    */
   public function testMediaFound() {
-    $prophecy = $this->prophesize(MediaInterface::class);
-    $prophecy->id()->willReturn(1);
-    $prophecy->getEntityTypeId()->willReturn('media');
-    $prophecy->uuid()->willReturn('abc123');
-    $entity = $prophecy->reveal();
+    $this->mockMediaSourceForSuccess();
+    $this->mockGeminiClientForSuccess();
 
-    $prophecy = $this->prophesize(FileInterface::class);
-    $prophecy->uuid()->willReturn('xyzpdq');
-    $file = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(MediaSourceService::class);
-    $prophecy->getSourceFile(Argument::any())
-      ->willReturn($file);
-    $media_source = $prophecy->reveal();
-
-    $prophecy = $this->prophesize(GeminiClient::class);
-    $prophecy->getUrls(Argument::any(), Argument::any())
-      ->willReturn(['drupal' => '', 'fedora' => 'http://localhost:8080/fcrepo/rest/xyzpdq']);
-    $gemini_client = $prophecy->reveal();
-
+    // Mock up a guzzle client that returns
+    // the describedby header.
     $prophecy = $this->prophesize(Client::class);
     $prophecy->head(Argument::any(), Argument::any())
-      ->willReturn(new Response(200, ['Link' => '<http://localhost:8080/fcrepo/rest/xyzpdq/fcr:metadata>; rel="describedby"']));
-    $guzzle = $prophecy->reveal();
+      ->willReturn(new Response(200, ['Link' => '<http://localhost:8080/fcrepo/rest/abc123/fcr:metadata>; rel="describedby"']));
+    $this->guzzle = $prophecy->reveal();
 
-    $this->geminiLookup = new GeminiLookup(
-        $gemini_client,
-        $this->jwtAuth,
-        $media_source,
-        $guzzle,
-        $this->logger
-    );
+    $gemini_lookup = $this->createGeminiLookup();
 
     $this->assertEquals(
-      'http://localhost:8080/fcrepo/rest/xyzpdq/fcr:metadata',
-      $this->geminiLookup->lookup($entity)
+      'http://localhost:8080/fcrepo/rest/abc123/fcr:metadata',
+      $gemini_lookup->lookup($this->media)
     );
   }
 
