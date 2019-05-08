@@ -57,4 +57,4 @@ services:
     arguments: ['@config.factory', '@logger.channel.islandora']
   islandora.gemini.lookup:
     class: Drupal\islandora\GeminiLookup
-    arguments: ['@islandora.gemini.client', '@jwt.authentication.jwt', '@logger.channel.islandora']
+    arguments: ['@islandora.gemini.client', '@jwt.authentication.jwt', '@islandora.media_source_service', '@http_client', '@logger.channel.islandora']
