@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   label = @Translation("Entity Bundle"),
  *   context = {
  *     "node" = @ContextDefinition("entity:node", required = FALSE, label = @Translation("Node")),
+ *     "media" = @ContextDefinition("entity:media", required = FALSE, label = @Translation("Media")),
  *     "taxonomy_term" = @ContextDefinition("entity:taxonomy_term", required = FALSE, label = @Translation("Term"))
  *   }
  * )
@@ -24,7 +25,7 @@ class EntityBundle extends ConditionPluginBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $options = [];
-    foreach (['node', 'taxonomy_term'] as $content_entity) {
+    foreach (['node', 'media', 'taxonomy_term'] as $content_entity) {
       $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($content_entity);
       foreach ($bundles as $bundle => $bundle_properties) {
         $options[$bundle] = $this->t('@bundle (@type)', [

@@ -21,7 +21,7 @@ class GenerateAudioDerivative extends AbstractGenerateDerivative {
    */
   public function defaultConfiguration() {
     $config = parent::defaultConfiguration();
-    $config['path'] = '[date:custom:Y]-[date:custom:m]/[node:nid].mp3';
+    $config['path'] = '[date:custom:Y]-[date:custom:m]/[node:nid]-[term:name].mp3';
     $config['mimetype'] = 'audio/mpeg';
     $config['queue'] = 'islandora-connector-homarus';
     $config['destination_media_type'] = 'audio';
