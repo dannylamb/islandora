@@ -52,9 +52,7 @@ class JsonldTypeAlterReaction extends NormalizerAlterReaction {
           $normalized['@graph'][0]['@type'][] = NormalizerBase::escapePrefix($type['value'], $context['namespaces']);
         }
       }
-
     }
-    
   }
 
   /**
