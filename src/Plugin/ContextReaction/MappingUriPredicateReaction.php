@@ -77,9 +77,10 @@ class MappingUriPredicateReaction extends NormalizerAlterReaction {
       if (isset($normalized['@graph']) && is_array($normalized['@graph'])) {
         foreach ($normalized['@graph'] as &$graph) {
           if (isset($graph['@id']) && $graph['@id'] == $url) {
+            // Swap media and file urls.
             if ($entity instanceof MediaInterface) {
               $file = $this->mediaSource->getSourceFile($entity);
-              $url = $file->url('canonical', ['absolute' => TRUE]);
+              $graph['@id'] = $file->url('canonical', ['absolute' => TRUE]);
             }
             if (isset($graph[$drupal_predicate])) {
               if (!is_array($graph[$drupal_predicate])) {
