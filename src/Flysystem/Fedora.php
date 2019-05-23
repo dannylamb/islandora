@@ -4,6 +4,7 @@ namespace Drupal\islandora\Flysystem;
 
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\flysystem\Plugin\FlysystemPluginInterface;
 use Drupal\flysystem\Plugin\FlysystemUrlTrait;
 use Drupal\islandora\Flysystem\Adapter\FedoraAdapter;
@@ -116,4 +117,23 @@ class Fedora implements FlysystemPluginInterface, ContainerFactoryPluginInterfac
     return [];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getExternalUrl($uri) {
+    $path = str_replace('\\', '/', $this->getTarget($uri));
+
+    $arguments = [
+      'scheme' => $this->getScheme($uri),
+      'filepath' => $path,
+    ];
+
+    // Force file urls to be language neutral.
+    $undefined = \Drupal::languageManager()->getLanguage('und');
+    return Url::fromRoute(
+      'flysystem.serve',
+      $arguments,
+      ['absolute' => TRUE, 'language' => $undefined]
+    )->toString();
+  }
 }
