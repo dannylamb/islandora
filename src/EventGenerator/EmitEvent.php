@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\jwt\Authentication\Provider\JwtAuth;
 use Stomp\Exception\StompException;
 use Stomp\StatefulStomp;
@@ -131,6 +132,7 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
     try {
       $user = $this->entityTypeManager->getStorage('user')->load($this->account->id());
       $data = $this->generateData($entity);
+dsm($this->eventGenerator->generateEvent($entity, $user, $data), "EVENT");
       $message = new Message(
         $this->eventGenerator->generateEvent($entity, $user, $data),
         ['Authorization' => "Bearer $token"]
@@ -175,7 +177,12 @@ abstract class EmitEvent extends ConfigurableActionBase implements ContainerFact
    * Override this function to control what gets encoded as a json note.
    */
   protected function generateData(EntityInterface $entity) {
-    return $this->configuration;
+    // Add the drupal base url to the data from the form.
+    // Be sure to strip the trailing slash.
+    $drupal_base_url = Url::fromRoute('<front>', [], ['absolute' => true])->toString();
+    $drupal_base_url = rtrim($drupal_base_url, '/');
+
+    return $this->configuration + ['drupal_base_url' => $drupal_base_url];
   }
 
   /**

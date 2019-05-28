@@ -180,18 +180,31 @@ function islandora_file_insert(FileInterface $file) {
  * Implements hook_file_update().
  */
 function islandora_file_update(FileInterface $file) {
-  // Exit early if unchanged.
-  if ($file->filehash['sha1'] == $file->original->filehash['sha1']) {
-    return;
-  }
-
   $utils = \Drupal::service('islandora.utils');
+  $invalidator = \Drupal::service('cache_tags.invalidator');
+
+  // Invalidate the cache for the owning media.  This doesn't always
+  // happen when things like file_move_unmanaged (and I'm sure other things)
+  // get called.  So just do it to ensure REST returns
+  // the right JSONLD.  I tried adding the file's cache tags to the media's
+  // REST response, but nothing seemed to take :( 
+  $invalidator->invalidateTags($file->getCacheTagsToInvalidate());
+  $medias = $utils->getReferencingMedia($file->id());
+  foreach ($medias as $media) {
+    $invalidator->invalidateTags($media->getCacheTagsToInvalidate());
+  }
 
   // Execute index reactions.
   $utils->executeFileReactions('\Drupal\islandora\Plugin\ContextReaction\IndexReaction', $file);
 
+  // Exit early if actual bytes are unchanged.
+  // We don't want to run derivatives again for no reason.
+  if ($file->filehash['sha1'] == $file->original->filehash['sha1']) {
+    return;
+  }
+
   // Execute derivative reactions.
-  foreach ($utils->getReferencingMedia($file->id()) as $media) {
+  foreach ($medias as $media) {
     $node = $utils->getParentNode($media);
     if ($node) {
       $utils->executeDerivativeReactions(

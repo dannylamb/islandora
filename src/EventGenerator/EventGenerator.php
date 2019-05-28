@@ -20,15 +20,14 @@ class EventGenerator implements EventGeneratorInterface {
   public function generateEvent(EntityInterface $entity, UserInterface $user, array $data) {
 
     $user_url = $user->toUrl()->setAbsolute()->toString();
+    $entity_type = $entity->getEntityTypeId();
 
-    if ($entity instanceof FileInterface) {
-      $entity_url = $entity->url();
-      $mimetype = $entity->getMimeType();
-    }
-    else {
-      $entity_url = $entity->toUrl()->setAbsolute()->toString();
-      $mimetype = 'text/html';
-    }
+    $entity_url = Url::fromRoute(
+      "rest.entity.$entity_type.GET",
+      [$entity_type => $entity->id()],
+      ['absolute' => TRUE]
+    )->toString();
+    $mimetype = $entity instanceof FileInterface ? $entity->getMimeType() : 'text/html';
 
     $event = [
       "@context" => "https://www.w3.org/ns/activitystreams",
@@ -55,11 +54,24 @@ class EventGenerator implements EventGeneratorInterface {
             "mediaType" => $mimetype,
             "rel" => "canonical",
           ],
+          [
+            "name" => "JSON",
+            "type" => "Link",
+            "href" => "$entity_url?_format=json",
+            "mediaType" => "application/json",
+            "rel" => "alternate",
+          ],
+          [
+            "name" => "JSONLD",
+            "type" => "Link",
+            "href" => "$entity_url?_format=jsonld",
+            "mediaType" => "application/ld+json",
+            "rel" => "alternate",
+          ]
         ],
       ],
     ];
 
-    $entity_type = $entity->getEntityTypeId();
     $event_type = $data["event"];
     if ($data["event"] == "Generate Derivative") {
       $event["type"] = "Activity";
@@ -68,24 +80,6 @@ class EventGenerator implements EventGeneratorInterface {
     else {
       $event["type"] = ucfirst($data["event"]);
       $event["summary"] = ucfirst($data["event"]) . " a " . ucfirst($entity_type);
-    }
-
-    // Add REST links for non-file entities.
-    if ($entity_type != 'file') {
-      $event['object']['url'][] = [
-        "name" => "JSON",
-        "type" => "Link",
-        "href" => "$entity_url?_format=json",
-        "mediaType" => "application/json",
-        "rel" => "alternate",
-      ];
-      $event['object']['url'][] = [
-        "name" => "JSONLD",
-        "type" => "Link",
-        "href" => "$entity_url?_format=jsonld",
-        "mediaType" => "application/ld+json",
-        "rel" => "alternate",
-      ];
     }
 
     unset($data["event"]);

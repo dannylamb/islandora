@@ -1,7 +1,6 @@
 <?php
 
 namespace Drupal\islandora\Plugin\ContextReaction;
-
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -9,6 +8,7 @@ use Drupal\islandora\ContextReaction\NormalizerAlterReaction;
 use Drupal\islandora\MediaSource\MediaSourceService;
 use Drupal\jsonld\Normalizer\NormalizerBase;
 use Drupal\media\MediaInterface;
+use Drupal\serialization\Normalizer\CacheableNormalizerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -77,10 +77,18 @@ class MappingUriPredicateReaction extends NormalizerAlterReaction {
       if (isset($normalized['@graph']) && is_array($normalized['@graph'])) {
         foreach ($normalized['@graph'] as &$graph) {
           if (isset($graph['@id']) && $graph['@id'] == $url) {
+
             // Swap media and file urls.
             if ($entity instanceof MediaInterface) {
               $file = $this->mediaSource->getSourceFile($entity);
               $graph['@id'] = $file->url('canonical', ['absolute' => TRUE]);
+
+              if (isset($context[CacheableNormalizerInterface::SERIALIZATION_CONTEXT_CACHEABILITY])) {
+\Drupal::logger('islandora')->debug("Adding file as cachable dependency");
+                $context[CacheableNormalizerInterface::SERIALIZATION_CONTEXT_CACHEABILITY]
+                  ->addCacheableDependency($file);
+              }
+
             }
             if (isset($graph[$drupal_predicate])) {
               if (!is_array($graph[$drupal_predicate])) {
@@ -91,7 +99,7 @@ class MappingUriPredicateReaction extends NormalizerAlterReaction {
                 $tmp = $graph[$drupal_predicate];
                 $graph[$drupal_predicate] = [$tmp];
               }
-              elseif (array_search($url, array_column($graph[$drupal_predicate], '@value'))) {
+              elseif (array_search($url, array_column($graph[$drupal_predicate], '@id'))) {
                 // Don't add it if it already exists.
                 return;
               }
@@ -99,7 +107,7 @@ class MappingUriPredicateReaction extends NormalizerAlterReaction {
             else {
               $graph[$drupal_predicate] = [];
             }
-            $graph[$drupal_predicate][] = ["@value" => $url];
+            $graph[$drupal_predicate][] = ["@id" => $url];
             return;
           }
         }

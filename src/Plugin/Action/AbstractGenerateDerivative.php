@@ -155,7 +155,11 @@ class AbstractGenerateDerivative extends EmitEvent {
       throw new \RuntimeException("Could not locate source file for media {$source_media->id()}", 500);
     }
 
-    $data['source_uri'] = $source_file->url('canonical', ['absolute' => TRUE]);
+    $data['file_json_url'] = Url::fromRoute(
+      "rest.entity.file.GET",
+      ['file' => $source_file->id()],
+      ['absolute' => TRUE, 'query' => ['_format' => 'json']]
+    )->toString();
 
     // Find the term for the derivative and use it to set the destination url
     // in the data array.
