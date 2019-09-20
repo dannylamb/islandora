@@ -1,0 +1,9 @@
+name: 'Integer weight test views'
+type: module
+description: 'Provides default views for integer weight views tests.'
+package: Testing
+core: 8.x
+dependencies:
+  - drupal:node
+  - drupal:views
+  - drupal:language
