@@ -409,3 +409,47 @@ function islandora_entity_view(array &$build, EntityInterface $entity, EntityVie
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_views_view_table().
+ *
+ * Used for the integer-weight drag-n-drop. Taken almost
+ * verbatim from the weight module.
+ */
+function islandora_preprocess_views_view_table(&$variables) {
+
+  // Check for a weight selector field.
+  foreach ($variables['view']->field as $field_key => $field) {
+    if ($field->options['plugin_id'] == 'integer_weight_selector') {
+
+      // Check if the weight selector is on the first column.
+      $is_first_column = array_search($field_key, array_keys($variables['view']->field)) > 0 ? FALSE : TRUE;
+
+      // Add the tabledrag attributes.
+      foreach ($variables['rows'] as $key => $row) {
+        if ($is_first_column) {
+          // If the weight selector is the first column move it to the last
+          // column, in order to make the draggable widget appear.
+          $weight_selector = $variables['rows'][$key]['columns'][$field->field];
+          unset($variables['rows'][$key]['columns'][$field->field]);
+          $variables['rows'][$key]['columns'][$field->field] = $weight_selector;
+        }
+        // Add draggable attribute.
+        $variables['rows'][$key]['attributes']->addClass('draggable');
+      }
+      // The row key identify in an unique way a view grouped by a field.
+      // Without row number, all the groups will share the same table_id
+      // and just the first table can be draggable.
+      $table_id = 'weight-table-' . $variables['view']->dom_id . '-row-' . $key;
+      $variables['attributes']['id'] = $table_id;
+
+      $options = [
+        'table_id' => $table_id,
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => 'weight-selector',
+      ];
+      drupal_attach_tabledrag($variables, $options);
+    }
+  }
+}
