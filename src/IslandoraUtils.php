@@ -32,6 +32,8 @@ class IslandoraUtils {
   const MEDIA_OF_FIELD = 'field_media_of';
 
   const MEDIA_USAGE_FIELD = 'field_media_use';
+  const MEMBER_OF_FIELD = 'field_member_of';
+  const MODEL_FIELD = 'field_model';
 
   /**
    * The entity type manager.
@@ -609,6 +611,31 @@ class IslandoraUtils {
       $rest_url .= "?_format=$format";
     }
     return $rest_url;
+  }
+
+  /**
+   * Determines if an entity type and bundle make an 'Islandora' type entity.
+   *
+   * @param string $entity_type
+   *   The entity type ('node', 'media', etc...).
+   * @param string $bundle
+   *   Entity bundle ('article', 'page', etc...).
+   *
+   * @return bool
+   *   TRUE if the bundle has the correct fields to be an 'Islandora' type.
+   */
+  public function isIslandoraType($entity_type, $bundle) {
+    $fields = $this->entityFieldManager->getFieldDefinitions($entity_type, $bundle);
+    switch ($entity_type) {
+      case 'media':
+        return isset($fields[self::MEDIA_OF_FIELD]) && isset($fields[self::MEDIA_USAGE_FIELD]);
+
+      case 'taxonomy_term':
+        return isset($fields[self::EXTERNAL_URI_FIELD]);
+
+      default:
+        return isset($fields[self::MEMBER_OF_FIELD]) && isset($fields[self::MODEL_FIELD]);
+    }
   }
 
 }

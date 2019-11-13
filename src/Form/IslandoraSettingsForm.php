@@ -23,6 +23,9 @@ class IslandoraSettingsForm extends ConfigFormBase {
   const BROKER_USER = 'broker_user';
   const BROKER_PASSWORD = 'broker_password';
   const JWT_EXPIRY = 'jwt_expiry';
+  const UPLOAD_FORM = 'upload_form';
+  const UPLOAD_FORM_LOCATION = 'upload_form_location';
+  const UPLOAD_FORM_ALLOWED_MIMETYPES = 'upload_form_allowed_mimetypes';
   const GEMINI_PSEUDO = 'gemini_pseudo_bundles';
   const FEDORA_URL = 'fedora_url';
   const TIME_INTERVALS = [
@@ -58,7 +61,10 @@ class IslandoraSettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The EntityTypeBundleInfo service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info
+  ) {
     $this->setConfigFactory($config_factory);
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->brokerPassword = $this->config(self::CONFIG_NAME)->get(self::BROKER_PASSWORD);
@@ -70,7 +76,7 @@ class IslandoraSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
           $container->get('config.factory'),
-          $container->get('entity_type.bundle.info')
+          $container->get('entity_type.bundle.info'),
       );
   }
 
@@ -143,6 +149,32 @@ class IslandoraSettingsForm extends ConfigFormBase {
       '#description' => $this->t('A positive time interval expression. Eg: "60 secs", "2 days", "10 hours", "7 weeks". Be sure you provide the time units (@unit), plurals are accepted.',
         ['@unit' => implode(", ", self::TIME_INTERVALS)]
       ),
+    ];
+
+    $form[self::UPLOAD_FORM] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Add Children / Media Form'),
+    ];
+
+    $form[self::UPLOAD_FORM][self::UPLOAD_FORM_LOCATION] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Upload location'),
+      '#description' => $this->t('Tokenized URI pattern where the uploaded file should go.  You may use tokens to provide a pattern (e.g. "fedora://[current-date:custom:Y]-[current-date:custom:m]")'),
+      '#default_value' => $config->get(self::UPLOAD_FORM_LOCATION),
+      '#element_validate' => ['token_element_validate'],
+      '#token_types' => ['system'],
+    ];
+
+    $form[self::UPLOAD_FORM]['TOKEN_HELP'] = [
+      '#theme' => 'token_tree_link',
+      '#token_type' => ['system'],
+    ];
+
+    $form[self::UPLOAD_FORM][self::UPLOAD_FORM_ALLOWED_MIMETYPES] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Allowed Mimetypes'),
+      '#description' => $this->t('Add mimetypes as a space delimited list with no periods before the extension.'),
+      '#default_value' => $config->get(self::UPLOAD_FORM_ALLOWED_MIMETYPES),
     ];
 
     $flysystem_config = Settings::get('flysystem');
@@ -296,6 +328,8 @@ class IslandoraSettingsForm extends ConfigFormBase {
     $config
       ->set(self::BROKER_URL, $form_state->getValue(self::BROKER_URL))
       ->set(self::JWT_EXPIRY, $form_state->getValue(self::JWT_EXPIRY))
+      ->set(self::UPLOAD_FORM_LOCATION, $form_state->getValue(self::UPLOAD_FORM_LOCATION))
+      ->set(self::UPLOAD_FORM_ALLOWED_MIMETYPES, $form_state->getValue(self::UPLOAD_FORM_ALLOWED_MIMETYPES))
       ->set(self::GEMINI_PSEUDO, $pseudo_types)
       ->save();
 

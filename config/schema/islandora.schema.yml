@@ -14,6 +14,18 @@ islandora.settings:
     jwt_expiry:
       type: string
       label: 'How long JWTs should last before expiring.'
+    upload_form_bundle:
+      type: string
+      label: 'Upload Form Content Type'
+    upload_form_location:
+      type: string
+      label: 'Upload Form Location'
+    upload_form_term:
+      type: string
+      label: 'Upload Form Media Use Term'
+    upload_form_allowed_extensions:
+      type: string
+      label: 'Upload Form Allowed Extensions'
     gemini_url:
       type: uri
       label: 'Url to Gemini microservice'
