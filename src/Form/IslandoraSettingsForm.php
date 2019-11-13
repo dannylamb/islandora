@@ -46,6 +46,11 @@ class IslandoraSettingsForm extends ConfigFormBase {
    */
   private $utils;
 
+  /**
+   * Term storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
   private $termStorage;
 
   /**
