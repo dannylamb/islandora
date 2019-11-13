@@ -16,27 +16,24 @@ system.islandora_settings:
   requirements:
     _permission: 'administer site configuration'
 
-islandora.add_member_to_node_page:
+islandora.add_children_form:
   path: '/node/{node}/members/add'
   defaults:
-    _controller: '\Drupal\islandora\Controller\ManageMembersController::addToNodePage'
-    _title_callback: '\Drupal\islandora\Controller\ManageMembersController::addTitle'
-    entity_type_id: node
+    _form: '\Drupal\islandora\Form\AddChildrenForm'
+    _title: 'Add children'
   options:
-    _admin_route: 'true'
+    _admin_route: 'TRUE'
   requirements:
-    _entity_create_any_access: 'node'
+    _permssion: 'create node,create media'
 
-islandora.add_media_to_node_page:
+islandora.add_media_form:
   path: '/node/{node}/media/add'
-  defaults:
-    _controller: '\Drupal\islandora\Controller\ManageMediaController::addToNodePage'
-    _title_callback: '\Drupal\islandora\Controller\ManageMediaController::addTitle'
-    entity_type_id: media
+    _form: '\Drupal\islandora\Form\AddMediaForm'
+    _title: 'Add media'
   options:
-    _admin_route: 'true'
+    _admin_route: 'TRUE'
   requirements:
-    _entity_create_any_access: 'media'
+    _permssion: 'create media'
 
 islandora.media_source_update:
   path: '/media/{media}/source'
