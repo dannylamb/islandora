@@ -61,13 +61,13 @@ class LinkHeaderTest extends IslandoraFunctionalTestBase {
       'type' => $this->testType->id(),
       'title' => 'Referencer',
       'field_member_of' => [$this->referenced->id()],
-      'field_tags' => [$this->imageTerm->id()],
+      'field_model' => [$this->imageTerm->id()],
     ]);
     $this->referencer->save();
 
     list($this->file, $this->media) = $this->makeMediaAndFile($account);
     $this->media->set('field_media_of', $this->referencer);
-    $this->media->set('field_tags', $this->preservationMasterTerm);
+    $this->media->set('field_media_use', $this->preservationMasterTerm);
     $this->media->save();
   }
 

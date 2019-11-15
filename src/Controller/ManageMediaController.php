@@ -2,6 +2,7 @@
 
 namespace Drupal\islandora\Controller;
 
+use Drupal\islandora\IslandoraUtils;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\node\Entity\Node;
@@ -22,13 +23,15 @@ class ManageMediaController extends ManageMembersController {
    *   Array of media types to add.
    */
   public function addToNodePage(NodeInterface $node) {
+    $field = IslandoraUtils::MEDIA_OF_FIELD;
+
     return $this->generateTypeList(
       'media',
       'media_type',
       'entity.media.add_form',
       'entity.media_type.add_form',
-      $node,
-      'field_media_of'
+      $field,
+      ['query' => ["edit[$field][widget][0][target_id]" => $node->id()]]
     );
   }
 
@@ -47,7 +50,7 @@ class ManageMediaController extends ManageMembersController {
       if (!$node instanceof NodeInterface) {
         $node = Node::load($node);
       }
-      if ($node->hasField('field_model') && $node->hasField('field_member_of')) {
+      if ($this->utils->isIslandoraType($node->getEntityTypeId(), $node->bundle())) {
         return AccessResult::allowed();
       }
     }

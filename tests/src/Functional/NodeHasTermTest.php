@@ -78,17 +78,6 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
       'node_has_term',
       [
         'uri' => 'http://purl.org/coar/resource_type/c_c513,http://pcdm.org/use#PreservationMasterFile',
-      ]
-    );
-    $condition->setContextValue('node', $node);
-    $this->assertFalse($condition->execute(), "Condition should fail if node does not have both terms");
-
-    // Check for two tags this time.
-    // Node still only has one.
-    $condition = $condition_manager->createInstance(
-      'node_has_term',
-      [
-        'uri' => 'http://purl.org/coar/resource_type/c_c513,http://pcdm.org/use#PreservationMasterFile',
         'logic' => 'or',
       ]
     );

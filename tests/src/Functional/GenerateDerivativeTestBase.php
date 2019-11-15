@@ -48,7 +48,7 @@ abstract class GenerateDerivativeTestBase extends IslandoraFunctionalTestBase {
     $this->node = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => $this->testType->id(),
       'title' => 'Test Node',
-      'field_tags' => [$this->imageTerm->id()],
+      'field_model' => [$this->imageTerm->id()],
     ]);
     $this->node->save();
   }

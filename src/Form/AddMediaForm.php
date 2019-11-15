@@ -2,11 +2,13 @@
 
 namespace Drupal\islandora\Form;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\islandora\IslandoraUtils;
 use Drupal\islandora\MediaSource\MediaSourceService;
@@ -14,6 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Drupal\Core\Utility\Token;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Routing\RouteMatch;
 
 /**
  * Form that lets users upload one or more files as children to a resource node.
@@ -26,6 +29,13 @@ class AddMediaForm extends FormBase {
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
+
+  /**
+   * Entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
 
   /**
    * Media source service.
@@ -88,6 +98,7 @@ class AddMediaForm extends FormBase {
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
+    EntityFieldManagerInterface $entity_field_manager,
     IslandoraUtils $utils,
     MediaSourceService $media_source,
     ImmutableConfig $config,
@@ -97,6 +108,7 @@ class AddMediaForm extends FormBase {
     Connection $database
   ) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityFieldManager = $entity_field_manager;
     $this->utils = $utils;
     $this->mediaSource = $media_source;
     $this->config = $config;
@@ -112,6 +124,7 @@ class AddMediaForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
+      $container->get('entity_field.manager'),
       $container->get('islandora.utils'),
       $container->get('islandora.media_source_service'),
       $container->get('config.factory')->get('islandora.settings'),
@@ -241,6 +254,48 @@ class AddMediaForm extends FormBase {
       $transaction->rollBack();
       throw new HttpException(500, $e->getMessage());
     }
+  }
+
+  /**
+   * Check if the user can create any "Islandora" media.
+   *
+   * @param \Drupal\Core\Routing\RouteMatch $route_match
+   *   The current routing match.
+   *
+   * @return \Drupal\Core\Access\AccessResultAllowed|\Drupal\Core\Access\AccessResultForbidden
+   *   Whether we can or can't show the "thing".
+   */
+  public function access(RouteMatch $route_match) {
+    if ($this->utils->canCreateIslandoraEntity('media', 'media_type')) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
+  }
+
+  /**
+   * Utility function to check if user can create 'Islandora' entity types.
+   */
+  protected function canCreateIslandoraEntity($entity_type, $bundle_type) {
+    $bundles = $this->entityTypeManager->getStorage($bundle_type)->loadMultiple();
+    $access_control_handler = $this->entityTypeManager->getAccessControlHandler($entity_type);
+
+    $allowed = [];
+    foreach (array_keys($bundles) as $bundle) {
+      // Skip bundles that aren't 'Islandora' types.
+      if (!$this->utils->isIslandoraType($entity_type, $bundle)) {
+        continue;
+      }
+
+      $access = $access_control_handler->createAccess($bundle, NULL, [], TRUE);
+      if (!$access->isAllowed()) {
+        continue;
+      }
+
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
 }

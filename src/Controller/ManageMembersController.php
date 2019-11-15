@@ -7,6 +7,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Entity\Controller\EntityController;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Link;
+use Drupal\islandora\IslandoraUtils;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -37,6 +38,13 @@ class ManageMembersController extends EntityController {
   protected $renderer;
 
   /**
+   * Islandora Utils.
+   *
+   * @var \Drupal\islandora\IslandoraUtils
+   */
+  protected $utils;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -45,15 +53,19 @@ class ManageMembersController extends EntityController {
    *   The entity field manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
+   * @param \Drupal\islandora\IslandoraUtils $utils
+   *   Islandora utils.
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
-    EntityFieldManagerInterface $entity_field_manager,
-    RendererInterface $renderer
+    EntityFieldManager $entity_field_manager,
+    RendererInterface $renderer,
+    IslandoraUtils $utils
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->renderer = $renderer;
+    $this->utils = $utils;
   }
 
   /**
@@ -63,7 +75,8 @@ class ManageMembersController extends EntityController {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('islandora.utils')
     );
   }
 
@@ -74,20 +87,21 @@ class ManageMembersController extends EntityController {
    *   Node you want to add a member to.
    */
   public function addToNodePage(NodeInterface $node) {
+    $field = IslandoraUtils::MEMBER_OF_FIELD;
     return $this->generateTypeList(
       'node',
       'node_type',
       'node.add',
       'node.type_add',
-      $node,
-      'field_member_of'
+      $field,
+      ['query' => ["edit[$field][widget][0][target_id]" => $node->id()]]
     );
   }
 
   /**
    * Renders a list of content types to add as members.
    */
-  protected function generateTypeList($entity_type, $bundle_type, $entity_add_form, $bundle_add_form, NodeInterface $node, $field) {
+  protected function generateTypeList($entity_type, $bundle_type, $entity_add_form, $bundle_add_form, $field, array $url_options) {
     $type_definition = $this->entityTypeManager->getDefinition($bundle_type);
 
     $build = [
@@ -115,7 +129,7 @@ class ManageMembersController extends EntityController {
           $bundle->label(),
           $entity_add_form,
           [$bundle_type => $bundle->id()],
-          ['query' => ["edit[$field][widget][0][target_id]" => $node->id()]]
+          $url_options
         ),
       ];
     }
