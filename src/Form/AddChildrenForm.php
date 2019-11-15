@@ -4,6 +4,7 @@ namespace Drupal\islandora\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Routing\RouteMatch;
 use Drupal\islandora\IslandoraUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -174,6 +175,26 @@ class AddChildrenForm extends AddMediaForm {
     return new RedirectResponse(
       Url::fromRoute('view.manage_members.page_1', ['node' => $this->parentId])->toString()
     );
+  }
+
+  /**
+   * Check if the user can create any "Islandora" nodes and media.
+   *
+   * @param \Drupal\Core\Routing\RouteMatch $route_match
+   *   The current routing match.
+   *
+   * @return \Drupal\Core\Access\AccessResultAllowed|\Drupal\Core\Access\AccessResultForbidden
+   *   Whether we can or can't show the "thing".
+   */
+  public function access(RouteMatch $route_match) {
+    $can_create_media = $this->utils->canCreateIslandoraEntity('media', 'media_type');
+    $can_create_node = $this->utils->canCreateIslandoraEntity('node', 'node_type');
+
+    if ($can_create_media && $can_create_node) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
   }
 
 }

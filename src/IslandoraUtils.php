@@ -597,4 +597,37 @@ class IslandoraUtils {
     }
   }
 
+  /**
+   * Util function for access handlers .
+   *
+   * @param string $entity_type
+   *   Entity type such as 'node', 'media', 'taxonomy_term', etc..
+   * @param string $bundle_type
+   *   Bundle type such as 'node_type', 'media_type', 'vocabulary', etc...
+   *
+   * @return bool
+   *   If user can create _at least one_ of the 'Islandora' types requested.
+   */
+  public function canCreateIslandoraEntity($entity_type, $bundle_type) {
+    $bundles = $this->entityTypeManager->getStorage($bundle_type)->loadMultiple();
+    $access_control_handler = $this->entityTypeManager->getAccessControlHandler($entity_type);
+
+    $allowed = [];
+    foreach (array_keys($bundles) as $bundle) {
+      // Skip bundles that aren't 'Islandora' types.
+      if (!$this->isIslandoraType($entity_type, $bundle)) {
+        continue;
+      }
+
+      $access = $access_control_handler->createAccess($bundle, NULL, [], TRUE);
+      if (!$access->isAllowed()) {
+        continue;
+      }
+
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 }

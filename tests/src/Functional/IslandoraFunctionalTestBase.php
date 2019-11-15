@@ -176,13 +176,13 @@ EOD;
     ]);
     $this->testType->save();
     $this->createEntityReferenceField('node', 'test_type', 'field_member_of', 'Member Of', 'node', 'default', [], 2);
-    $this->createEntityReferenceField('node', 'test_type', 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
+    $this->createEntityReferenceField('node', 'test_type', 'field_model', 'Model', 'taxonomy_term', 'default', [], 2);
 
     // Create a media type.
     $this->testMediaType = $this->createMediaType('file', ['id' => 'test_media_type']);
     $this->testMediaType->save();
     $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_media_of', 'Media Of', 'node', 'default', [], 2);
-    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_tags', 'Tags', 'taxonomy_term', 'default', [], 2);
+    $this->createEntityReferenceField('media', $this->testMediaType->id(), 'field_media_use', 'Tags', 'taxonomy_term', 'default', [], 2);
 
     // Copy over the rest of the config from yml files.
     $source = new FileStorage(__DIR__ . '/../../fixtures/config');

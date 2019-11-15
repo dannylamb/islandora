@@ -1,12 +1,24 @@
+islandora.upload_media:
+  route_name: islandora.upload_media
+  title: Upload Media
+  appears_on:
+    - view.media_of.page_1
+
 islandora.add_media_to_node:
-  route_name: islandora.add_media_form
+  route_name: islandora.add_media_to_node_page
   title: Add Media
   appears_on:
     - view.media_of.page_1
 
-islandora.add_children_to_node:
-  route_name: islandora.add_children_form
-  title: Add Children
+islandora.upload_children:
+  route_name: islandora.upload_children
+  title: Upload Children
+  appears_on:
+    - view.manage_members.page_1
+
+islandora.add_member_to_node:
+  route_name: islandora.add_member_to_node_page
+  title: Add Child
   appears_on:
     - view.manage_members.page_1
 
@@ -15,3 +27,9 @@ islandora.reorder_children:
   title: Reorder Children
   appears_on:
     - view.manage_members.page_1
+
+islandora.add_collection:
+  route_name: islandora.add_collection
+  title: Add Collection
+  appears_on:
+    - view.collections.page_1

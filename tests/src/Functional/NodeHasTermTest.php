@@ -33,7 +33,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
     $node = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type',
       'title' => 'Test Node',
-      'field_tags' => [$this->imageTerm->id()],
+      'field_model' => [$this->imageTerm->id()],
     ]);
 
     // Create and execute the condition.
@@ -60,7 +60,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
     $node = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type',
       'title' => 'Test Node',
-      'field_tags' => [$this->preservationMasterTerm->id()],
+      'field_model' => [$this->preservationMasterTerm->id()],
     ]);
 
     $condition->setContextValue('node', $node);
@@ -81,7 +81,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
     $node = $this->container->get('entity_type.manager')->getStorage('node')->create([
       'type' => 'test_type',
       'title' => 'Test Node',
-      'field_tags' => [$this->imageTerm->id(), $this->preservationMasterTerm->id()],
+      'field_model' => [$this->imageTerm->id(), $this->preservationMasterTerm->id()],
     ]);
     $condition->setContextValue('node', $node);
     $this->assertTrue($condition->execute(), "Condition should pass if node has both terms");

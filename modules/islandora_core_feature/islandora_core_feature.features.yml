@@ -14,3 +14,4 @@ required:
   - field.storage.node.field_model
   - field.storage.node.field_weight
   - field.storage.taxonomy_term.field_external_uri
+  - views.view.collections
