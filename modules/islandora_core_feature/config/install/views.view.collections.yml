@@ -1,8 +1,6 @@
 langcode: en
 status: true
 dependencies:
-  config:
-    - core.entity_view_mode.node.teaser
   module:
     - media
     - node
@@ -79,6 +77,9 @@ display:
           description: ''
           columns:
             title: title
+            field_member_of: field_member_of
+            field_file_size: field_file_size
+            operations: operations
           info:
             title:
               sortable: false
@@ -87,12 +88,34 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
+            field_member_of:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            field_file_size:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            operations:
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
           default: '-1'
           empty_table: false
       row:
-        type: 'entity:node'
+        type: fields
         options:
-          view_mode: teaser
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: false
       fields:
         title:
           id: title
