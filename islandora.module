@@ -253,6 +253,16 @@ function islandora_jsonld_alter_normalized_array(EntityInterface $entity, array 
   $context_manager = \Drupal::service('context.manager');
   foreach ($context_manager->getActiveReactions('\Drupal\islandora\ContextReaction\NormalizerAlterReaction') as $reaction) {
     $reaction->execute($entity, $normalized, $context);
+    foreach ($context_manager->getActiveContexts() as $context_config) {
+      try {
+        if ($context_config->getReaction($reaction->getPluginId())) {
+          $context['cacheability']->addCacheTags($context_config->getCacheTags());
+        };
+      }
+      catch (Drupal\Component\Plugin\Exception\PluginNotFoundException $e) {
+        // Squash :(
+      }
+    }
   }
 }
 
