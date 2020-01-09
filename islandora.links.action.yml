@@ -27,9 +27,3 @@ islandora.reorder_children:
   title: Reorder Children
   appears_on:
     - view.manage_members.page_1
-
-islandora.add_collection:
-  route_name: islandora.add_collection
-  title: Add Collection
-  appears_on:
-    - view.collections.page_1

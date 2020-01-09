@@ -59,16 +59,6 @@ islandora.upload_media:
   requirements:
     _custom_access: '\Drupal\islandora\Form\AddMediaForm::access'
 
-islandora.add_collection:
-  path: '/collection/add'
-  defaults:
-    _controller: '\Drupal\islandora\Controller\AddCollectionController::addCollectionPage'
-    _title: 'Add Collection'
-  options:
-    _admin_route: 'true'
-  requirements:
-    _custom_access: '\Drupal\islandora\Controller\AddCollectionController::access'
-
 islandora.media_source_update:
   path: '/media/{media}/source'
   defaults:
@@ -83,7 +73,6 @@ islandora.media_source_put_to_node:
   path: '/node/{node}/media/{media_type}/{taxonomy_term}'
   defaults:
     _controller: '\Drupal\islandora\Controller\MediaSourceController::putToNode'
-
   methods: [PUT]
   requirements:
     _custom_access: '\Drupal\islandora\Controller\MediaSourceController::putToNodeAccess'
