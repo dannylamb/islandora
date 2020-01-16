@@ -634,7 +634,7 @@ class IslandoraUtils {
         return isset($fields[self::EXTERNAL_URI_FIELD]);
 
       default:
-        return isset($fields[self::MEMBER_OF_FIELD]) && isset($fields[self::MODEL_FIELD]);
+        return isset($fields[self::MEMBER_OF_FIELD]);
     }
   }
 
