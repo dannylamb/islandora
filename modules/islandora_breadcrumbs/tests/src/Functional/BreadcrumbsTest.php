@@ -86,7 +86,7 @@ class BreadcrumbsTest extends IslandoraFunctionalTestBase {
     ]);
     $this->nodeD->set('field_member_of', [$this->nodeC->id()]);
     $this->nodeD->save();
-    
+
     $this->drupalPlaceBlock(
       'system_breadcrumb_block',
       [
