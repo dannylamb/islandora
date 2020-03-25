@@ -101,9 +101,10 @@ class BreadcrumbsTest extends IslandoraFunctionalTestBase {
    */
   public function testDefaults() {
     $breadcrumbs = [
-      $this->nodeC->toUrl()->toString() => $this->nodeC->label(),
-      $this->nodeB->toUrl()->toString() => $this->nodeB->label(),
+      Url::fromRoute('<front>')->toString() => 'Home',
       $this->nodeA->toUrl()->toString() => $this->nodeA->label(),
+      $this->nodeB->toUrl()->toString() => $this->nodeB->label(),
+      $this->nodeC->toUrl()->toString() => $this->nodeC->label(),
     ];
     $this->assertBreadcrumb($this->nodeD->toUrl()->toString(), $breadcrumbs);
 
