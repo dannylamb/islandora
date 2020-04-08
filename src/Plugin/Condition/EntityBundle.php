@@ -20,7 +20,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class IslandoraEntityBundle extends ConditionPluginBase {
+class EntityBundle extends ConditionPluginBase {
 
   /**
    * {@inheritdoc}

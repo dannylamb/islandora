@@ -52,3 +52,31 @@ function islandora_update_8001(&$sandbox) {
     $action->delete();
   }
 }
+
+/**
+ * Replaces 'entity_bundle' conditions with 'islandora_entity_bundle'.
+ *
+ * This prevents plugin naming collisions between islandora and ctools.
+ */
+function islandora_update_8002(&$sandbox) {
+
+  // Find contexts that have the old 'entity_bundle' condition.
+  $results = \Drupal::entityQuery('context')->condition('conditions.entity_bundle.id', 'entity_bundle')->execute();
+
+  if (empty($results)) {
+    return;
+  }
+
+  // Set each context config to use 'islandora_entity_bundle' instead.
+  foreach ($results as $result) {
+    $config = \Drupal::configFactory()->getEditable("context.context.$result");
+    $condition = $config->get('conditions.entity_bundle');
+    $condition['id'] = 'islandora_entity_bundle';
+    $config->set('conditions.islandora_entity_bundle', $condition);
+    $config->clear('conditions.entity_bundle');
+    $config->save();
+  }
+
+  // Force drupal to reload the config. 
+  \Drupal::service('plugin.manager.context')->clearCachedDefinitions();
+}
