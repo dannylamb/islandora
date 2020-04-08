@@ -7,12 +7,12 @@ namespace Drupal\Tests\islandora\Functional;
  *
  * @group islandora
  */
-class IslandoraEntityBundleTest extends IslandoraFunctionalTestBase {
+class EntityBundleTest extends IslandoraFunctionalTestBase {
 
   /**
-   * @covers \Drupal\islandora\Plugin\Condition\IslandoraEntityBundle::buildConfigurationForm
-   * @covers \Drupal\islandora\Plugin\Condition\IslandoraEntityBundle::submitConfigurationForm
-   * @covers \Drupal\islandora\Plugin\Condition\IslandoraEntityBundle::evaluate
+   * @covers \Drupal\islandora\Plugin\Condition\EntityBundle::buildConfigurationForm
+   * @covers \Drupal\islandora\Plugin\Condition\EntityBundle::submitConfigurationForm
+   * @covers \Drupal\islandora\Plugin\Condition\EntityBundle::evaluate
    */
   public function testEntityBundleType() {
     // Create a test user.
