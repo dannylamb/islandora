@@ -78,5 +78,5 @@ function islandora_update_8002(&$sandbox) {
   }
 
   // Force drupal to reload the config.
-  \Drupal::service('plugin.manager.context')->clearCachedDefinitions();
+  \Drupal::service('plugin.manager.condition')->clearCachedDefinitions();
 }
