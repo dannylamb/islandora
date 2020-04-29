@@ -58,7 +58,7 @@ class ManageMembersController extends EntityController {
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
-    EntityFieldManager $entity_field_manager,
+    EntityFieldManagerInterface $entity_field_manager,
     RendererInterface $renderer,
     IslandoraUtils $utils
   ) {
