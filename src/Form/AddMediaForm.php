@@ -185,7 +185,7 @@ class AddMediaForm extends FormBase {
    * @param array $form
    *   Form array.
    */
-  protected function addMediaUseTerms(&array $form) {
+  protected function addMediaUseTerms(array &$form) {
     $options = [];
     $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadTree('islandora_media_use', 0, NULL, TRUE);
     foreach ($terms as $term) {
