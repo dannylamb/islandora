@@ -155,19 +155,7 @@ class AddChildrenForm extends AddMediaForm {
       }
     }
 
-    // Media use checkboxes.
-    $options = [];
-    $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadTree('islandora_media_use', 0, NULL, TRUE);
-    foreach ($terms as $term) {
-      $options[$term->id()] = $term->getName();
-    };
-    $form['use'] = [
-      '#type' => 'checkboxes',
-      '#title' => $this->t('Usage'),
-      '#description' => $this->t("Defined by Portland Common Data Model: Use Extension https://pcdm.org/2015/05/12/use. ''Original File'' will trigger creation of derivatives."),
-      '#options' => $options,
-      '#required' => TRUE,
-    ];
+    $this->addMediaUseTerms($form);
 
     $form['submit'] = [
       '#type' => 'submit',

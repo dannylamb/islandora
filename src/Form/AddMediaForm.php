@@ -169,7 +169,23 @@ class AddMediaForm extends FormBase {
       '#multiple' => TRUE,
     ];
 
-    // Media use checkboxes.
+    $this->addMediaUseTerms($form);
+
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Submit'),
+    ];
+
+    return $form;
+  }
+
+  /**
+   * Helper function to add media use checkboxes to the form.
+   *
+   * @param array $form
+   *   Form array.
+   */
+  protected function addMediaUseTerms(&array $form) {
     $options = [];
     $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadTree('islandora_media_use', 0, NULL, TRUE);
     foreach ($terms as $term) {
@@ -182,13 +198,6 @@ class AddMediaForm extends FormBase {
       '#options' => $options,
       '#required' => TRUE,
     ];
-
-    $form['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Submit'),
-    ];
-
-    return $form;
   }
 
   /**
