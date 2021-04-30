@@ -35,7 +35,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
       ->create([
         'type' => 'test_type',
         'title' => 'Test Node',
-        'field_tags' => [$this->imageTerm->id()],
+        'field_model' => [$this->imageTerm->id()],
       ]);
 
     // Create and execute the condition.
@@ -66,7 +66,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
       ->create([
         'type' => 'test_type',
         'title' => 'Test Node',
-        'field_tags' => [$this->preservationMasterTerm->id()],
+        'field_model' => [$this->preservationMasterTerm->id()],
       ]);
 
     $condition->setContextValue('node', $node);
@@ -90,7 +90,7 @@ class NodeHasTermTest extends IslandoraFunctionalTestBase {
       ->create([
         'type' => 'test_type',
         'title' => 'Test Node',
-        'field_tags' => [
+        'field_model' => [
           $this->imageTerm->id(),
           $this->preservationMasterTerm->id(),
         ],
