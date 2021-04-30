@@ -17,7 +17,7 @@ islandora.settings:
     upload_form_location:
       type: string
       label: 'Upload Form Location'
-    upload_form_allowed_extensions:
+    upload_form_allowed_mimetypes:
       type: string
       label: 'Upload Form Allowed Extensions'
     gemini_url:
