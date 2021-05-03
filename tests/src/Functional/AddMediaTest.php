@@ -10,8 +10,8 @@ namespace Drupal\Tests\islandora\Functional;
 class AddMediaTest extends IslandoraFunctionalTestBase {
 
   /**
-   * @covers \Drupal\islandora\Controller\AddCollectionController::addToNodePage
-   * @covers \Drupal\islandora\Controller\AddCollectionController::access
+   * @covers \Drupal\islandora\Controller\ManageMediaController::addToNodePage
+   * @covers \Drupal\islandora\Controller\ManageMediaController::access
    * @covers \Drupal\islandora\IslandoraUtils::isIslandoraType
    */
   public function testAddMedia() {
