@@ -337,4 +337,3 @@ class IslandoraSettingsForm extends ConfigFormBase {
   }
 
 }
-
