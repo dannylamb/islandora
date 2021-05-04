@@ -26,7 +26,7 @@ class AddChildTest extends IslandoraFunctionalTestBase {
 
   /**
    * @covers \Drupal\islandora\Controller\ManageMembersController::addToNodePage
-   * @covers \Drupal\islandora\Controller\ManageMembersController::access
+   * @covers \Drupal\islandora\Controller\ManageMediaController::access
    * @covers \Drupal\islandora\IslandoraUtils::isIslandoraType
    */
   public function testAddChild() {
