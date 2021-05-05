@@ -3,20 +3,10 @@
 namespace Drupal\islandora\Form;
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Routing\RouteMatch;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Utility\Token;
 use Drupal\islandora\IslandoraUtils;
-use Drupal\islandora\MediaSource\MediaSourceService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -24,58 +14,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  * Form that lets users upload one or more files as children to a resource node.
  */
 class AddChildrenForm extends AddMediaForm {
-
-  /**
-   * To list the available bundle types.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeBundleInfo
-   */
-  protected $entityTypeBundleInfo;
-
-  /**
-   * Constructs a new IslandoraUploadForm object.
-   */
-  public function __construct(
-    EntityTypeManagerInterface $entity_type_manager,
-    EntityFieldManagerInterface $entity_field_manager,
-    IslandoraUtils $utils,
-    MediaSourceService $media_source,
-    ImmutableConfig $config,
-    Token $token,
-    AccountInterface $account,
-    RouteMatchInterface $route_match,
-    Connection $database,
-    EntityTypeBundleInfoInterface $entity_type_bundle_info
-  ) {
-    $this->entityTypeManager = $entity_type_manager;
-    $this->entityFieldManager = $entity_field_manager;
-    $this->utils = $utils;
-    $this->mediaSource = $media_source;
-    $this->config = $config;
-    $this->token = $token;
-    $this->account = $account;
-    $this->routeMatch = $route_match;
-    $this->database = $database;
-    $this->entityTypeBundleInfo = $entity_type_bundle_info;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity_type.manager'),
-      $container->get('entity_field.manager'),
-      $container->get('islandora.utils'),
-      $container->get('islandora.media_source_service'),
-      $container->get('config.factory')->get('islandora.settings'),
-      $container->get('token'),
-      $container->get('current_user'),
-      $container->get('current_route_match'),
-      $container->get('database'),
-      $container->get('entity_type.bundle.info')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -111,9 +49,7 @@ class AddChildrenForm extends AddMediaForm {
     // Drop down to select content type.
     $options = [];
     foreach ($this->entityTypeBundleInfo->getBundleInfo('node') as $bundle_id => $bundle) {
-      if ($this->utils->isIslandoraType('node', $bundle_id)) {
-        $options[$bundle_id] = $bundle['label'];
-      }
+      $options[$bundle_id] = $bundle['label'];
     };
     $form['bundle'] = [
       '#type' => 'select',
@@ -123,7 +59,7 @@ class AddChildrenForm extends AddMediaForm {
       '#required' => TRUE,
     ];
 
-    // Filter out bundles that don't have field_model.
+    // Find bundles that don't have field_model.
     $bundles_with_model = [];
     foreach (array_keys($options) as $bundle) {
       $fields = $this->entityFieldManager->getFieldDefinitions('node', $bundle);
@@ -155,7 +91,7 @@ class AddChildrenForm extends AddMediaForm {
       }
     }
 
-    $this->addMediaUseTerms($form);
+    $this->addMediaType($form);
 
     $form['submit'] = [
       '#type' => 'submit',
@@ -177,6 +113,7 @@ class AddChildrenForm extends AddMediaForm {
     $fids = $form_state->getValue('upload');
     $bundle = $form_state->getValue('bundle');
     $model_tid = $form_state->getValue('model');
+    $media_type = $form_state->getValue('media_type');
     $use_tids = $form_state->getValue('use');
 
     // Create an operation for each uploaded file.
@@ -184,7 +121,7 @@ class AddChildrenForm extends AddMediaForm {
     foreach ($fids as $fid) {
       $operations[] = [
         [$this, 'buildNodeForFile'],
-        [$fid, $parent_id, $bundle, $model_tid, $use_tids],
+        [$fid, $parent_id, $bundle, $model_tid, $media_type, $use_tids],
       ];
     }
 
@@ -210,6 +147,8 @@ class AddChildrenForm extends AddMediaForm {
    *   Content type to create.
    * @param int|null $model_tid
    *   Id of the Model term.
+   * @param string $media_type
+   *   Media type to create.
    * @param int[] $use_tids
    *   Ids of the Media Use terms.
    * @param array $context
@@ -217,7 +156,7 @@ class AddChildrenForm extends AddMediaForm {
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function buildNodeForFile($fid, $parent_id, $bundle, $model_tid, array $use_tids, array &$context) {
+  public function buildNodeForFile($fid, $parent_id, $bundle, $model_tid, $media_type, array $use_tids, array &$context) {
     // Since we make 3 different entities, do this in a transaction.
     $transaction = $this->database->startTransaction();
 
@@ -229,7 +168,6 @@ class AddChildrenForm extends AddMediaForm {
 
       // Make the resource node.
       $parent = $this->entityTypeManager->getStorage('node')->load($parent_id);
-      $media_type = $this->guessMediaTypeFromMimetype($file->getMimetype());
       $source_field = $this->mediaSource->getSourceFieldName($media_type);
 
       $node = $this->entityTypeManager->getStorage('node')->create([
@@ -252,9 +190,11 @@ class AddChildrenForm extends AddMediaForm {
         'bundle' => $media_type,
         $source_field => $fid,
         'name' => $file->getFileName(),
-        IslandoraUtils::MEDIA_USAGE_FIELD => $this->entityTypeManager->getStorage('taxonomy_term')->loadMultiple($use_tids),
         IslandoraUtils::MEDIA_OF_FIELD => $node,
       ]);
+      if (!empty($use_tids)) {
+        $media->set(IslandoraUtils::MEDIA_USAGE_FIELD, $this->entityTypeManager->getStorage('taxonomy_term')->loadMultiple($use_tids));
+      }
       $media->save();
     }
     catch (HttpException $e) {

@@ -8,6 +8,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -96,6 +97,13 @@ class AddMediaForm extends FormBase {
   protected $database;
 
   /**
+   * To list the available bundle types.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfo
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
    * Constructs a new IslandoraUploadForm object.
    */
   public function __construct(
@@ -107,7 +115,8 @@ class AddMediaForm extends FormBase {
     Token $token,
     AccountInterface $account,
     RouteMatchInterface $route_match,
-    Connection $database
+    Connection $database,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
@@ -118,6 +127,7 @@ class AddMediaForm extends FormBase {
     $this->account = $account;
     $this->routeMatch = $route_match;
     $this->database = $database;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
   }
 
   /**
@@ -133,7 +143,8 @@ class AddMediaForm extends FormBase {
       $container->get('token'),
       $container->get('current_user'),
       $container->get('current_route_match'),
-      $container->get('database')
+      $container->get('database'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
@@ -169,7 +180,7 @@ class AddMediaForm extends FormBase {
       '#multiple' => TRUE,
     ];
 
-    $this->addMediaUseTerms($form);
+    $this->addMediaType($form);
 
     $form['submit'] = [
       '#type' => 'submit',
@@ -185,7 +196,31 @@ class AddMediaForm extends FormBase {
    * @param array $form
    *   Form array.
    */
-  protected function addMediaUseTerms(array &$form) {
+  protected function addMediaType(array &$form) {
+    // Drop down to select media type.
+    $options = [];
+    foreach ($this->entityTypeBundleInfo->getBundleInfo('media') as $bundle_id => $bundle) {
+      $options[$bundle_id] = $bundle['label'];
+    };
+    $form['media_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Media type'),
+      '#description' => $this->t('Each media created will have this type.'),
+      '#options' => $options,
+      '#required' => TRUE,
+    ];
+
+    // Find bundles that don't have field_media_use.
+    $bundles_with_media_use = [];
+    foreach (array_keys($options) as $bundle) {
+      $fields = $this->entityFieldManager->getFieldDefinitions('media', $bundle);
+      if (isset($fields[IslandoraUtils::MEDIA_USAGE_FIELD])) {
+        $bundles_with_media_use[] = $bundle;
+      }
+    }
+
+    // Media use drop down.
+    // Only shows up if the selected bundle has field_media_use.
     $options = [];
     $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadTree('islandora_media_use', 0, NULL, TRUE);
     foreach ($terms as $term) {
@@ -196,8 +231,18 @@ class AddMediaForm extends FormBase {
       '#title' => $this->t('Usage'),
       '#description' => $this->t("Defined by Portland Common Data Model: Use Extension https://pcdm.org/2015/05/12/use. ''Original File'' will trigger creation of derivatives."),
       '#options' => $options,
-      '#required' => TRUE,
+      '#states' => [
+        'visible' => [],
+        'required' => [],
+      ],
     ];
+
+    if (!empty($bundles_with_media_use)) {
+      foreach ($bundles_with_media_use as $bundle) {
+        $form['use']['#states']['visible'][] = [':input[name="media_type"]' => ['value' => $bundle]];
+        $form['use']['#states']['required'][] = [':input[name="media_type"]' => ['value' => $bundle]];
+      }
+    }
   }
 
   /**
@@ -210,12 +255,16 @@ class AddMediaForm extends FormBase {
 
     // Hack values out of the form.
     $fids = $form_state->getValue('upload');
+    $media_type = $form_state->getValue('media_type');
     $tids = $form_state->getValue('use');
 
     // Create an operation for each uploaded file.
     $operations = [];
     foreach ($fids as $fid) {
-      $operations[] = [[$this, 'buildMediaForFile'], [$fid, $parent_id, $tids]];
+      $operations[] = [
+        [$this, 'buildMediaForFile'],
+        [$fid, $parent_id, $media_type, $tids],
+      ];
     }
 
     // Set up and trigger the batch.
@@ -236,6 +285,8 @@ class AddMediaForm extends FormBase {
    *   Uploaded file id.
    * @param int $parent_id
    *   Id of the parent node.
+   * @param string $media_type
+   *   Meida type for the new media.
    * @param int[] $tids
    *   Array of Media Use term ids.
    * @param array $context
@@ -243,7 +294,7 @@ class AddMediaForm extends FormBase {
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    */
-  public function buildMediaForFile($fid, $parent_id, array $tids, array &$context) {
+  public function buildMediaForFile($fid, $parent_id, $media_type, array $tids, array &$context) {
     // Since we make 2 different entities, do this in a transaction.
     $transaction = $this->database->startTransaction();
 
@@ -256,7 +307,6 @@ class AddMediaForm extends FormBase {
       // Make the media and assign it to the parent resource node.
       $parent = $this->entityTypeManager->getStorage('node')->load($parent_id);
 
-      $media_type = $this->guessMediaTypeFromMimetype($file->getMimetype());
       $source_field = $this->mediaSource->getSourceFieldName($media_type);
 
       $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadMultiple($tids);
@@ -265,9 +315,11 @@ class AddMediaForm extends FormBase {
         'uid' => $this->account->id(),
         $source_field => $fid,
         'name' => $file->getFileName(),
-        IslandoraUtils::MEDIA_USAGE_FIELD => $terms,
         IslandoraUtils::MEDIA_OF_FIELD => $parent,
       ]);
+      if ($media->hasField(IslandoraUtils::MEDIA_USAGE_FIELD)) {
+        $media->set(IslandoraUtils::MEDIA_USAGE_FIELD, $terms);
+      }
       $media->save();
     }
     catch (HttpException $e) {
@@ -277,36 +329,6 @@ class AddMediaForm extends FormBase {
     catch (\Exception $e) {
       $transaction->rollBack();
       throw new HttpException(500, $e->getMessage());
-    }
-  }
-
-  /**
-   * Sniffs media type from mimetype.
-   *
-   * @param string $mimetype
-   *   Mimetype.
-   *
-   * @return string
-   *   Id of media type.
-   */
-  protected function guessMediaTypeFromMimetype($mimetype) {
-    $exploded_mime = explode('/', $mimetype);
-    if ($exploded_mime[0] == 'image') {
-      if (in_array($exploded_mime[1], ['tiff', 'jp2'])) {
-        return 'file';
-      }
-      else {
-        return 'image';
-      }
-    }
-    elseif ($exploded_mime[0] == 'audio') {
-      return 'audio';
-    }
-    elseif ($exploded_mime[0] == 'video') {
-      return 'video';
-    }
-    else {
-      return 'file';
     }
   }
 
